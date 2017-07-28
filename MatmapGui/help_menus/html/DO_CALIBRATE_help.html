@@ -1,0 +1,111 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Calibrate Signal</title><meta name="generator" content="MATLAB 9.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-07-03"><meta name="DC.source" content="DO_CALIBRATE_help.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Calibrate Signal</h1><!--introduction--><p>Determine wether you want to calibrate the signals. If this checkbox is on, all loaded files will be calibrated.</p><p>To calibrate, a calfile or 'File Numbers for calibration' must be provided. In the latter case, matmap creates a 'calibrate.cal8' file in the current folder and uses that file. If both (.cal8 file and 'File Numbers for calibration') are provided, matmap only uses the provided calfile and does nothing with the provided 'File Numbers for calibration'.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Notes</a></li></ul></div><h2 id="1">Notes</h2><div><ul><li>if Calibrate Signal is ON, either a .cal8 file must be specified or at least one file number for calibration must be given. In the latter case, a .cal8 file is made of the specified file(s) and those files are used to create .cal8 file.</li><li>the calibration itself takes place in the ioiReadAC2.m file. There one finds something similar to these lines:</li></ul></div><pre class="language-matlab">cal=ioReadCal8.m;
+<span class="keyword">if</span> isfield(options, <span class="string">'scalemap'</span>) <span class="comment">% if there is a .cal8 file</span>
+    <span class="keyword">for</span> i=1:numleads
+        <span class="keyword">for</span> j=1:numframes
+            cal = options.scalemap(i,gaininfo(i,j)+1);
+            potval(i,j) = potval(i,j)*cal; <span class="comment">%potvals are the measured potential values stored in the ts structure</span>
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre><div><ul><li>the calibration file is created from the specified .ac2 files using the ioWriteCal8.m file.</li></ul></div><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2017a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Calibrate Signal
+% Determine wether you want to calibrate the signals. If this checkbox is
+% on, all loaded files will be calibrated.
+%
+% To calibrate, a calfile or 'File Numbers for calibration' must be provided. In the
+% latter case, matmap creates a 'calibrate.cal8' file in the current
+% folder and uses that file. If both (.cal8 file and 'File Numbers for calibration') are provided, matmap only uses the provided calfile and does
+% nothing with the provided 'File Numbers for calibration'.
+
+%% Notes
+%
+% * if Calibrate Signal is ON, either a .cal8 file must be specified or at
+% least one file number for calibration must be given. In the latter case,
+% a .cal8 file is made of the specified file(s) and those files are used to
+% create .cal8 file.
+% * the calibration itself takes place in the ioiReadAC2.m file. There one
+% finds something similar to these lines:
+%
+%   cal=ioReadCal8.m;
+%   if isfield(options, 'scalemap') % if there is a .cal8 file
+%       for i=1:numleads
+%           for j=1:numframes
+%               cal = options.scalemap(i,gaininfo(i,j)+1);
+%               potval(i,j) = potval(i,j)*cal; %potvals are the measured potential values stored in the ts structure
+%           end
+%       end      
+%   end
+%
+% * the calibration file is created from the specified .ac2 files using the
+% ioWriteCal8.m file.
+##### SOURCE END #####
+--></body></html>

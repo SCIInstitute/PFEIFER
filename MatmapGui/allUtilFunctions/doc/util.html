@@ -1,0 +1,269 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <meta
+ content="HTML Tidy for Mac OS X (vers 1st December 2002), see www.w3.org"
+ name="generator">
+  <meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+  <meta name="Matmap Documentation" content="none">
+  <link href="site.css" type="text/css" rel="stylesheet">
+  <title>Matmap Documentation</title>
+  <style type="text/css"> </style>
+</head>
+<body>
+<div id="page_category">Matmap Documentation</div>
+<script type="text/javascript" src="site.js"></script>
+<script type="text/javascript">preContent();</script><big><big><span
+ style="font-weight: bold;"><br>
+</span></big></big><big><a href="index.html"><big>[documentation home]</big></a><br>
+<br>
+</big><big><big><big>Software Reference</big></big><br>
+</big><br>
+This documention page has been generated automatically at 04-Jun-2004<br>
+<big style="font-weight: bold;"><big><br>
+</big></big><big><big>Topics</big></big><big style="font-weight: bold;"><big><br>
+</big></big><font size="2" color="#FFFFFF"><a href="act.html">ACT - Contents of the act directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="bem.html">BEM - Contents of the bem directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="bin.html">BIN - Contents of the bin directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="doc.html">DOC - Contents of the doc directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="fids.html">FIDS - Contents of the fids directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="geom.html">GEOM - Contents of the geom directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="gui.html">GUI - Contents of the gui directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="io.html">IO - Contents of the io directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="mex.html">MEX - Contents of the mex directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="misc.html">MISC - Contents of the misc directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="msg.html">MSG - Contents of the msg directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="scirun.html">SCIRUN - Contents of the scirun directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="script.html">SCRIPT - Contents of the script directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="sig.html">SIG - Contents of the sig directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="tri.html">TRI - Contents of the tri directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="ts.html">TS - Contents of the ts directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="util.html">UTIL - Contents of the util directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="win.html">WIN - Contents of the win directory</a></font><br>
+
+
+<big style="font-weight: bold;"><big><br>
+<br>
+</big></big>
+<big><big> Documentation for the UTIL directory </big></big><br>Contents: automaticly generated doucmentation <br>Filename: util.doc <br>Creation date: 04-Jun-2004 <br><br><br> <big><big> Contents </big></big> <br><a href="#ref1">General Description</a><br><a href="#ref2">utilExpandFilenames</a><br><a href="#ref3">utilFileParts</a><br><a href="#ref4">utilFilterInput</a><br><a href="#ref5">utilGetFilenames</a><br><a href="#ref6">utilGetNewFilename</a><br><a href="#ref7">utilGetString</a><br><a href="#ref8">utilQuestionYN</a><br><a href="#ref9">utilQuestionYNA</a><br><a href="#ref10">utilSelectFilenames</a><br><a href="#ref11">utilStripNumber</a><br><br><br><a name="ref1"></a><big><big>General Description</big></big><br><pre>README.txt 
+
+UTIL directory
+
+This directory contains a set of function that help the user guide the input and output in scripts.
+The functions in this directory are meant to ease supplying filenames, selecting options and creating
+new filenames. At the moment most functions in this directory are concerned with supplying filenames
+from a by user supplied list and asking simple questions to the user.
+Of course, other general utilities are welcomed as well.
+
+</pre><a name="ref2"></a><br><big><big>utilExpandFilenames</big></big><br><br><pre>  FUNCTION files = utilExpandFilenames(filename,options)
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function decodes a filename (string) or a set of filenames (cellarray)
+&nbsp; It basicly decodes wildcards and returns the full list described by the
+&nbsp; string or cellarray. It also checks whether files exist. non-existing ones
+&nbsp; will be discarded.
+&nbsp;
+&nbsp; INPUT
+&nbsp; filename              the filename (string) or a set of filenames (cellarray)
+&nbsp; options		options structure
+&nbsp;
+&nbsp; OPTIONS
+&nbsp; .read			check filenames (default you not need to specify this one)
+&nbsp; .write		skip the check on filenames and do no wildcards
+&nbsp; .readtsdfc		add the contents of the tsdfc-files to the filelist if no tsdf files are supplied
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; files                 The encoded filenames in a cell array
+&nbsp;
+&nbsp; SEE ALSO utilGetFilenames
+</pre><a name="ref3"></a><br><big><big>utilFileParts</big></big><br><br><pre>  FUNCTION [filename,pathname,tsnumber] = utilFileParts(filename)
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; Disassemble a filename into its filename the pathname and the
+&nbsp; extension that was added. In the formalism it is allowed to
+&nbsp; specify a timeseries or surface by add '@<number>' to the end 
+&nbsp; of the filename. For instance data.geom@2, points to the second
+&nbsp; surface in the file
+&nbsp;
+&nbsp; INPUT
+&nbsp; filename      The complete filename as entered by the user
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; filename      The bare filename (with extension)
+&nbsp; pathname      The pathname
+&nbsp; tsnumber      The number specified behind @, include the @ (string)
+&nbsp;
+&nbsp; SEE ALSO utilExpandFilenames utilGetFilenames utilStripNumber
+</pre><a name="ref4"></a><br><big><big>utilFilterInput</big></big><br><br><pre>  FUNCTION [filenames,varargout] = utilFilterInput(varargin) 
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function stripts the supplied filenames form the first fields of input. The filename fields
+&nbsp; can be eihter a cellarray full of strings or a string with a filename. Filenames are recognised
+&nbsp; by the fact that they should contain more than only letters (a dot or a wildcard should be present).
+&nbsp; The first arguments are read until no string cellarray or a character is found.
+&nbsp;
+&nbsp; INPUT
+&nbsp; varargin           The cell array that the matlab command varargin returns.
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; filenames          Cell array with the filenames   
+&nbsp; varargout          The other remaining parameters, all inputs not assinged will be given
+&nbsp;                    an empty array
+&nbsp;
+&nbsp; EXAMPLE
+&nbsp;
+&nbsp; >  function result = myFunction(varargin)
+&nbsp; >  [filenames,options,string] = utilFilterInput(varargin);
+&nbsp;
+&nbsp; This will filter the input of the function and search for filenames
+&nbsp;
+&nbsp; SEE ALSO - 
+</pre><a name="ref5"></a><br><big><big>utilGetFilenames</big></big><br><br><pre>  FUNCTION fnames = utilGetFilenames(options)
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This utility returns a list of files the user supplied through the 
+&nbsp; keyboard. The list is returned as a cell array. The function also
+&nbsp; checks the integrity of the filenames. Only filenames that exists
+&nbsp; are returned to the user.
+&nbsp;
+&nbsp; INPUT
+</pre><a name="ref6"></a><br><big><big>utilGetNewFilename</big></big><br><br><pre>  FUNCTION filename = utilGetNewFilename([statement],[prompt])
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This utility returns a new filename. The function is used to get a new filename
+&nbsp; for writing back TSDF or TSDFC-files. It just prompts for a filename and returns
+&nbsp; the string the user entered. No checking is performed on the integrity of the
+&nbsp; filename.
+&nbsp;
+&nbsp; INPUT
+&nbsp; statement       string specifying what should be entered
+&nbsp; prompt          What should be shown at the prompt e.g 'path' or 'filename' etc.
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; filename        string containing the new filename
+&nbsp;
+&nbsp; SEE ALSO utilGetFilenames
+</pre><a name="ref7"></a><br><big><big>utilGetString</big></big><br><br><pre>  FUNCTION string = utilGetString([statement],[prompt])
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This utility returns a string from the input. It prompts an input
+&nbsp; and retrieves the string the user entered 
+&nbsp;
+&nbsp; INPUT
+&nbsp; statement       string specifying what should be entered 
+&nbsp;                 (default = 'enter string')
+&nbsp; prompt          What should be shown at the prompt e.g 'path' or 'filename' etc.
+&nbsp;                 (default ='string')
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; string       string containing the entered string
+&nbsp;
+&nbsp; SEE ALSO utilGetFilenames
+</pre><a name="ref8"></a><br><big><big>utilQuestionYN</big></big><br><br><pre>  FUNCTION result = utilQuestionYN(question)
+&nbsp; 
+&nbsp; DESCRIPTION
+&nbsp; This function puts a question to user and wants a yes or no as answer.
+&nbsp; If 'y', 'Y', 'yes' or 'YES' is replied a positive answer is assumed.
+&nbsp; Otherwise a negative response is assumed
+&nbsp;
+&nbsp; INPUT
+&nbsp; Question            String with the question to be answered
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; result              Boolean which is one if the response is positive
+&nbsp;                     and 0 if it is negative.
+&nbsp;                     In case the user quits the function will return to
+&nbsp;                     matlab
+&nbsp;
+&nbsp; SEE ALSO
+</pre><a name="ref9"></a><br><big><big>utilQuestionYNA</big></big><br><br><pre>  FUNCTION result = utilQuestionYNA(question)
+&nbsp; 
+&nbsp; DESCRIPTION
+&nbsp; This function puts a question to user and wants a 'yes' or 'no' or 'all' as answer.
+&nbsp;
+&nbsp; INPUT
+&nbsp; Question            String with the question to be answered
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; result              Boolean which is one if the response is positive
+&nbsp;                     and 0 if it is negative.
+&nbsp;                     In case the user quits the function will return to
+&nbsp;                     matlab
+&nbsp;                     If the user specifies 'all' the result will be 2
+&nbsp;
+&nbsp; SEE ALSO -
+</pre><a name="ref10"></a><br><big><big>utilSelectFilenames</big></big><br><br><pre>  FUNCTION files = utilSelectFilenames(filename,extension,options)
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function selects the files from the array with the specified extension.
+&nbsp;
+&nbsp; INPUT
+&nbsp; filename              the filename (string) or a set of filenames (cellarray)
+&nbsp; extension		extension (string) or cell array with extensions
+&nbsp; options		options structure
+&nbsp;
+&nbsp; OPTIONS
+&nbsp; .read			check filenames (default)
+&nbsp; .write		skip the check on filenames and do no wildcards
+&nbsp; .readtsdfc		add the contents of the tsdfc-files to the filelist
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; files                 The selected filenames
+&nbsp;
+&nbsp; SEE ALSO utilGetFilenames
+</pre><a name="ref11"></a><br><big><big>utilStripNumber</big></big><br><br><pre>  FUNCTION [filename,tsnumber] = utilStripNumber(filename)
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; Just strip any number specified at the end of a filename
+&nbsp; The number is specified after the '@' character
+&nbsp;
+&nbsp;
+&nbsp; INPUT
+&nbsp; filename      The complete filename as entered by the user
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; filename      The bare filename (with extension and pathname)
+&nbsp; tsnumber      Number of the extension (double not a string)
+&nbsp;
+&nbsp; SEE ALSO utilExpandFilenames utilGetFilenames utilFileParts
+</pre> <br>
+<br>
+<br>
+<a href="index.html"><big>[documentation home]</big></a><br>
+<script type="text/javascript">postContent();</script>
+</body>
+</html>

@@ -1,0 +1,642 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <meta
+ content="HTML Tidy for Mac OS X (vers 1st December 2002), see www.w3.org"
+ name="generator">
+  <meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+  <meta name="Matmap Documentation" content="none">
+  <link href="site.css" type="text/css" rel="stylesheet">
+  <title>Matmap Documentation</title>
+  <style type="text/css"> </style>
+</head>
+<body>
+<div id="page_category">Matmap Documentation</div>
+<script type="text/javascript" src="site.js"></script>
+<script type="text/javascript">preContent();</script><big><big><span
+ style="font-weight: bold;"><br>
+</span></big></big><big><a href="index.html"><big>[documentation home]</big></a><br>
+<br>
+</big><big><big><big>Software Reference</big></big><br>
+</big><br>
+This documention page has been generated automatically at 04-Jun-2004<br>
+<big style="font-weight: bold;"><big><br>
+</big></big><big><big>Topics</big></big><big style="font-weight: bold;"><big><br>
+</big></big><font size="2" color="#FFFFFF"><a href="act.html">ACT - Contents of the act directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="bem.html">BEM - Contents of the bem directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="bin.html">BIN - Contents of the bin directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="doc.html">DOC - Contents of the doc directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="fids.html">FIDS - Contents of the fids directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="geom.html">GEOM - Contents of the geom directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="gui.html">GUI - Contents of the gui directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="io.html">IO - Contents of the io directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="mex.html">MEX - Contents of the mex directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="misc.html">MISC - Contents of the misc directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="msg.html">MSG - Contents of the msg directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="scirun.html">SCIRUN - Contents of the scirun directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="script.html">SCRIPT - Contents of the script directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="sig.html">SIG - Contents of the sig directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="tri.html">TRI - Contents of the tri directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="ts.html">TS - Contents of the ts directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="util.html">UTIL - Contents of the util directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="win.html">WIN - Contents of the win directory</a></font><br>
+
+
+<big style="font-weight: bold;"><big><br>
+<br>
+</big></big>
+<big><big> Documentation for the FIDS directory </big></big><br>Contents: automaticly generated doucmentation <br>Filename: fids.doc <br>Creation date: 04-Jun-2004 <br><br><br> <big><big> Contents </big></big> <br><a href="#ref1">General Description</a><br><a href="#ref2">fidsAddFiducial</a><br><a href="#ref3">fidsAverage</a><br><a href="#ref4">fidsFindFids</a><br><a href="#ref5">fidsFindGlobalFids</a><br><a href="#ref6">fidsFindLocalFids</a><br><a href="#ref7">fidsGetAllFids</a><br><a href="#ref8">fidsGetAllGlobalFids</a><br><a href="#ref9">fidsGetFids</a><br><a href="#ref10">fidsGetGlobalFids</a><br><a href="#ref11">fidsGetLocalFids</a><br><a href="#ref12">fidsIntAll</a><br><a href="#ref13">fidsIntQRS</a><br><a href="#ref14">fidsIntQRST</a><br><a href="#ref15">fidsIntST</a><br><a href="#ref16">fidsIntST80</a><br><a href="#ref17">fidsIntSTT</a><br><a href="#ref18">fidsIntegralMap</a><br><a href="#ref19">fidsIntegrate</a><br><a href="#ref20">fidsListFids</a><br><a href="#ref21">fidsMIntegrate</a><br><a href="#ref22">fidsRemoveFiducial</a><br><a href="#ref23">fidsShiftFids</a><br><a href="#ref24">fidsType</a><br><a href="#ref25">fidsUpdateFids</a><br><br><br><a name="ref1"></a><big><big>General Description</big></big><br><pre>README.txt/ fids directory
+
+NOTES ON FIDS/FIDSET-structure and functions
+
+In this directory all functions are stored for manipulating the fids and fidset structures in the
+TS (timeseries) data. The data is stored in this array differs in a few ways from the data stored
+in the container files and in Everett. In Everett all fiducials are grouped into sets called fidsets.
+These fidsets contain all the fiducials themselves. In the matlab implementation, a different approach
+is chosen: all fiducials are put in one array. In order to be compatible and to be able to write back
+the fiducicals to a TSDFC-file, for each fiducial an index in the fidset cellarray is stored. This
+array merely stores the information on where a fiducial came from. Both fiducial set labels and audit
+strings are stored here. The audit strings are not updated by the programs. In addition fiducials
+deriving from TSDF or FIDS-files are stored in these arrays as well, they are stored in a new fidset.
+The reason for putting everything on one heap is that it allows for easier searching for fiducials.
+
+Fiducials have a type associated as well, this type is stored for each individual fiducial in the array.
+The fidtype consists of a number that is compatible with Everett. However to ease the use, you can put
+a description of the fiducial in functions wanting a type. This fiducialname is translated using fidsType.
+See in the help of fidsType for all names supported. The list can be extended on demand and is hardcoded
+into the matlab code.
+
+New fiducials can be created in the list. If you leave the fidset field at zero a new fidset will be 
+created for all the fiducials not in a fidset. This one will be marked as being generated by matlab
+and be compatible with Everett. Feel free to define your own fidset, normally only the label and audit
+(string) will be used for writing back in a new tsdfc-entry. Leaving empty spots in the fidset array
+does not harm the writeback process. If a fidset entry is empty and it is referred to, a new fidset
+will be created. (A statement will be supplied in the auditstring of the conversion proces).
+
+Both local and global fiducials are allowed. Take care that local fiducials should have the same number of
+channels as the data. Upon loading the fiducials they will be checked for this property and invalid sets 
+will be discarded upon loading.  
+</pre><a name="ref2"></a><br><big><big>fidsAddFiducial</big></big><br><br><pre>  FUNCTION fidsAddFiducial(TSindices,fidvalue,fidtype,[fidset])
+&nbsp; OR       TSdata = fidsAddFiducial(TSdata,fidvalue,fidtype,[fidset])
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function adds a fiducial to a timeseries.
+&nbsp;
+&nbsp; INPUT
+&nbsp; TSindices         Index numbers into the TS cell-array
+&nbsp; TSdata            TS cell-array or TS-structure 
+&nbsp; fidvalue          Value of the new fiducial
+&nbsp; fidtype           Type of the fiducial (strinf or number)
+&nbsp; [fidset]          To which fidset this fiducial belongs (default: matlab generated fiducials)
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; TSdata            In case of direct data access the data is returned with
+&nbsp;                   the new fiducial added
+&nbsp;
+&nbsp; SEE ALSO fidsType
+</pre><a name="ref3"></a><br><big><big>fidsAverage</big></big><br><br><pre>  FUNCTION TSindexmap = fidsAverage(TSindices,startframe,endframe)
+&nbsp;
+&nbsp; THIS FUNCTION HAS BECOME OBSOLETE/ IT IS STILL HERE FOR COMPATIBILITY
+&nbsp; USE fidsIntegralMap INSTEAD
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp;  This function averages over a number of frames in the timeseries dataset.
+&nbsp;  It starts at framestart and ends at frameend. The framestart and frameend
+&nbsp;  may be real-numbers in which case they are rounded to the nearest frame
+&nbsp;
+&nbsp; INPUT 
+&nbsp;  TSindices    the data or Datasets that need integration
+&nbsp;  startframe   the frame for the integration to start, cellarray for multiple timeseries
+&nbsp;  endframe     the frame at which to end, cellarray for multiple timeseries
+&nbsp;
+&nbsp; OUTPUT
+&nbsp;  TSindexmap	an index to where the map is stored. In case multiple TS series
+&nbsp;             	were supplied, each integral map is stored in a frame of the output
+&nbsp;              	The frames are sorted in the way they are supplied in the vector
+&nbsp;	       	The leadinformation is taken from the first TS and the other TSs are
+&nbsp;              	assumed to be equal to the first one, in respect to the lead ordering
+&nbsp;
+&nbsp; SEE fidsIntegrate
+</pre><a name="ref4"></a><br><big><big>fidsFindFids</big></big><br><br><pre>  FUNCTION values = fidsFindFids(TSindex,type,[fidset])
+&nbsp; OR       values = fidsFindFids(TSdata,type,[fidset])
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; Finds fiducials in a time series. For finding only local/global fiducials
+&nbsp; use fidsFindLocalFids/fidsFindGlobalFids. A local fiducial has an entry for each
+&nbsp; channel, whereas a global one has only one fiducial for all channels.
+&nbsp;
+&nbsp; INPUT
+&nbsp; TSindex       The index into the TS cell array that contains the data
+&nbsp; TSdata        A struct or cell-array containing the data
+&nbsp; type          The type of fiducial
+&nbsp; fidset        The fidset to search in
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; value         A [1xm] vector for global fiducials or a [nxm] matrix in
+&nbsp;               case local fiducials are defined as well
+&nbsp;
+&nbsp; SEE ALSO fidsType fidsFindGlobalFids fidsFindLocalFids
+</pre><a name="ref5"></a><br><big><big>fidsFindGlobalFids</big></big><br><br><pre>  FUNCTION values = fidsFindGlobalFids(TSindex,type,[fidset])
+&nbsp; OR       values = fidsFindGlobalFids(TSdata,type,[fidset])
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; Finds fiducials in a time series
+&nbsp;
+&nbsp; INPUT
+&nbsp; TSindex       The index into the TS cell array that contains the data
+&nbsp; TSdata        A struct or cell-array containing the data
+&nbsp; type          The type of fiducial
+&nbsp; fidset        The fidset to search in
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; value         A [1xm] vector with global fiducials 
+&nbsp;
+&nbsp; SEE ALSO fidsType
+</pre><a name="ref6"></a><br><big><big>fidsFindLocalFids</big></big><br><br><pre>  FUNCTION values = fidsFindLocalFids(TSindex,type,[fidset])
+&nbsp; OR       values = fidsFindLocalFids(TSdata,type,[fidset])
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; Find local fiducials in a time series
+&nbsp;
+&nbsp; INPUT
+&nbsp; TSindex       The index into the TS cell array that contains the data
+&nbsp; TSdata        A struct or cell-array containing the data
+&nbsp; type          The type of fiducial
+&nbsp; fidset        The fidset to search in
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; value         A [1xm] vector for global fiducials or a [nxm] matrix in
+&nbsp;               case local fiducials are defined as well
+&nbsp;
+&nbsp; SEE ALSO fidsType
+</pre><a name="ref7"></a><br><big><big>fidsGetAllFids</big></big><br><br><pre>  FUNCTION values = fidsGetAllFids(TSindex,type,[fidset])
+&nbsp;
+&nbsp; THIS FUNCTION IS OBSOLETE AND WILL BE DELETED USE fidsFindFids INSTEAD
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; Get the fiducials out of the fids information in the TS-structure. The function supports
+&nbsp; both local and global fiducials. In order to support both, this function returns a cell
+&nbsp; array (whereas fidsGetLocalFids and fidsGetGlobalFids, return just a matrix). This function
+&nbsp; gets all fiducials from one timeseries that meet the condition. Use fidsGetFids to process
+&nbsp; more than one timeseries.
+&nbsp;
+&nbsp;
+&nbsp; INPUT
+&nbsp; TSindices	The index to one timeseries. 
+&nbsp; type		The  type of fiducial your are looking for.
+&nbsp;		This can be either a string or a number specifying the type
+&nbsp; fidset	The fiducial sets that should be examined
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; values	Cell array containing the first entry that matches the input
+&nbsp;               parameters in case of multiple timeseries and all that match in
+&nbsp;               case of single timeseries
+&nbsp;
+&nbsp; SEE ALSO fidsGetLocalFids fidsGetGlobalFids fidsGetFids
+</pre><a name="ref8"></a><br><big><big>fidsGetAllGlobalFids</big></big><br><br><pre>  function values = fidsGetAllGlobalFids(TSindices,type)
+&nbsp;
+&nbsp; THIS FUNCTION IS OBSOLETE AND WILL BE DELETED USE fidsFindFids INSTEAD
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp;  Get global fiducials out of the fids information in the TS-structure. The function
+&nbsp;  returns only the first fiducial that meets the specification in "type" and "fidset"
+&nbsp;  It returns a vector in which each element represents a fiducial in the fids structure
+&nbsp;  of the succesive TSindices. Note that type and fidset may be entered as strings,
+&nbsp;  specifying the type (see fidsType) or the label of the fidset respectively. 
+&nbsp;
+&nbsp; INPUT
+&nbsp;  TSindex	The indices to the timeseries. In vectorised mode, the function
+&nbsp;           will only read the first fiducial from each timeseries.
+&nbsp;  type		The  type of fiducial your are looking for.
+&nbsp;		    This can be either a string or a number specifying the type
+&nbsp;
+&nbsp; OUTPUT
+&nbsp;  values	numeric array containing the first entry that matches the input
+&nbsp;               parameters, or NaN if none is found 
+&nbsp;
+&nbsp; SEE ALSO fidsGetLocalFids, fidsGetFids, fidsType 
+</pre><a name="ref9"></a><br><big><big>fidsGetFids</big></big><br><br><pre>  function values = fidsGetFids(TSindices,type,[fidset])
+&nbsp;
+&nbsp; THIS FUNCTION IS OBSOLETE AND WILL BE DELETED USE fidsFindFids INSTEAD
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; Get the fiducials out of the fids information in the TS-structure. The function supports
+&nbsp; both local and global fiducials. In order to support both, this function returns a cell
+&nbsp; array (whereas fidsGetLocalFids and fidsGetGlobalFids, return just a matrix). This function
+&nbsp; gets the first one that meets the condition. In order to get all fiducials use fidsGetAllFids.
+&nbsp;
+&nbsp;
+&nbsp; INPUT
+&nbsp; TSindices	The indices to the timeseries. In vectorised mode, the function
+&nbsp;               will only read the first fiducial from each timeseries.
+&nbsp; type		The  type of fiducial your are looking for.
+&nbsp;		This can be either a string or a number specifying the type
+&nbsp; fidset	The fiducial sets that should be examined
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; values	Cell array containing the first entry that matches the input
+&nbsp;               parameters in case of multiple timeseries and all that match in
+&nbsp;               case of single timeseries
+&nbsp;
+&nbsp; SEE ALSO fidsGetLocalFids fidsGetGlobalFids fidsgetAllFids
+</pre><a name="ref10"></a><br><big><big>fidsGetGlobalFids</big></big><br><br><pre>  function values = fidsGetGlobalFids(TSindices,type,[fidset])
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp;  Get global fiducials out of the fids information in the TS-structure. The function
+&nbsp;  returns only the first fiducial that meets the specification in "type" and "fidset"
+&nbsp;  It returns a vector in which each element represents a fiducial in the fids structure
+&nbsp;  of the succesive TSindices. Note that type and fidset may be entered as strings,
+&nbsp;  specifying the type (see fidsType) or the label of the fidset respectively. 
+&nbsp;
+&nbsp; INPUT
+&nbsp;  TSindices	The indices to the timeseries. In vectorised mode, the function
+&nbsp;               will only read the first fiducial from each timeseries.
+&nbsp;  type		The  type of fiducial your are looking for.
+&nbsp;		This can be either a string or a number specifying the type
+&nbsp;  fidset	The fiducial sets that should be examined or label of the fidset.
+&nbsp;
+&nbsp; OUTPUT
+&nbsp;  values	numeric array containing the first entry that matches the input
+&nbsp;               parameters, or NaN if none is found 
+&nbsp;
+&nbsp; SEE ALSO fidsGetLocalFids, fidsGetFids, fidsType 
+</pre><a name="ref11"></a><br><big><big>fidsGetLocalFids</big></big><br><br><pre>  function values = fidsGetLocalFids(TSindices,type,[fidset])
+&nbsp;
+&nbsp; THIS FUNCTION IS OBSOLETE AND WILL BE DELETED USE fidsFindFids INSTEAD
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp;  Get local fiducials out of the fids information in the TS-structure. The function
+&nbsp;  returns only the first fiducial vector that meets the specification in "type" and "fidset"
+&nbsp;  It returns a matrix in which each element represents a fiducial in the fids structure
+&nbsp;  of the succesive TSindices. Note that type and fidset may be entered as strings,
+&nbsp;  specifying the type (see fidsType) or the label of the fidset respectively. 
+&nbsp;  To classify as a localset the number of leads should equal the number of entries in the
+&nbsp;  fids array.
+&nbsp;
+&nbsp; INPUT
+&nbsp;  TSindices	The indices to the timeseries. In vectorised mode, the function
+&nbsp;               will only read the first fiducial from each timeseries.
+&nbsp;  type		The  type of fiducial your are looking for.
+&nbsp;		This can be either a string or a number specifying the type
+&nbsp;  fidset	The fiducial sets that should be examined or label of the fidset.
+&nbsp;
+&nbsp; OUTPUT
+&nbsp;  values	numeric matrix containing the first entry that matches the input
+&nbsp;               parameters, or a NaN-vecotr if none is found. 
+&nbsp;
+&nbsp; SEE ALSO fidsGetGlobalFids, fidsGetFids, fidsType 
+</pre><a name="ref12"></a><br><big><big>fidsIntAll</big></big><br><br><pre>  FUNCTION TSmapindices = fidsIntAll(TSindices)
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function integrates the timeseries indicated in the TSindices vector
+&nbsp; and puts them all in a new map. The new maps will be put in one new 
+&nbsp; timeseries entry in which each frame represents a integralmap. The maps
+&nbsp; are in the order of which the indices are read. Normally using ioReadTS
+&nbsp; the files are sorted in alphabetical order if you use wildcards. 
+&nbsp;
+&nbsp; INPUT
+&nbsp; TSindices    The indices in the TS-structure
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; TSmapindices   The index on where to find the newly generated maps
+&nbsp;
+&nbsp; NOTE
+&nbsp; If multiple QRS/T starts and endings are defined only the first one is used
+&nbsp;
+&nbsp; SEE ALSO fidsIntST fidsIntSTT fidsIntST80 fidsIntQRS fidsIntQRST
+</pre><a name="ref13"></a><br><big><big>fidsIntQRS</big></big><br><br><pre>  FUNCTION TSmapindex = fidsIntQRS(TSindices)
+&nbsp; OR       TSmapdata = fidsIntQRS(TSdata)
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function integrates the timeseries indicated in the TSindices vector
+&nbsp; and puts them all in a new map. The new maps will be put in one new 
+&nbsp; timeseries entry in which each frame represents a integralmap. The maps
+&nbsp; are in the order of which the indices are read. Normally using ioReadTS
+&nbsp; the files are sorted in alphabetical order if you use wildcards. 
+&nbsp;
+&nbsp; INPUT
+&nbsp; TSindices    The indices in the TS-structure
+&nbsp; TSdata       Direct input of the Timeseries data (no index)
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; TSmapindex   The index on where to find the newly generated map
+&nbsp; TSmapdata    Direct output of the integralmap
+&nbsp;
+&nbsp; NOTE
+&nbsp; If multiple QRS/T starts and endings are defined only the first one is used
+&nbsp;
+&nbsp; SEE ALSO fidsIntST fidsIntSTT fidsIntST80 fidsIntQRS fidsIntQRST
+</pre><a name="ref14"></a><br><big><big>fidsIntQRST</big></big><br><br><pre>  FUNCTION TSmapindex = fidsIntQRST(TSindices)
+&nbsp; OR       TSmapdata = fidsIntQRST(TSdata)
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function integrates the timeseries indicated in the TSindices vector
+&nbsp; and puts them all in a new map. The new maps will be put in one new 
+&nbsp; timeseries entry in which each frame represents a integralmap. The maps
+&nbsp; are in the order of which the indices are read. Normally using ioReadTS
+&nbsp; the files are sorted in alphabetical order if you use wildcards. 
+&nbsp;
+&nbsp; INPUT
+&nbsp; TSindices    The indices in the TS-structure
+&nbsp; TSdata       Direct input of the Timeseries data (no index)
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; TSmapindex   The index on where to find the newly generated map
+&nbsp; TSmapdata    Direct output of the integralmap
+&nbsp;
+&nbsp; NOTE
+&nbsp; If multiple QRS/T starts and endings are defined only the first one is used
+&nbsp;
+&nbsp; SEE ALSO fidsIntST fidsIntSTT fidsIntST80 fidsIntQRS fidsIntQRST
+</pre><a name="ref15"></a><br><big><big>fidsIntST</big></big><br><br><pre>  FUNCTION TSmapindex = fidsIntST(TSindices)
+&nbsp; OR       TSmapdata = fidsIntST(TSdata)
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function integrates the timeseries indicated in the TSindices vector
+&nbsp; and puts them all in a new map. The new maps will be put in one new 
+&nbsp; timeseries entry in which each frame represents a integralmap. The maps
+&nbsp; are in the order of which the indices are read. Normally using ioReadTS
+&nbsp; the files are sorted in alphabetical order if you use wildcards. 
+&nbsp;
+&nbsp; INPUT
+&nbsp; TSindices    The indices in the TS-structure
+&nbsp; TSdata       Direct input of the Timeseries data (no index)
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; TSmapindex   The index on where to find the newly generated map
+&nbsp; TSmapdata    Direct output of the integralmap
+&nbsp;
+&nbsp; NOTE
+&nbsp; If multiple QRS/T starts and endings are defined only the first one is used
+&nbsp;
+&nbsp; SEE ALSO fidsIntST fidsIntSTT fidsIntST80 fidsIntQRS fidsIntQRST
+</pre><a name="ref16"></a><br><big><big>fidsIntST80</big></big><br><br><pre>  FUNCTION TSmapindex = fidsIntST80(TSindices)
+&nbsp; OR       TSmapdata = fidsIntST80(TSdata)
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function integrates the timeseries indicated in the TSindices vector
+&nbsp; and puts them all in a new map. The new maps will be put in one new 
+&nbsp; timeseries entry in which each frame represents a integralmap. The maps
+&nbsp; are in the order of which the indices are read. Normally using ioReadTS
+&nbsp; the files are sorted in alphabetical order if you use wildcards. 
+&nbsp;
+&nbsp; INPUT
+&nbsp; TSindices    The indices in the TS-structure
+&nbsp; TSdata       Direct input of the Timeseries data (no index)
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; TSmapindex   The index on where to find the newly generated map
+&nbsp; TSmapdata    Direct output of the integralmap
+&nbsp;
+&nbsp; NOTE
+&nbsp; If multiple QRS/T starts and endings are defined only the first one is used
+&nbsp;
+&nbsp; SEE ALSO fidsIntST fidsIntSTT fidsIntST80 fidsIntQRS fidsIntQRST
+</pre><a name="ref17"></a><br><big><big>fidsIntSTT</big></big><br><br><pre>  FUNCTION TSmapindex = fidsIntQRST(TSindices)
+&nbsp; OR       TSmapdata = fidsIntQRST(TSdata)
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function integrates the timeseries indicated in the TSindices vector
+&nbsp; and puts them all in a new map. The new maps will be put in one new 
+&nbsp; timeseries entry in which each frame represents a integralmap. The maps
+&nbsp; are in the order of which the indices are read. Normally using ioReadTS
+&nbsp; the files are sorted in alphabetical order if you use wildcards. 
+&nbsp;
+&nbsp; INPUT
+&nbsp; TSindices    The indices in the TS-structure
+&nbsp; TSdata       Direct input of the Timeseries data (no index)
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; TSmapindex   The index on where to find the newly generated map
+&nbsp; TSmapdata    Direct output of the integralmap
+&nbsp;
+&nbsp; NOTE
+&nbsp; If multiple QRS/T starts and endings are defined only the first one is used
+&nbsp;
+&nbsp; SEE ALSO fidsIntST fidsIntSTT fidsIntST80 fidsIntQRS fidsIntQRST
+</pre><a name="ref18"></a><br><big><big>fidsIntegralMap</big></big><br><br><pre>  FUNCTION TSmapindex = fidsIntegralMap(TSmapindex,TSindices,startframe,endframe,['average'])
+&nbsp; OR       TSmapdata  = fidsIntegralMap(TSmapdata,TSdata,startframe,endframe,['average'])
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function adds integralmaps at the end of a TS-structure that already contains some
+&nbsp; integral-maps or creates a new one.
+&nbsp;
+&nbsp; INPUT
+&nbsp; TSmapindex        An index into the TS-array, pointing to the TS-structure where the
+&nbsp;                   maps have to be stored (could be an empty initialised TS-structure)
+&nbsp; TSindices         Indices into the TS-array of the time data that needs to be integrated
+&nbsp; TSmapdata         Similar to TSmapindex, but now the data is directly put on the input
+&nbsp; TSdata            Similar to TSindices, but now the data is directly put on the input
+&nbsp; startframe        frame number of where to start the integration
+&nbsp; endframe          frame number of where to end the integration
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; TSmapindex
+&nbsp;   /TSmapdata      Output of the adjusted data 
+&nbsp;
+&nbsp;
+</pre><a name="ref19"></a><br><big><big>fidsIntegrate</big></big><br><br><pre>  FUNCTION TSindexmap = fidsIntegrate(TSindices,startframe,endframe)
+&nbsp; OR       TSdatamap  = fidsIntegrate(TSdata,startframe,endframe)
+&nbsp;
+&nbsp; THIS FUNCTION HAS BECOME OBSOLETE USE fidsIntegralMap INSTEAD
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function integrates all leads in the in the timeseries dataset.
+&nbsp; It starts at framestart and ends at frameend. The framestart and frameend
+&nbsp; may be real-numbers in which case they are rounded to the nearest frame.
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp; INPUT 
+&nbsp; TSindices     the data or Datasets that need integration
+&nbsp; startframe    the frame for the integration to start, cellarray for multiple timeseries
+&nbsp; endframe      the frame at which to end, cellarray for multiple timeseries
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; TSindexmap	an index to where the map is stored. In case multiple TS series
+&nbsp;             	were supplied, each integral map is stored in a frame of the output
+&nbsp;              	The frames are sorted in the way they are supplied in the vector
+&nbsp;	       	The leadinformation is taken from the first TS and the other TSs are
+&nbsp;              	assumed to be equal to the first one, in respect to the lead ordering
+&nbsp;
+&nbsp; SEE ALSO      fidsIntQRS fidsIntST fidsIntSTT fidsIntST80 fidsIntQRST
+</pre><a name="ref20"></a><br><big><big>fidsListFids</big></big><br><br><pre>  FUNCTION fidsListFids(TSindex)
+&nbsp; OR       fidsListFids(TSdata)
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; List the fiducials in a time series on screen
+&nbsp;
+&nbsp; INPUT
+&nbsp; TSindex       The index into the TS cell array that contains the data
+&nbsp; TSdata        A struct or cell-array containing the data
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; -
+&nbsp;
+&nbsp; SEE ALSO fidsType
+</pre><a name="ref21"></a><br><big><big>fidsMIntegrate</big></big><br><br><pre>  FUNCTION TSindexmap = fidsMIntegrate(TSindex,startframe,endframe)
+&nbsp; 
+&nbsp; FUNCTION HAS BECOME OBSOLETE, USE fidsIntegralMap INSTEAD
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function integrates over all leads in the in the timeseries dataset.
+&nbsp; It starts at framestart and ends at frameend. The framestart and frameend
+&nbsp; may be real-numbers in which case they are rounded to the nearest frame.
+&nbsp; In this function start and end can be vectors specifying multiple
+&nbsp; integrals
+&nbsp;
+&nbsp; INPUT 
+&nbsp; TSindices     the data or Datasets that need integration
+&nbsp; startframe    the frame for the integration to start, cellarray for multiple timeseries
+&nbsp; endframe      the frame at which to end, cellarray for multiple timeseries
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; TSindexmap	an index to where the map is stored. In case multiple TS series
+&nbsp;             	were supplied, each integral map is stored in a frame of the output
+&nbsp;              	The frames are sorted in the way they are supplied in the vector
+&nbsp;	       	The leadinformation is taken from the first TS and the other TSs are
+&nbsp;              	assumed to be equal to the first one, in respect to the lead ordering
+&nbsp;
+&nbsp; SEE ALSO fidsIntQRS fidsIntST fidsIntSTT fidsIntST80 fidsIntQRST
+</pre><a name="ref22"></a><br><big><big>fidsRemoveFiducial</big></big><br><br><pre>  FUNCTION fidsRemoveFiducial(TSindices,fidtype)
+&nbsp; OR       TSdata = fidsRemoveFiducial(TSdata,fidtype)
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function adds a fiducial to a timeseries.
+&nbsp;
+&nbsp; INPUT
+&nbsp; TSindices         Index numbers into the TS cell-array
+&nbsp; TSdata            TS cell-array or TS-structure 
+&nbsp; fidtype           Type of the fiducial (strinf or number)
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; TSdata            In case of direct data access the data is returned with
+&nbsp;                   the new fiducial added
+&nbsp;
+&nbsp; SEE ALSO fidsType
+</pre><a name="ref23"></a><br><big><big>fidsShiftFids</big></big><br><br><pre>  FUNCTION fidsShiftFids(TSindices,shift)
+&nbsp;
+&nbsp; DESCRIPTION 
+&nbsp; This function shifts all the fiducials in a TS set.
+&nbsp; This operation is for instance necessary when slicing
+&nbsp; data.
+&nbsp;
+&nbsp; INPUT
+&nbsp; TSindices      The indices to the TS structure
+&nbsp; shift          The shift in the fiducial value
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; -
+&nbsp;
+&nbsp; SEE ALSO
+</pre><a name="ref24"></a><br><big><big>fidsType</big></big><br><br><pre>  FUNCTION fidtype = fidsType(typestr)
+&nbsp; OR       typestr  = fidsType(fidtype)
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp;  this function translates the string describing the type of a fiducial in its
+&nbsp;  corresponding number (or vice versa). In the TSDFC file format fiducials are 
+&nbsp;  stored with a type the type is a number which corresponds to a certain time interval. 
+&nbsp;  In order to ease the matlab programming, they are define as strings as well. So 
+&nbsp;  entering a string will lead to an automatic translation. The translation of each string
+&nbsp;  is accomplished by means of this function.
+&nbsp;
+&nbsp; INPUT
+&nbsp;  typestr		A string describing the type, see TYPES
+&nbsp;
+&nbsp; OUTPUT
+&nbsp;  fidtype		The corresponding number to the fiducial description
+&nbsp;                       or -1 if the string could not be identified 
+&nbsp;
+&nbsp; TYPES
+&nbsp;  The fids descriptions should match one of the following strings (case insensitive)
+&nbsp;  pon,pstart,
+&nbsp;  pend,poff, 
+&nbsp;  qon,qrson,qrsstart,
+&nbsp;  rpeak,qrspeak,
+&nbsp;  soff,qrsend,qrsoff,
+&nbsp;  stoff,tstart,ton,
+&nbsp;  tpeak,
+&nbsp;  toff,tend,
+&nbsp;  act, actplus, actminus,
+&nbsp;  rec, recplus, recminus,
+&nbsp;  ref,reference,
+&nbsp;  jpt,
+&nbsp;  baseline	
+&nbsp;  pacing
+&nbsp;
+&nbsp;  The list may not be complete, so all additions are welcome
+&nbsp;
+&nbsp; SEE ALSO
+</pre><a name="ref25"></a><br><big><big>fidsUpdateFids</big></big><br><br><pre>  FUNCTION fidsUpdateFids(TSindices,leadmap,[framemap])
+&nbsp;       or fidsUpdateFids(TSindices,options)
+&nbsp;       or data = fidsUpdateFids(data,options)
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function checks the integrity of the fiducials.
+&nbsp; Only allowing global (length=1) or local fiducial (length=numleads)
+&nbsp; On other configurations the function will fail. As well remapping 
+&nbsp; options are build in and the fiducials will be corrected for this.
+&nbsp; In case no TSDF-data is loaded, the function will check whether only 
+&nbsp; two lengths of fiducias are present, assuming local fiducials to
+&nbsp; have a length other than one, but all need to be the same as they 
+&nbsp; correspond to the same dataset.
+&nbsp; In case of frame renumbering the fiducials will be checked. Any fiducials
+&nbsp; that are out of range will be removed as integrals based on them will not
+&nbsp; be valid. The latter check is only performed in case a number of frames is
+&nbsp; specified, so you will be allowed to load fidsets only
+&nbsp;
+&nbsp; INPUT
+&nbsp; TSindices   The indices of the timeseries to be inspected
+&nbsp; leadmap     The mapping vector used to remap the leads
+&nbsp; framemap    The mapping vector used to remap the frames
+&nbsp;
+&nbsp; OUTPUT 
+&nbsp; The updated fiducials are stored back in the fidset/fids fields of
+&nbsp; the TS global.
+&nbsp;
+&nbsp; OPTIONS
+&nbsp; .framemap   The framemap
+&nbsp; .leadmap    The leadmap
+&nbsp;
+&nbsp; SEE ALSO - 
+</pre> <br>
+<br>
+<br>
+<a href="index.html"><big>[documentation home]</big></a><br>
+<script type="text/javascript">postContent();</script>
+</body>
+</html>

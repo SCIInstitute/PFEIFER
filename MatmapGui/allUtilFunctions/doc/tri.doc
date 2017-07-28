@@ -1,0 +1,270 @@
+<big><big> Documentation for the TRI directory </big></big><br>Contents: automaticly generated doucmentation <br>Filename: tri.doc <br>Creation date: 04-Jun-2004 <br><br><br> <big><big> Contents </big></big> <br><a href="#ref1">CheckTriangulation</a><br><a href="#ref2">TriangulateNC</a><br><a href="#ref3">triAlignFacPts</a><br><a href="#ref4">triClockWise</a><br><a href="#ref5">triFindNeighbor</a><br><a href="#ref6">triFitCircle</a><br><a href="#ref7">triLaplacianInterpolation</a><br><a href="#ref8">triMergeNodes</a><br><a href="#ref9">triReOrderPts</a><br><a href="#ref10">triRotMatrix4</a><br><a href="#ref11">triSliceSurface</a><br><a href="#ref12">triSortSlices</a><br><a href="#ref13">triSplitInPlanes</a><br><a href="#ref14">triSurfaceLaplacian</a><br><a href="#ref15">triTriangulate</a><br><a href="#ref16">triVector3</a><br><a href="#ref17">triVector4</a><br><br><br><a name="ref1"></a><br><big><big>CheckTriangulation</big></big><br><br><pre>  This function checks if the triangulation went OK
+</pre><a name="ref2"></a><br><big><big>TriangulateNC</big></big><br><br><pre>  function Boundary = SlicesToPos(Slices)
+  This function converts data obtained from slices
+  in a three dimensional image build out of triangles
+  the routine uses a simple algorithm 
+</pre><a name="ref3"></a><br><big><big>triAlignFacPts</big></big><br><br><pre>  FUNCTION 
+  [pts,fac] = triAlignFacPts(oldpts,pts,fac)
+ 
+  DESCRIPTION
+  This function rearranges an Pts and Fac matrix, so the order in the
+  matrices matches that of the order given in the OldPts matrix
+  the function assumes that oldPts and Pts were derived from the same dataset of points
+  although small deviations may occur between the nodes. The function uses a
+  basic distance criterium to match points. So no translation or rotation is allowed
+  at this point. (Perhaps some future version will do). 
+  furthermore the functions does everything so you can still use the old mapping files
+  
+  INPUT
+  oldpts      Matrix with order that has to be matched by the pts/fac matrices
+  pts         The current points matrix
+  fac         The current facs matrix
+ 
+  OUTPUT
+  pts         New pts matrix in the same order as oldpts
+  fac         New fac matrix in which the nodes have been properly renumbered
+ 
+  SEE ALSO
+  see ioWriteFac ioWritePts ioReadPts ioReadFac
+</pre><a name="ref4"></a><br><big><big>triClockWise</big></big><br><br><pre>  FUNCITON 
+  fac = triClockWise(fac,pts)
+ 
+  DESCRIPTION
+  Correct a triangulation and make all triangles ClockWise
+  
+  INPUT
+  fac     Triangulation data
+  pts     Points matrix
+  
+  OUTPUT
+  fac     The new triangulation matrix
+ 
+</pre><a name="ref5"></a><br><big><big>triFindNeighbor</big></big><br><br><pre>  FUNCTION
+  [firstneighbor,secondneighbor] = triFindNeighbor(fac)
+ 
+  DESCRIPTION
+  This function finds the first and second order neighbors of each
+  node in a mesh. By tracing the connections in the fac matrix, a
+  first order neighbor is directly connected to the node and a second 
+  order node is directly linked to its first order neighbors but not to
+  the node itself.
+ 
+  INPUT
+  fac       The triangulation matrix
+ 
+  OUTPUT
+  firstorderneighbor     A cell array with the node numbers of each cell's
+                         first order neighbors.
+  secondorderneighbor    A cell array with the node numbers of each cell's
+                         second order neighbors.
+ 
+  SEE ALSO
+ 
+</pre><a name="ref6"></a><br><big><big>triFitCircle</big></big><br><br><pre>  FUNCTION 
+  [r,center] = triFitCircle(pts)
+ 
+  DESCRIPTION
+  This function fits a circle through the points and tries to
+  minimize the distance between the points and the circle in a
+  least squares sense.
+ 
+  INPUT
+  pts     points array (2D)
+  
+  OUTPUT
+  r       radius of circle
+  center  the center of the circle
+ 
+  SEE ALSO
+ 
+</pre><a name="ref7"></a><br><big><big>triLaplacianInterpolation</big></big><br><br><pre>  FUNCTION 
+  Lint = trilaplacianInterpolation(surface,channels)
+ 
+  DESCRIPTION
+  This function computes a transfer matrix from the known potentials to the unknown
+  potentials at a surface. The function uses the laplacian interpolation scheme.
+  The function is written so that the function outputs a complete set when using the
+  matrix this function computed :
+  Utot = Lint*Uknown
+ 
+  INPUT
+  surface     A surface description with fields .pts and .fac
+  channels    The known channels
+ 
+  OUTPUT
+  Lint        The interpolation matrix
+ 
+  SEE ALSO 
+  triSurfaceLaplacian
+</pre><a name="ref8"></a><br><big><big>triMergeNodes</big></big><br><br><pre>  FUNCTION 
+  [pts,fac,channels] = triMergeNodes(pts,fac,node1,node2,[channels])
+ 
+  DESCRIPTION
+  Merge two points in an existing mesh. This will result in a mesh with one
+  node less.
+ 
+  INPUT
+  pts         defines the node matrix
+  fac         defines the triangulation matrix
+  channels    defines the channels file associated with the mesh
+  node1,node2 are the numbers of the nodes that have to be merged,
+              in the process node2 will be removed
+ 
+  OUTPUT
+  pts         the new node matrix
+  fac         the new triangulation matrix
+  channels    the new channels vector
+ 
+  SEE ALSO
+</pre><a name="ref9"></a><br><big><big>triReOrderPts</big></big><br><br><pre>  FUNCTION
+  order = triReOrderPts(ptsold,ptsnew)
+ 
+  DESCRIPTION
+  This function assumes the two points sets are equal and
+  determines how the old set can be expressed into the new one.
+  
+  INPUT
+  ptsold        The first set of points
+  ptsnew        The second set of points
+ 
+  OUTPUT
+  order         The order in which the second points set can be expresse into
+                the first one: ptsnew = ptsold(:,order)
+ 
+  SEE ALSO
+ 
+</pre><a name="ref10"></a><br><big><big>triRotMatrix4</big></big><br><br><pre>  FUNCTION 
+  RM = triRotMatrix4(origin,normal)
+ 
+  DESCRIPTION
+  This function creates an opengl like matrix rotating
+  around the origin and pointing the normal along the z-axis
+ 
+  INPUT
+  origin     The origin around which to rotate.
+  normal     A vector defining what should be the new z-axis
+ 
+  OUTPUT
+  RM         Rotation matrix (4x4)
+ 
+  SEE ALSO
+  triVector4, triVector3
+</pre><a name="ref11"></a><br><big><big>triSliceSurface</big></big><br><br><pre>  FUNCTION 
+  surface = triSliceSurface(surface,origin,normal,options)
+ 
+  DESCRIPTION
+  This function slices a model in two and only keeps one part and fills up
+  the sliced part
+ 
+  INPUT
+  surface     surface to be sliced
+  origin      a point on the cutting plane
+  normal      a normal to the cutting plane pointing outward
+  
+  OPTIONS
+  'fill',distance   
+              fill the cutting plane and use distance as a measure for a regular grid
+ 
+  OUTPUT
+  surface     new surface
+ 
+  SEE ALSO
+ 
+</pre><a name="ref12"></a><br><big><big>triSortSlices</big></big><br><br><pre>  FUNCTION 
+  slices = triSortSlices(pos,slices,normal,[origin])
+ 
+  DESCRIPTION
+  This function sorts the points collected in one slice to rotate in an orderly fashion
+  around a central point.
+ 
+  INPUT
+  pos       Matrix containing the node positions;
+  slices    the cell array that contains the indices of the nodes that form one contour
+  normal    Normal to the plane in which the the nodes need to be ordered
+  origin    Origin from which the rotation and radius of the points of the curve should be calculated
+            default - The gravitational center of the cloud of points contained in one slice
+ 
+  OUTPUT
+  slices    A cell array in which the indices are nicely ordered
+ 
+  NOTE
+  The algorithm is relatively easy. It just determines the angle and the radius of the points and
+  uses the angle to sort the points
+ 
+  SEE ALSO
+ 
+</pre><a name="ref13"></a><br><big><big>triSplitInPlanes</big></big><br><br><pre>  FUNCTION
+  cpos = triSplitInPlanes(pts, origin, normal, step)
+ 
+  DESCRIPTION
+  this function sorts the points into several slices and just looks in which 
+  slice the nodes should be. Using a least squares fit the distance to the 
+  different slices is determined, and the point is grouped in the plane 
+  to which it is closest
+ 
+  INPUT
+  pos        Position matrix
+  origin     Where to start (vector)
+  normal     Each slice is normal to this vector (vector)
+  step       A vector describing the distance between each slice and the
+             origin.
+ 
+  OUTPUT
+  cpos       Cell array with in each cell indeces to a group of points in the same plane
+ 
+  SEE ALSO
+ 
+</pre><a name="ref14"></a><br><big><big>triSurfaceLaplacian</big></big><br><br><pre>  FUNCTION 
+  L = triSurfaceLaplacian(surface)
+ 
+  DESCRIPTION
+  This function computes the surface laplacian matrix for a given 
+  surface.
+ 
+  INPUT
+  surface         Surface to be used in laplacian operation
+ 
+  OUTPUT
+  L               Surface laplacian matrix
+ 
+  SEE ALSO
+ 
+</pre><a name="ref15"></a><br><big><big>triTriangulate</big></big><br><br><pre>  function Tri = triTriangulate(Pos,Slices)
+ 
+  This is a simple triangulation algorithm
+  It takes to sequential rings of the model and
+  adds a surface in between. 
+ 
+  INPUT
+    Pos -  A matrix containing all node positions
+    Slices -  A cell array. Every cell contains a vector of indices to the nummer of nodes
+              contained in one ring. For the algorithm to work properly, one needs to supply the 
+              the rings in an order they can be triangulated
+ 
+ 
+  OUTPUT
+    Tri  - Matrix containing the triangulated data
+</pre><a name="ref16"></a><br><big><big>triVector3</big></big><br><br><pre>  function Pos3 = triVector3(Pos4)
+ 
+  Strip the fourth redundant coordinate
+  and go back to the cartesian coordinate system
+ 
+  INPUT
+  Pos4 - matrix with four vectors
+ 
+  OUTPUT
+  Pos3 - matrix with three vectors
+</pre><a name="ref17"></a><br><big><big>triVector4</big></big><br><br><pre>  function Pos4 = triVector4(Pos3)
+ 
+  This function transforms a normal matrix containing the position in three
+  coordinates into a opengl-style four vector matrix.
+  The difference is that the last position is used as a scaling number
+  The latter makes a translation a matrix multiplication as well
+  Hence all transformations on 4-vector can be described as matrix multiplications
+ 
+  INPUT 
+  Pos3 - matrix with a three cartesian coordinates per column
+ 
+  OUTPUT 
+  Pos4 - matrix with four cartesian coordinates per column
+</pre>

@@ -1,0 +1,15 @@
+<big><big> Documentation for the DOC directory </big></big><br>Contents: automaticly generated doucmentation <br>Filename: doc.doc <br>Creation date: 04-Jun-2004 <br><br><br> <big><big> Contents </big></big> <br><a href="#ref1">docCreateDocFiles</a><br><br><br><a name="ref1"></a><br><big><big>docCreateDocFiles</big></big><br><br><pre>  function docCreateDocFiles()
+  
+  DESCRIPTION
+  This function scans through all directories and bundles the help descriptions (such as
+  this one) into one file per directory. As long as there is a complete description of the
+  m-file in the first comment block, the function will be listed in the documentation.
+  A general overview of the funcions in a directory is given in a README.txt file. The 
+  latter is included in the documentation as well.
+ 
+  INPUT -
+ 
+  OUTPUT -
+ 
+  SEE ALSO -
+</pre>
