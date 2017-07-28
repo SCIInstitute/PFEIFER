@@ -1,0 +1,32 @@
+<big><big> Documentation for the ACT directory </big></big><br>Contents: automaticly generated doucmentation <br>Filename: act.doc <br>Creation date: 04-Jun-2004 <br><br><br> <big><big> Contents </big></big> <br><a href="#ref1">actActMap</a><br><a href="#ref2">polymin</a><br><br><br><a name="ref1"></a><br><big><big>actActMap</big></big><br><br><pre>  FUNCTION TSmapindex = actActMap(TSindices,[fidtype],[fidset])
+ 
+  DESCRIPTION
+  This function generates an activation/recovery map in a new timeseries dataset (TS-structure).
+  By specifying the fiducial type, the functtion selects the first fiducialset 
+  that meets the description and then puts the map in a new timeseries. In order to produce a map
+  the function looks for locally defined % *S "Activation Time" and
+  "Reference Time" fiducials. In case these are not available the function
+  will fail. The Activation Map 'pot' value is then the difference between
+  the Activation Time and Refernece Time. *S % By default the function
+  will look for activation fiducials. However specifying another
+  type will generate a map of that fiducial.
+  When specifying multiple indices, the function puts them all in one timeseries, each frame
+  representing an activation map. You can use this functionality to make maps of multiple recordings
+  that follow each other chronologically.
+ 
+  INPUT 
+  TSindices    the data or Datasets that need integration
+  fidtype      the fiducialtype wanted, see FidsType for definitions (activation map by default)
+               A string describing the type can be passed as well (see fidsType)
+  fidset       only from these sets the map will be generated
+               (can be a string specifying the label of the fitset)	
+ 
+  OUTPUT
+  TSindexmap   an index to where the map is stored. In case multiple TS series
+               were supplied, each integral map is stored in a frame of the output
+               The frames are sorted in the way they are supplied in the vector
+               The leadinformation is taken from the first TS and the other TSs are
+               assumed to be equal to the first one, in respect to the lead ordering
+ 
+  SEE ALSO fidsType
+</pre><a name="ref2"></a><br><big><big>polymin</big></big><br><br><pre></pre>

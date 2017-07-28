@@ -1,0 +1,252 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <meta
+ content="HTML Tidy for Mac OS X (vers 1st December 2002), see www.w3.org"
+ name="generator">
+  <meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+  <meta name="Matmap Documentation" content="none">
+  <link href="site.css" type="text/css" rel="stylesheet">
+  <title>Matmap Documentation</title>
+  <style type="text/css"> </style>
+</head>
+<body>
+<div id="page_category">Matmap Documentation</div>
+<script type="text/javascript" src="site.js"></script>
+<script type="text/javascript">preContent();</script><big><big><span
+ style="font-weight: bold;"><br>
+</span></big></big><big><a href="index.html"><big>[documentation home]</big></a><br>
+<br>
+</big><big><big><big>Software Reference</big></big><br>
+</big><br>
+This documention page has been generated automatically at 04-Jun-2004<br>
+<big style="font-weight: bold;"><big><br>
+</big></big><big><big>Topics</big></big><big style="font-weight: bold;"><big><br>
+</big></big><font size="2" color="#FFFFFF"><a href="act.html">ACT - Contents of the act directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="bem.html">BEM - Contents of the bem directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="bin.html">BIN - Contents of the bin directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="doc.html">DOC - Contents of the doc directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="fids.html">FIDS - Contents of the fids directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="geom.html">GEOM - Contents of the geom directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="gui.html">GUI - Contents of the gui directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="io.html">IO - Contents of the io directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="mex.html">MEX - Contents of the mex directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="misc.html">MISC - Contents of the misc directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="msg.html">MSG - Contents of the msg directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="scirun.html">SCIRUN - Contents of the scirun directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="script.html">SCRIPT - Contents of the script directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="sig.html">SIG - Contents of the sig directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="tri.html">TRI - Contents of the tri directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="ts.html">TS - Contents of the ts directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="util.html">UTIL - Contents of the util directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="win.html">WIN - Contents of the win directory</a></font><br>
+
+
+<big style="font-weight: bold;"><big><br>
+<br>
+</big></big>
+<big><big> Documentation for the GEOM directory </big></big><br>Contents: automaticly generated doucmentation <br>Filename: geom.doc <br>Creation date: 04-Jun-2004 <br><br><br> <big><big> Contents </big></big> <br><a href="#ref1">geomAlign</a><br><a href="#ref2">geomAlignMatrix</a><br><a href="#ref3">geomClear</a><br><a href="#ref4">geomDeal</a><br><a href="#ref5">geomDelete</a><br><a href="#ref6">geomGet</a><br><a href="#ref7">geomInfo</a><br><a href="#ref8">geomInitNew</a><br><a href="#ref9">geomLinkGeom</a><br><a href="#ref10">geomNew</a><br><a href="#ref11">geomSet</a><br><br><br><a name="ref1"></a><br><big><big>geomAlign</big></big><br><br><pre>  FUNCTION [pts2new] = geomAlign(channels1,pts1,channels2,pts2)
+&nbsp;
+&nbsp;
+</pre><a name="ref2"></a><br><big><big>geomAlignMatrix</big></big><br><br><pre>  FUNCTION RT = geomAlignMatrix(channels1,pts1,channels2,pts2,[error])
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function will generate a 4D translation rotation matrix.
+&nbsp; The matrix is based on the common points in set 1 and 2 (channels+pts)
+&nbsp; of geometry.
+&nbsp;
+&nbsp; INPUT
+&nbsp; channels1       channels file of the firstset (one dimensional vector, use ioReadMap not ioReadChannels)
+&nbsp; pts1            points set 1 (use ioReadPts)
+&nbsp; channels2       idem chanbels file for second set
+&nbsp; pts2            points set 2
+&nbsp; error           (defaul 4mm) After matching the points the points with an error higher than <error> will
+&nbsp;                 be discarded and the matching will be performed once more.
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; RT              rotation-translation matrix for projecting set 2 onto set 1
+&nbsp;
+</pre><a name="ref3"></a><br><big><big>geomClear</big></big><br><br><pre>  FUNCTION geomClear([GEOMindices])
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; Clears the GEOM-structure if no indices are supplied
+&nbsp; otherwise it just clears the indices specified.
+&nbsp;
+&nbsp; INPUT
+&nbsp; GEOMindices     The indices of the TS-structures that
+&nbsp;               need to be cleared.
+&nbsp;
+&nbsp; OUTPUT -
+&nbsp;
+&nbsp; NOTE
+&nbsp; There is nothing special to this function. Clearing fields
+&nbsp; yourself will work as well. Only this way you can clear
+&nbsp; multiple fields at once directly from an TSindices vector.
+&nbsp;
+&nbsp; SEE ALSO -
+</pre><a name="ref4"></a><br><big><big>geomDeal</big></big><br><br><pre>  FUNCTION geomDeal(GEOMindices,fieldname,contents)
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function sets the fields of all the geometries specified by the
+&nbsp; GEOMindices array and puts the contents in the field specified by fieldname.
+&nbsp; In this case contents is a cell array specifying the contents for each 
+&nbsp; field individually. If the dimension of the contents array is one the 
+&nbsp; field INSIDE this cellarray is put in each timeseries. 
+&nbsp;
+&nbsp;
+&nbsp; INPUT
+&nbsp; GEOMindices     Indices of the files involved
+&nbsp; fieldname       Name of field you want to list
+&nbsp; contents        cellarray containing the new values 
+&nbsp;
+&nbsp; OUTPUT -
+&nbsp;
+&nbsp; NOTE
+&nbsp; The contents has to be specified as a cell array, in order to avoid confusion.
+&nbsp; For instance if you want to put a cell array in the TS structure, be sure to
+&nbsp; put it again within a cell array as the top cell array structure will be broken
+&nbsp; up into pieces. For direct access of the fields without this cell array thing
+&nbsp; use geomSet()
+&nbsp;
+&nbsp; SEE ALSO geomInfo geomGet geomSet
+</pre><a name="ref5"></a><br><big><big>geomDelete</big></big><br><br><pre>  FUNCTION GEOMindices = geomDelete(number)
+&nbsp; 
+&nbsp; DESCRIPTION
+&nbsp; This function deletes entries from the GEOM-structure
+&nbsp;
+&nbsp; INPUT
+&nbsp; TSindices           positions of cells to be deleted
+&nbsp;
+&nbsp; OUTPUT -
+&nbsp;
+&nbsp; SEE ALSO geomClear geomNew 
+</pre><a name="ref6"></a><br><big><big>geomGet</big></big><br><br><pre>  FUNCTION contents = geomGet(GEOMindices,fieldname)
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function gets the fields of all the GEOM structures
+&nbsp; specified and puts them in a cellarray. If the field
+&nbsp; is not present an empty array will be given for this
+&nbsp; index. The same will be applied for indices that are 
+&nbsp; out of range.
+&nbsp;
+&nbsp; INPUT
+&nbsp; GEOMindices   Indices of the files involved
+&nbsp; fieldname     Name of field you want to list
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; contents    	 Cellarray containing the values of the 
+&nbsp;                fields
+&nbsp;
+&nbsp; SEE ALSO geomInfo geomSet geomDeal
+</pre><a name="ref7"></a><br><big><big>geomInfo</big></big><br><br><pre>  FUNCTION geomInfo([GEOMindices],[fieldname])
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function displays the fields of all the GEOM-structures 
+&nbsp; specified. The fieldname is specified by fieldname.
+&nbsp; This function is used to display the information on screen
+&nbsp;
+&nbsp; INPUT
+&nbsp; GEOMindices   Indices of the files involved
+&nbsp;               default: all timeseries
+&nbsp; fieldname     Name of field you want to list
+&nbsp;               default: 'name'
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; On the screen a list of the requested contents of the fields is displayed
+&nbsp;
+&nbsp; SEE ALSO geomSet geomGet geomDeal
+</pre><a name="ref8"></a><br><big><big>geomInitNew</big></big><br><br><pre>  FUCNTION GEOMindices = geomInitNew(number)
+&nbsp; 
+&nbsp; DESCRIPTION
+&nbsp; This function scans the GEOM global and locates empty spots, if
+&nbsp; no empty spots are found, places at the end of the list are 
+&nbsp; returned. The function creates an empty GEOM structure as well.
+&nbsp;
+&nbsp; INPUT
+&nbsp; number         number of new cells needed
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; GEOMSindices      positions of empty cells in the GEOM cellarray
+&nbsp;
+&nbsp; SEE ALSO geomNew 
+</pre><a name="ref9"></a><br><big><big>geomLinkGeom</big></big><br><br><pre>  FUNCTION [newCpts] = geomLinkGeom(Tchannels,Tpts,Trefchannels,Trefpts,Cchannels,Cpts,Crefchannels,Crefpts,deltaz)
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; Function to link the cage geometry in that of the torso using an intermediate geometry
+&nbsp;
+&nbsp; INPUT
+&nbsp; Tchannels,Tpts       points and channels of the torso tank
+&nbsp; Trefchannels,Trefpts points measured of the torso in the reference frame
+&nbsp; Cchannels,Cpts       points and channels of the cage
+&nbsp; Crefchannels,Crefpts points measured of the cage in the reference frame
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; newCpts              pointsof the cage in the torso coordinate system
+&nbsp;
+</pre><a name="ref10"></a><br><big><big>geomNew</big></big><br><br><pre>  function GEOMindices = geomNew(number)
+&nbsp; 
+&nbsp; DESCRIPTION
+&nbsp; This function scans the GEOM global and locates empty spots, if
+&nbsp; no empty spots are found, places at the end of the list are 
+&nbsp; returned
+&nbsp;
+&nbsp; INPUT
+&nbsp; number          number of cells needed
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; GEOMindices     positions of empty cells
+&nbsp;
+&nbsp; SEE ALSO geomDelete
+</pre><a name="ref11"></a><br><big><big>geomSet</big></big><br><br><pre>  FUNCTION geomSet(GEOMindices,fieldname,contents)
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function sets the fields of all the GEOM-structures 
+&nbsp; specified and puts the contents in there. 
+&nbsp;
+&nbsp; INPUT
+&nbsp; GEOMindices    Indices of the files involved
+&nbsp; fieldname      Name of field you want to list
+&nbsp; contents    	 field containing the new values 
+&nbsp;
+&nbsp; SEE ALSO geomInfo geomGet geomDeal
+</pre> <br>
+<br>
+<br>
+<a href="index.html"><big>[documentation home]</big></a><br>
+<script type="text/javascript">postContent();</script>
+</body>
+</html>

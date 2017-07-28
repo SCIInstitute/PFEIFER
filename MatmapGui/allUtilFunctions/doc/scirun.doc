@@ -1,0 +1,76 @@
+<big><big> Documentation for the SCIRUN directory </big></big><br>Contents: automaticly generated doucmentation <br>Filename: scirun.doc <br>Creation date: 04-Jun-2004 <br><br><br> <big><big> Contents </big></big> <br><a href="#ref1">scirunReadMatrix</a><br><a href="#ref2">scirunWriteMatrix</a><br><br><br><a name="ref1"></a><br><big><big>scirunReadMatrix</big></big><br><br><pre>  FUNCTION A = scirunReadMatrix(filename,[options,...])
+ 
+  DESCRIPTION
+  This function reads a file in the SCIRun matrix file format. It converts
+  the data in the matrix into a matkab array.
+ 
+  COMPATABILITY
+  The function supports the ASCii file format and in a lesser degree the BINary
+  A Problem with the binary format is that the property field (in the more recent SCIRun versions)
+  can contain any object available in SCIRun and there are no counters on the sizes of these objects.
+  Hence this function tries to read the file, but may get stuck on unknown objects in the
+  file. In order to have a full support for binary files all possible objects in SCIRun
+  should be supported. As the intention of this tool is a simple conversion, this is out
+  of the scope. In the ASCii format mechanisms are build in to skip unknown objects, so
+  this format is save to use. But so far I have not seen any use of the PropertyManager, so try the 
+  BINary version as it is much faster and if that one fails use the ASCii format.
+  In the SCIRun code a third file format is discussed being the GZIP format. Apparently it is not
+  used in the current releases of SCIRun, hence it is not supported by this format.
+ 
+  VERSION 0.1
+ 
+  INPUT
+  filename         Filename of the SCIRun matrix file (including extension)
+  options          None specified at the moment (left open for future use)
+ 
+  OUTPUT
+  A                The matrix stored in the SCIRun matrix file
+ 
+  EXAMPLES
+ 
+  >> A = rand(5);                                           % Generate a random matrix of 5 by 5
+  >> scirunWriteMatrix('mymatrix.mat',A,'sparse','BIN');    % Write a sparse matrix
+  >> B = scirunReadMatrix('mymatrix.mat');                  % Reads the matrix into B
+ 
+  SEE ALSO scirunWriteMatrix
+</pre><a name="ref2"></a><br><big><big>scirunWriteMatrix</big></big><br><br><pre>  FUNCTION result = scirunWriteMatrix(filename,matrix,[option,...])
+ 
+  DESCRIPTION
+  This function writes a file in the SCIRun matrix file format. It converts
+  the matlab matrix A into a file SCIRun can read. At the moment you need to
+  add the file extension. Both SCIRun and Matlab use the same extension (but
+  different file format) for saving a matrix. So the choice of extension name
+  is left to the user as SCIRun will read a file with any extension as long as 
+  it recognises its own file format.
+  
+  VERSION 0.1 
+ 
+  INPUT
+  filename         Filename of the SCIRun matrix file (including extension)
+  matrix           The matrix that is to be exported to SCIRun
+                   The matrix can be either dense or sparse
+  option           Here is a list of options and their meaning
+                   'BIN'    write a binary file
+                   'ASC'    write an ascii file
+                   'dense'  write in the dense matrix format
+                   'sparse' write in the sparse matrix format      
+                   'split'  split file into a header and raw file (only for dense matrices)   
+ 
+  OUTPUT
+  result           Result is 1 if the file is written successfully (0 otherwise) 
+ 
+  DEFAULT
+  As a default the function uses the format of the matrix, if the matrix is sparse
+  a sparse matrix is written and vice versa. The default file format is binary using
+  doubles for writing the data
+ 
+  EXAMPLES
+ 
+  This example generates a random matrix and writes a dense scirun matrix
+  in binary format.
+ 
+  >> A = rand(5);                                     % Generate a random matrix of 5 by 5
+  >> scirunWriteMatrix('mymatrix.mat',A,'sparse','BIN');    % Write a sparse matrix
+ 
+  SEE ALSO scirunReadMatrix
+</pre>

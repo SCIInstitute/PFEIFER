@@ -1,0 +1,357 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <meta
+ content="HTML Tidy for Mac OS X (vers 1st December 2002), see www.w3.org"
+ name="generator">
+  <meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+  <meta name="Matmap Documentation" content="none">
+  <link href="site.css" type="text/css" rel="stylesheet">
+  <title>Matmap Documentation</title>
+  <style type="text/css"> </style>
+</head>
+<body>
+<div id="page_category">Matmap Documentation</div>
+<script type="text/javascript" src="site.js"></script>
+<script type="text/javascript">preContent();</script><big><big><span
+ style="font-weight: bold;"><br>
+</span></big></big><big><a href="index.html"><big>[documentation home]</big></a><br>
+<br>
+</big><big><big><big>Software Reference</big></big><br>
+</big><br>
+This documention page has been generated automatically at 04-Jun-2004<br>
+<big style="font-weight: bold;"><big><br>
+</big></big><big><big>Topics</big></big><big style="font-weight: bold;"><big><br>
+</big></big><font size="2" color="#FFFFFF"><a href="act.html">ACT - Contents of the act directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="bem.html">BEM - Contents of the bem directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="bin.html">BIN - Contents of the bin directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="doc.html">DOC - Contents of the doc directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="fids.html">FIDS - Contents of the fids directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="geom.html">GEOM - Contents of the geom directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="gui.html">GUI - Contents of the gui directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="io.html">IO - Contents of the io directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="mex.html">MEX - Contents of the mex directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="misc.html">MISC - Contents of the misc directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="msg.html">MSG - Contents of the msg directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="scirun.html">SCIRUN - Contents of the scirun directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="script.html">SCRIPT - Contents of the script directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="sig.html">SIG - Contents of the sig directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="tri.html">TRI - Contents of the tri directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="ts.html">TS - Contents of the ts directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="util.html">UTIL - Contents of the util directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="win.html">WIN - Contents of the win directory</a></font><br>
+
+
+<big style="font-weight: bold;"><big><br>
+<br>
+</big></big>
+<big><big> Documentation for the TRI directory </big></big><br>Contents: automaticly generated doucmentation <br>Filename: tri.doc <br>Creation date: 04-Jun-2004 <br><br><br> <big><big> Contents </big></big> <br><a href="#ref1">CheckTriangulation</a><br><a href="#ref2">TriangulateNC</a><br><a href="#ref3">triAlignFacPts</a><br><a href="#ref4">triClockWise</a><br><a href="#ref5">triFindNeighbor</a><br><a href="#ref6">triFitCircle</a><br><a href="#ref7">triLaplacianInterpolation</a><br><a href="#ref8">triMergeNodes</a><br><a href="#ref9">triReOrderPts</a><br><a href="#ref10">triRotMatrix4</a><br><a href="#ref11">triSliceSurface</a><br><a href="#ref12">triSortSlices</a><br><a href="#ref13">triSplitInPlanes</a><br><a href="#ref14">triSurfaceLaplacian</a><br><a href="#ref15">triTriangulate</a><br><a href="#ref16">triVector3</a><br><a href="#ref17">triVector4</a><br><br><br><a name="ref1"></a><br><big><big>CheckTriangulation</big></big><br><br><pre>  This function checks if the triangulation went OK
+</pre><a name="ref2"></a><br><big><big>TriangulateNC</big></big><br><br><pre>  function Boundary = SlicesToPos(Slices)
+&nbsp; This function converts data obtained from slices
+&nbsp; in a three dimensional image build out of triangles
+&nbsp; the routine uses a simple algorithm 
+</pre><a name="ref3"></a><br><big><big>triAlignFacPts</big></big><br><br><pre>  FUNCTION 
+&nbsp; [pts,fac] = triAlignFacPts(oldpts,pts,fac)
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function rearranges an Pts and Fac matrix, so the order in the
+&nbsp; matrices matches that of the order given in the OldPts matrix
+&nbsp; the function assumes that oldPts and Pts were derived from the same dataset of points
+&nbsp; although small deviations may occur between the nodes. The function uses a
+&nbsp; basic distance criterium to match points. So no translation or rotation is allowed
+&nbsp; at this point. (Perhaps some future version will do). 
+&nbsp; furthermore the functions does everything so you can still use the old mapping files
+&nbsp; 
+&nbsp; INPUT
+&nbsp; oldpts      Matrix with order that has to be matched by the pts/fac matrices
+&nbsp; pts         The current points matrix
+&nbsp; fac         The current facs matrix
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; pts         New pts matrix in the same order as oldpts
+&nbsp; fac         New fac matrix in which the nodes have been properly renumbered
+&nbsp;
+&nbsp; SEE ALSO
+&nbsp; see ioWriteFac ioWritePts ioReadPts ioReadFac
+</pre><a name="ref4"></a><br><big><big>triClockWise</big></big><br><br><pre>  FUNCITON 
+&nbsp; fac = triClockWise(fac,pts)
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; Correct a triangulation and make all triangles ClockWise
+&nbsp; 
+&nbsp; INPUT
+&nbsp; fac     Triangulation data
+&nbsp; pts     Points matrix
+&nbsp; 
+&nbsp; OUTPUT
+&nbsp; fac     The new triangulation matrix
+&nbsp;
+</pre><a name="ref5"></a><br><big><big>triFindNeighbor</big></big><br><br><pre>  FUNCTION
+&nbsp; [firstneighbor,secondneighbor] = triFindNeighbor(fac)
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function finds the first and second order neighbors of each
+&nbsp; node in a mesh. By tracing the connections in the fac matrix, a
+&nbsp; first order neighbor is directly connected to the node and a second 
+&nbsp; order node is directly linked to its first order neighbors but not to
+&nbsp; the node itself.
+&nbsp;
+&nbsp; INPUT
+&nbsp; fac       The triangulation matrix
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; firstorderneighbor     A cell array with the node numbers of each cell's
+&nbsp;                        first order neighbors.
+&nbsp; secondorderneighbor    A cell array with the node numbers of each cell's
+&nbsp;                        second order neighbors.
+&nbsp;
+&nbsp; SEE ALSO
+&nbsp;
+</pre><a name="ref6"></a><br><big><big>triFitCircle</big></big><br><br><pre>  FUNCTION 
+&nbsp; [r,center] = triFitCircle(pts)
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function fits a circle through the points and tries to
+&nbsp; minimize the distance between the points and the circle in a
+&nbsp; least squares sense.
+&nbsp;
+&nbsp; INPUT
+&nbsp; pts     points array (2D)
+&nbsp; 
+&nbsp; OUTPUT
+&nbsp; r       radius of circle
+&nbsp; center  the center of the circle
+&nbsp;
+&nbsp; SEE ALSO
+&nbsp;
+</pre><a name="ref7"></a><br><big><big>triLaplacianInterpolation</big></big><br><br><pre>  FUNCTION 
+&nbsp; Lint = trilaplacianInterpolation(surface,channels)
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function computes a transfer matrix from the known potentials to the unknown
+&nbsp; potentials at a surface. The function uses the laplacian interpolation scheme.
+&nbsp; The function is written so that the function outputs a complete set when using the
+&nbsp; matrix this function computed :
+&nbsp; Utot = Lint*Uknown
+&nbsp;
+&nbsp; INPUT
+&nbsp; surface     A surface description with fields .pts and .fac
+&nbsp; channels    The known channels
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; Lint        The interpolation matrix
+&nbsp;
+&nbsp; SEE ALSO 
+&nbsp; triSurfaceLaplacian
+</pre><a name="ref8"></a><br><big><big>triMergeNodes</big></big><br><br><pre>  FUNCTION 
+&nbsp; [pts,fac,channels] = triMergeNodes(pts,fac,node1,node2,[channels])
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; Merge two points in an existing mesh. This will result in a mesh with one
+&nbsp; node less.
+&nbsp;
+&nbsp; INPUT
+&nbsp; pts         defines the node matrix
+&nbsp; fac         defines the triangulation matrix
+&nbsp; channels    defines the channels file associated with the mesh
+&nbsp; node1,node2 are the numbers of the nodes that have to be merged,
+&nbsp;             in the process node2 will be removed
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; pts         the new node matrix
+&nbsp; fac         the new triangulation matrix
+&nbsp; channels    the new channels vector
+&nbsp;
+&nbsp; SEE ALSO
+</pre><a name="ref9"></a><br><big><big>triReOrderPts</big></big><br><br><pre>  FUNCTION
+&nbsp; order = triReOrderPts(ptsold,ptsnew)
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function assumes the two points sets are equal and
+&nbsp; determines how the old set can be expressed into the new one.
+&nbsp; 
+&nbsp; INPUT
+&nbsp; ptsold        The first set of points
+&nbsp; ptsnew        The second set of points
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; order         The order in which the second points set can be expresse into
+&nbsp;               the first one: ptsnew = ptsold(:,order)
+&nbsp;
+&nbsp; SEE ALSO
+&nbsp;
+</pre><a name="ref10"></a><br><big><big>triRotMatrix4</big></big><br><br><pre>  FUNCTION 
+&nbsp; RM = triRotMatrix4(origin,normal)
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function creates an opengl like matrix rotating
+&nbsp; around the origin and pointing the normal along the z-axis
+&nbsp;
+&nbsp; INPUT
+&nbsp; origin     The origin around which to rotate.
+&nbsp; normal     A vector defining what should be the new z-axis
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; RM         Rotation matrix (4x4)
+&nbsp;
+&nbsp; SEE ALSO
+&nbsp; triVector4, triVector3
+</pre><a name="ref11"></a><br><big><big>triSliceSurface</big></big><br><br><pre>  FUNCTION 
+&nbsp; surface = triSliceSurface(surface,origin,normal,options)
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function slices a model in two and only keeps one part and fills up
+&nbsp; the sliced part
+&nbsp;
+&nbsp; INPUT
+&nbsp; surface     surface to be sliced
+&nbsp; origin      a point on the cutting plane
+&nbsp; normal      a normal to the cutting plane pointing outward
+&nbsp; 
+&nbsp; OPTIONS
+&nbsp; 'fill',distance   
+&nbsp;             fill the cutting plane and use distance as a measure for a regular grid
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; surface     new surface
+&nbsp;
+&nbsp; SEE ALSO
+&nbsp;
+</pre><a name="ref12"></a><br><big><big>triSortSlices</big></big><br><br><pre>  FUNCTION 
+&nbsp; slices = triSortSlices(pos,slices,normal,[origin])
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function sorts the points collected in one slice to rotate in an orderly fashion
+&nbsp; around a central point.
+&nbsp;
+&nbsp; INPUT
+&nbsp; pos       Matrix containing the node positions;
+&nbsp; slices    the cell array that contains the indices of the nodes that form one contour
+&nbsp; normal    Normal to the plane in which the the nodes need to be ordered
+&nbsp; origin    Origin from which the rotation and radius of the points of the curve should be calculated
+&nbsp;           default - The gravitational center of the cloud of points contained in one slice
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; slices    A cell array in which the indices are nicely ordered
+&nbsp;
+&nbsp; NOTE
+&nbsp; The algorithm is relatively easy. It just determines the angle and the radius of the points and
+&nbsp; uses the angle to sort the points
+&nbsp;
+&nbsp; SEE ALSO
+&nbsp;
+</pre><a name="ref13"></a><br><big><big>triSplitInPlanes</big></big><br><br><pre>  FUNCTION
+&nbsp; cpos = triSplitInPlanes(pts, origin, normal, step)
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; this function sorts the points into several slices and just looks in which 
+&nbsp; slice the nodes should be. Using a least squares fit the distance to the 
+&nbsp; different slices is determined, and the point is grouped in the plane 
+&nbsp; to which it is closest
+&nbsp;
+&nbsp; INPUT
+&nbsp; pos        Position matrix
+&nbsp; origin     Where to start (vector)
+&nbsp; normal     Each slice is normal to this vector (vector)
+&nbsp; step       A vector describing the distance between each slice and the
+&nbsp;            origin.
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; cpos       Cell array with in each cell indeces to a group of points in the same plane
+&nbsp;
+&nbsp; SEE ALSO
+&nbsp;
+</pre><a name="ref14"></a><br><big><big>triSurfaceLaplacian</big></big><br><br><pre>  FUNCTION 
+&nbsp; L = triSurfaceLaplacian(surface)
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function computes the surface laplacian matrix for a given 
+&nbsp; surface.
+&nbsp;
+&nbsp; INPUT
+&nbsp; surface         Surface to be used in laplacian operation
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; L               Surface laplacian matrix
+&nbsp;
+&nbsp; SEE ALSO
+&nbsp;
+</pre><a name="ref15"></a><br><big><big>triTriangulate</big></big><br><br><pre>  function Tri = triTriangulate(Pos,Slices)
+&nbsp;
+&nbsp; This is a simple triangulation algorithm
+&nbsp; It takes to sequential rings of the model and
+&nbsp; adds a surface in between. 
+&nbsp;
+&nbsp; INPUT
+&nbsp;   Pos -  A matrix containing all node positions
+&nbsp;   Slices -  A cell array. Every cell contains a vector of indices to the nummer of nodes
+&nbsp;             contained in one ring. For the algorithm to work properly, one needs to supply the 
+&nbsp;             the rings in an order they can be triangulated
+&nbsp;
+&nbsp;
+&nbsp; OUTPUT
+&nbsp;   Tri  - Matrix containing the triangulated data
+</pre><a name="ref16"></a><br><big><big>triVector3</big></big><br><br><pre>  function Pos3 = triVector3(Pos4)
+&nbsp;
+&nbsp; Strip the fourth redundant coordinate
+&nbsp; and go back to the cartesian coordinate system
+&nbsp;
+&nbsp; INPUT
+&nbsp; Pos4 - matrix with four vectors
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; Pos3 - matrix with three vectors
+</pre><a name="ref17"></a><br><big><big>triVector4</big></big><br><br><pre>  function Pos4 = triVector4(Pos3)
+&nbsp;
+&nbsp; This function transforms a normal matrix containing the position in three
+&nbsp; coordinates into a opengl-style four vector matrix.
+&nbsp; The difference is that the last position is used as a scaling number
+&nbsp; The latter makes a translation a matrix multiplication as well
+&nbsp; Hence all transformations on 4-vector can be described as matrix multiplications
+&nbsp;
+&nbsp; INPUT 
+&nbsp; Pos3 - matrix with a three cartesian coordinates per column
+&nbsp;
+&nbsp; OUTPUT 
+&nbsp; Pos4 - matrix with four cartesian coordinates per column
+</pre> <br>
+<br>
+<br>
+<a href="index.html"><big>[documentation home]</big></a><br>
+<script type="text/javascript">postContent();</script>
+</body>
+</html>

@@ -1,0 +1,294 @@
+<big><big> Documentation for the GUI directory </big></big><br>Contents: automaticly generated doucmentation <br>Filename: gui.doc <br>Creation date: 04-Jun-2004 <br><br><br> <big><big> Contents </big></big> <br><a href="#ref1">guiCreateAxes</a><br><a href="#ref2">guiCreateButton</a><br><a href="#ref3">guiCreateCheckBox</a><br><a href="#ref4">guiCreateEdit</a><br><a href="#ref5">guiCreateEditText</a><br><a href="#ref6">guiCreateFileEdit</a><br><a href="#ref7">guiCreateFrame</a><br><a href="#ref8">guiCreateListBox</a><br><a href="#ref9">guiCreateMenu</a><br><a href="#ref10">guiCreatePopupMenu</a><br><a href="#ref11">guiCreateSlider</a><br><a href="#ref12">guiCreateText</a><br><a href="#ref13">guiFigure</a><br><a href="#ref14">guiInitGUI</a><br><a href="#ref15">guiMakeGrid</a><br><a href="#ref16">guiSetBColor</a><br><a href="#ref17">guiTranslatePosition</a><br><a href="#ref18">guiTranslatePositionText</a><br><br><br><a name="ref1"></a><br><big><big>guiCreateAxes</big></big><br><br><pre>  FUNCTION handle = guiCreateAxes([figurehandle],position,[xlim],[ylim],[showaxes])
+ 
+  DESCRIPTION
+  This function creates a static text field and fills out all default fields like
+  colors etc, based on the template found in the global GUI
+ 
+  INPUT
+  figurehandle    Handle figure (optional)
+  position        Position of the Button specified as [left top right bottom]- position
+                  Note this is different from the standard matlab way of denoting a position
+  xlim            The xlimits 
+  ylim            The ylimits
+  showaxes        To turn off the text along the axes (0 == off and 1 == on (default))
+ 
+  OUTPUT
+  handle          The handle of the button
+ 
+  NOTE
+  Before running the gui creation tools, run guiInitGUI() to setup global templates for the buttons 
+ 
+  SEE ALSO guiCreateListBox guiCreateEdit guiCreateSlider guiCreateText guiCreateCheckBox guiCreateButton
+</pre><a name="ref2"></a><br><big><big>guiCreateButton</big></big><br><br><pre>  FUNCTION handle = guiCreateButton([figurehandle],string,callback,position)
+ 
+  DESCRIPTION
+  This function creates a push button and fills out all default fields like
+  colors etc, based on the template found in the global GUI
+ 
+  INPUT
+  figurehandle    Handle figure (optional)
+  string          Name of the button
+  callback        Callback to the function
+  position        Position of the Button specified as [left top right bottom]- position
+                  Note this is different from the standard matlab way of denoting a position
+ 
+  OUTPUT
+  handle          The handle of the button
+ 
+  NOTE
+  Before running the gui creation tools, run guiInitGUI() to setup global templates for the buttons 
+ 
+  SEE ALSO guiCreateListBox guiCreateEdit guiCreateSlider guiCreateText guiCreateCheckBox guiCreateButton
+</pre><a name="ref3"></a><br><big><big>guiCreateCheckBox</big></big><br><br><pre>  FUNCTION handle = guiCreateCheckBox([figurehandle],string,callback,position,[checked])
+ 
+  DESCRIPTION
+  This function creates a checkbox and fills out all default fields like
+  colors etc, based on the template found in the global GUI
+ 
+  INPUT
+  figurehandle    Handle figure (optional)
+  string          Name of the button
+  callback        Callback to the function
+  position        Position of the Button specified as [left top right bottom]- position
+                  Note this is different from the standard matlab way of denoting a position
+  checked         A value 0 or 1 depending on the state of the checkbox
+                  The default value is 0 (not checked)
+ 
+  OUTPUT
+  handle          The handle of the button
+ 
+  NOTE
+  Before running the gui creation tools, run guiInitGUI() to setup global templates for the buttons 
+ 
+  SEE ALSO guiCreateListBox guiCreateEdit guiCreateSlider guiCreateText guiCreateCheckBox guiCreateButton
+</pre><a name="ref4"></a><br><big><big>guiCreateEdit</big></big><br><br><pre>  FUNCTION handle = CreateEdit([figurehandle],string,callback,position)
+ 
+  DESCRIPTION
+  This function creates an edit field and fills out all default fields like
+  colors etc, based on the template found in the global GUI
+ 
+  INPUT
+  figurehandle    Handle figure (optional)
+  string          Name of the button
+  callback        Callback to the function
+  position        Position of the Button specified as [left top right bottom]- position
+                  Note this is different from the standard matlab way of denoting a position
+ 
+  OUTPUT
+  handle          The handle of the button
+ 
+  NOTE
+  Before running the gui creation tools, run guiInitGUI() to setup global templates for the buttons 
+ 
+  SEE ALSO guiCreateListBox guiCreateEdit guiCreateSlider guiCreateText guiCreateCheckBox guiCreateButton
+</pre><a name="ref5"></a><br><big><big>guiCreateEditText</big></big><br><br><pre>  FUNCTION handle = guiCreateEditText([figurehandle],string,callback,position,text)
+ 
+  DESCRIPTION
+  This function creates an edit field and fills out all default fields like
+  colors etc, based on the template found in the global GUI
+ 
+  INPUT
+  figurehandle    Handle figure (optional)
+  string          Name of the button
+  callback        Callback to the function
+  position        Position of the Button specified as [left top right bottom]- position
+                  Note this is different from the standard matlab way of denoting a position
+  text            Text left to the edit button
+ 
+  OUTPUT
+  handle          The handle of the button
+ 
+  NOTE
+  Before running the gui creation tools, run guiInitGUI() to setup global templates for the buttons 
+ 
+  SEE ALSO guiCreateListBox guiCreateEdit guiCreateSlider guiCreateText guiCreateCheckBox guiCreateButton
+</pre><a name="ref6"></a><br><big><big>guiCreateFileEdit</big></big><br><br><pre>  FUNCTION handle = guiCreateFileEdit([figurehandle],string,callback,position,pattern)
+ 
+  DESCRIPTION
+  This function creates an edit field and fills out all default fields like
+  colors etc, based on the template found in the global GUI
+ 
+  INPUT
+  figurehandle    Handle figure (optional)
+  string          Name of the button
+  callback        Callback to the function
+  position        Position of the Button specified as [left top right bottom]- position
+                  Note this is different from the standard matlab way of denoting a position
+ 
+  OUTPUT
+  handle          The handle of the button
+ 
+  SEE ALSO guiCreateListBox guiCreateEdit guiCreateSlider guiCreateTextguiCreateCheckBox guiCreateButton
+</pre><a name="ref7"></a><br><big><big>guiCreateFrame</big></big><br><br><pre>  FUNCTION handle = guiCreateFrame([figurehandle],position)
+ 
+  DESCRIPTION
+  This function creates a push button and fills out all default fields like
+  colors etc, based on the template found in the global GUI
+ 
+  INPUT
+  figurehandle    Handle figure (optional)
+  position        Position of the Button specified as [left top right bottom]- position
+                  Note this is different from the standard matlab way of denoting a position
+ 
+  OUTPUT
+  handle          The handle of the button
+ 
+  NOTE
+  Before running the gui creation tools, run guiInitGUI() to setup global templates for the buttons 
+ 
+  SEE ALSO guiCreateListBox guiCreateEdit guiCreateSlider guiCreateText guiCreateCheckBox guiCreateButton
+</pre><a name="ref8"></a><br><big><big>guiCreateListBox</big></big><br><br><pre>  FUNCTION handle = guiCreateListBox([figurehandle],string,callback,position,[max])
+ 
+  DESCRIPTION
+  This function creates a listbox and fills out all default fields like
+  colors etc, based on the template found in the global GUI
+ 
+  INPUT
+  figurehandle    Handle figure (optional)
+  string          Name of the button
+  callback        Callback to the function
+  position        Position of the Button specified as [left top right bottom]- position
+                  Note this is different from the standard matlab way of denoting a position
+  max             Maximum number of fields to be selectable
+ 
+  OUTPUT
+  handle          The handle of the button
+ 
+  NOTE
+  Before running the gui creation tools, run guiInitGUI() to setup global templates for the buttons 
+ 
+  SEE ALSO guiCreateListBox guiCreateEdit guiCreateSlider guiCreateText guiCreateCheckBox guiCreateButton
+</pre><a name="ref9"></a><br><big><big>guiCreateMenu</big></big><br><br><pre>  function guiCreateMenu([HWindow],MenuTitle,Menu)
+ 
+  HWindow     the handle to the figure in which the menu has to be created.
+  MenuTitle   the title of the menu in the menubar
+  Menu        a n by 2 cell array containing pairs of the menu-item-label
+              and the menu-item-callback
+ 
+  For instance
+  Menu = {'Front','view(90,0)'; 'Back','view(270,0)'};
+  CreateMenu(gcf,'View',Menu);
+  Creates a menu which selects the view of the figure
+ 
+  If you want a separator between items, just make the menu-item-label between
+  two items empty and a separator will be placed.
+  If no HWindow is supplied the function assumes the current figure to be 
+  the lucky one.
+ 
+  dr. JG Stinstra 2002
+</pre><a name="ref10"></a><br><big><big>guiCreatePopupMenu</big></big><br><br><pre>  FUNCTION handle = guiCreatePopupMenu([figurehandle],string,callback,position,value)
+ 
+  DESCRIPTION
+  This function creates a popupmenu button and fills out all default fields like
+  colors etc, based on the template found in the global GUI
+ 
+  INPUT
+  figurehandle    Handle figure (optional)
+  string          Fields of the button (cellarray)
+  callback        Callback to the function
+  position        Position of the Button specified as [left top right bottom]- position
+                  Note this is different from the standard matlab way of denoting a position
+  value           What is the default value
+ 
+  OUTPUT
+  handle          The handle of the button
+ 
+  NOTE
+  Before running the gui creation tools, run guiInitGUI() to setup global templates for the buttons 
+ 
+  SEE ALSO guiCreateListBox guiCreateEdit guiCreateSlider guiCreateText guiCreateCheckBox guiCreateButton
+</pre><a name="ref11"></a><br><big><big>guiCreateSlider</big></big><br><br><pre>  FUNCTION handle = guiCreateSlider([figurehandle],callback,position,[value],[max min],[step])
+ 
+  DESCRIPTION
+  This function creates a slider and fills out all default fields like
+  colors etc, based on the template found in the global GUI
+ 
+  INPUT
+  figurehandle    Handle figure (optional)
+  callback        Callback to the function
+  position        Position of the Button specified as [left top right bottom]- position
+                  Note this is different from the standard matlab way of denoting a position
+  value           Start value of the slider
+ 
+  OUTPUT
+  handle          The handle of the button
+ 
+  NOTE
+  Before running the gui creation tools, run guiInitGUI() to setup global templates for the buttons 
+ 
+  SEE ALSO guiCreateListBox guiCreateEdit guiCreateSlider guiCreateText guiCreateCheckBox guiCreateButton
+</pre><a name="ref12"></a><br><big><big>guiCreateText</big></big><br><br><pre>  FUNCTION handle = guiCreateText([figurehandle],string,position,[align])
+ 
+  DESCRIPTION
+  This function creates a static text field and fills out all default fields like
+  colors etc, based on the template found in the global GUI
+ 
+  INPUT
+  figurehandle    Handle figure (optional)
+  string          Name of the button
+  position        Position of the Button specified as [left top right bottom]- position
+                  Note this is different from the standard matlab way of denoting a position
+  align           Horizontal alignment
+ 
+  OUTPUT
+  handle          The handle of the button
+ 
+  NOTE
+  Before running the gui creation tools, run guiInitGUI() to setup global templates for the buttons 
+ 
+  SEE ALSO guiCreateListBox guiCreateEdit guiCreateSlider guiCreateText guiCreateCheckBox guiCreateButton
+</pre><a name="ref13"></a><br><big><big>guiFigure</big></big><br><br><pre>  FUNCTION handle = guiFigure(title,position,tag)
+ 
+  DESCRIPTION
+  This function generates a predefined figure window
+  With no toolbar etc.
+ 
+  INPUT
+  title     Title of the figure
+  position  Position of the figure in normalized coordinates
+  tag       A tag for finding the window
+ 
+  OUTPUT
+  handle    A handle to the figure
+ 
+  SEE ALSO -
+</pre><a name="ref14"></a><br><big><big>guiInitGUI</big></big><br><br><pre>  function InitGUI
+ 
+  This functions does nothing more then setting up a global called GUI
+  in which all settings regarding the GUI are stored
+  Defining it global prevents local copies being made which
+  only would make the system slow and would waste some memory
+ 
+  JG Stinstra 2002
+</pre><a name="ref15"></a><br><big><big>guiMakeGrid</big></big><br><br><pre>  function [X,Y] = guiMakeGrid(handle,rows,cols)
+ 
+  handle - of the object where the grid has to be relative to
+           in case of a figure it is relative to the figure
+           in case of a frame it is relative to the frame
+  rows   - The number of rows wanted, leave empty for default
+  cols   - The number of cols wanted, leave empty for default
+ 
+  JG Stinstra 2002
+</pre><a name="ref16"></a><br><big><big>guiSetBColor</big></big><br><br><pre></pre><a name="ref17"></a><br><big><big>guiTranslatePosition</big></big><br><br><pre>  FUNCTION newposition = guiTranslatePosition(position,mode)
+ 
+  DESCRIPTION
+  This function translates from one coordinate system to another
+  simplifying the way gui elements are located.
+ 
+  INPUT
+  position      A postion in [left top right bottom] coordinates
+  mode          Specifies whether coordinates need adjusting
+                0 - regular button (carve off some space so buttons do not touch eachother)
+                1 - text or frame
+                2 - axes (leave some space for text along axis)
+ 
+  OUTPUT      
+  newposition   Position in [left bottom width height]-coordinates
+ 
+  SEE ALSO -
+</pre><a name="ref18"></a><br><big><big>guiTranslatePositionText</big></big><br><br><pre>  function NewPosition = guiTranslatePositionText(Position)
+ 
+  This function translates from one coordinate system to another
+  simplifying the way gui elements are located
+  Make text appear in the middle
+</pre>

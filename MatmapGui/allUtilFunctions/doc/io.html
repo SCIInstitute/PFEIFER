@@ -1,0 +1,976 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <meta
+ content="HTML Tidy for Mac OS X (vers 1st December 2002), see www.w3.org"
+ name="generator">
+  <meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+  <meta name="Matmap Documentation" content="none">
+  <link href="site.css" type="text/css" rel="stylesheet">
+  <title>Matmap Documentation</title>
+  <style type="text/css"> </style>
+</head>
+<body>
+<div id="page_category">Matmap Documentation</div>
+<script type="text/javascript" src="site.js"></script>
+<script type="text/javascript">preContent();</script><big><big><span
+ style="font-weight: bold;"><br>
+</span></big></big><big><a href="index.html"><big>[documentation home]</big></a><br>
+<br>
+</big><big><big><big>Software Reference</big></big><br>
+</big><br>
+This documention page has been generated automatically at 04-Jun-2004<br>
+<big style="font-weight: bold;"><big><br>
+</big></big><big><big>Topics</big></big><big style="font-weight: bold;"><big><br>
+</big></big><font size="2" color="#FFFFFF"><a href="act.html">ACT - Contents of the act directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="bem.html">BEM - Contents of the bem directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="bin.html">BIN - Contents of the bin directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="doc.html">DOC - Contents of the doc directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="fids.html">FIDS - Contents of the fids directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="geom.html">GEOM - Contents of the geom directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="gui.html">GUI - Contents of the gui directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="io.html">IO - Contents of the io directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="mex.html">MEX - Contents of the mex directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="misc.html">MISC - Contents of the misc directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="msg.html">MSG - Contents of the msg directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="scirun.html">SCIRUN - Contents of the scirun directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="script.html">SCRIPT - Contents of the script directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="sig.html">SIG - Contents of the sig directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="tri.html">TRI - Contents of the tri directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="ts.html">TS - Contents of the ts directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="util.html">UTIL - Contents of the util directory</a></font><br>
+
+
+<font size="2" color="#FFFFFF"><a href="win.html">WIN - Contents of the win directory</a></font><br>
+
+
+<big style="font-weight: bold;"><big><br>
+<br>
+</big></big>
+<big><big> Documentation for the IO directory </big></big><br>Contents: automaticly generated doucmentation <br>Filename: io.doc <br>Creation date: 04-Jun-2004 <br><br><br> <big><big> Contents </big></big> <br><a href="#ref1">ioACQFilename</a><br><a href="#ref2">ioAddFilePath</a><br><a href="#ref3">ioFilename</a><br><a href="#ref4">ioMATFilename</a><br><a href="#ref5">ioReadCal</a><br><a href="#ref6">ioReadCal8</a><br><a href="#ref7">ioReadChannels</a><br><a href="#ref8">ioReadDFCFiles</a><br><a href="#ref9">ioReadFac</a><br><a href="#ref10">ioReadFids</a><br><a href="#ref11">ioReadFidsFile</a><br><a href="#ref12">ioReadFiles</a><br><a href="#ref13">ioReadGEOM</a><br><a href="#ref14">ioReadGEOMdata</a><br><a href="#ref15">ioReadGeomFacPts</a><br><a href="#ref16">ioReadMap</a><br><a href="#ref17">ioReadMapping</a><br><a href="#ref18">ioReadMs</a><br><a href="#ref19">ioReadPts</a><br><a href="#ref20">ioReadTS</a><br><a href="#ref21">ioReadTSDFCFiles</a><br><a href="#ref22">ioReadTSdata</a><br><a href="#ref23">ioTSDFFilename</a><br><a href="#ref24">ioTSDFFilename2</a><br><a href="#ref25">ioUpdateFilename</a><br><a href="#ref26">ioWriteCal</a><br><a href="#ref27">ioWriteCal8</a><br><a href="#ref28">ioWriteChannels</a><br><a href="#ref29">ioWriteFac</a><br><a href="#ref30">ioWriteGEOM</a><br><a href="#ref31">ioWriteGEOMdata</a><br><a href="#ref32">ioWriteGEOMfac</a><br><a href="#ref33">ioWritePts</a><br><a href="#ref34">ioWriteTS</a><br><a href="#ref35">ioWriteTSDFC</a><br><a href="#ref36">ioWriteTSdata</a><br><a href="#ref37">ioiInputParameters</a><br><a href="#ref38">ioiReadACQ</a><br><a href="#ref39">ioiReadACQdata</a><br><a href="#ref40">ioiReadFids</a><br><a href="#ref41">ioiReadFidsdata</a><br><a href="#ref42">ioiReadTSDF</a><br><a href="#ref43">ioiReadTSDFCFiles</a><br><a href="#ref44">ioiReadTSDFdata</a><br><a href="#ref45">ioiUpdateFids</a><br><br><br><a name="ref1"></a><br><big><big>ioACQFilename</big></big><br><br><pre>  FUNCTION filename = ioACQFilename(label,filenumber,[filenameaddons,...])
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function generates the ACQ filenames from the different pieces
+&nbsp;
+&nbsp; INPUT
+&nbsp; label           the label of the series
+&nbsp; filenumber      the number of the file or files (in case of more numbers it 
+&nbsp;                 creates a cell array of filenames)
+&nbsp; filenamesaddons addons like '_itg' or '_epi' etc.
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; filename        the filename or a list of filenames (cellarray)
+&nbsp;
+&nbsp; SEE ALSO ioTSDFFilename
+</pre><a name="ref2"></a><br><big><big>ioAddFilePath</big></big><br><br><pre></pre><a name="ref3"></a><br><big><big>ioFilename</big></big><br><br><pre>  FUNCTION filename = ioFilename(fileext,label,filenumber,[filenameaddons,...])
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function generates the CVRTI formatted filename from the different pieces
+&nbsp;
+&nbsp; INPUT
+&nbsp; fileext         the filename extension
+&nbsp; label           the label of the series
+&nbsp; filenumber      the number of the file or files (in case of more numbers it 
+&nbsp;                 creates a cell array of filenames)
+&nbsp; filenamesaddons addons like '_itg' or '_epi' etc.
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; filename        the filename or a list of filenames (cellarray)
+&nbsp;
+&nbsp; SEE ALSO ioTSDFFilename
+</pre><a name="ref4"></a><br><big><big>ioMATFilename</big></big><br><br><pre>  FUNCTION filename = ioMATFilename(label,filenumber,[filenameaddons,...])
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function generates the MAT filenames from the different pieces
+&nbsp;
+&nbsp; INPUT
+&nbsp; label           the label of the series
+&nbsp; filenumber      the number of the file or files (in case of more numbers it 
+&nbsp;                 creates a cell array of filenames)
+&nbsp; filenamesaddons addons like '_itg' or '_epi' etc.
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; filename        the filename or a list of filenames (cellarray)
+&nbsp;
+&nbsp; SEE ALSO ioTSDFFilename
+</pre><a name="ref5"></a><br><big><big>ioReadCal</big></big><br><br><pre>  FUNCTION cal = ioReadCal(filename)
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function reads a .cal file into a matrix.
+&nbsp;
+&nbsp; INPUT
+&nbsp; filename     name of the file (with or without extension)
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; cal          vector with the calibration information
+&nbsp;
+&nbsp; SEE ALSO ioReadMaping
+</pre><a name="ref6"></a><br><big><big>ioReadCal8</big></big><br><br><pre>  FUNCTION cal = ioReadCal8(filename)
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function reads a .cal8 file into a matrix.
+&nbsp; A .cal8 file contains the calibration for multiple gain settings
+&nbsp;
+&nbsp; INPUT
+&nbsp; filename     name of the file (with or without extension)
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; cal          vector with the calibration information
+&nbsp;
+&nbsp; SEE ALSO ioReadMaping
+</pre><a name="ref7"></a><br><big><big>ioReadChannels</big></big><br><br><pre>  FUNCTION channels  = ioReadChannels(filename)
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function reads a channels file into a matrix.
+&nbsp;
+&nbsp; INPUT
+&nbsp; filename     name of the file (with or without extension)
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; channels     Matrix containing the translation matrix for channel numbers and geometry
+&nbsp;              The first column matches the geometry node number and the second the 
+&nbsp;              the leadnumber in the tsdf data file.
+&nbsp;              Hence every row in the matrix marks a link between a geometry node and a 
+&nbsp;              measurement channel 
+&nbsp;
+&nbsp; SEE ALSO ioWriteChannels
+</pre><a name="ref8"></a><br><big><big>ioReadDFCFiles</big></big><br><br><pre>  FUNCTION TSDFCarray = ioReadDFCFiles(filenames)
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function reads the pointers to the TSDFC-files which are stored in the DFC-files. If DFC files are nested multiple
+&nbsp; files are read until the level where everything is a TSDFC-file. This function will return the TSDFC entries found in 
+&nbsp; a DFC-file. The function differs from ioReadTSDFCFiles in that respect that it returns TSDFC-files and NOT TSDF-files. 
+&nbsp; This function was designed to support the reading of DFC-files as if they are arrays of TSDFC-files. Hence it is used 
+&nbsp; in preparsing the TSDFC/DFC-file arrays to consist only of TSDFC-files. In the reading process DFC-files are interpreted
+&nbsp; as being an array of TSDFC-files.
+&nbsp;
+&nbsp; INPUT
+&nbsp; filenames     The DFC-file names. This can be a string or string array.
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; tdsfcarray    The TDSFC-files contained in the DFC-file(s).
+&nbsp;
+&nbsp; SEE ALSO ioReadTSDFCFiles
+</pre><a name="ref9"></a><br><big><big>ioReadFac</big></big><br><br><pre>  FUNCTION fac  = ioReadFac(filename)
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function reads a fac-geometry file into a matrix
+&nbsp;
+&nbsp; INPUT
+&nbsp; filename      name of the FAC-file
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; fac           matrix containing the triangulation information
+&nbsp;
+&nbsp; SEE ALSO ioWriteFac
+</pre><a name="ref10"></a><br><big><big>ioReadFids</big></big><br><br><pre>  FUNCTION ioReadFids([TSindex],filenames,options)
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function reads the fiducials from a TSDFC-file and
+&nbsp; from FIDS-files. Even fiducials stored within a TSDF-file are
+&nbsp; processed. The fiducials from external files are read and stored
+&nbsp; in the fids/fidset fields. All the fields will be renumber properly.
+&nbsp;
+&nbsp;
+&nbsp; INPUT
+&nbsp; TSindex        Which timeseries need to be processed
+&nbsp; filenames      What is the filename array (cellarray)
+&nbsp; options        WHich options are specified
+&nbsp;
+&nbsp; OUTPUT -
+&nbsp;
+&nbsp; SEE ALSO ioReadTS
+</pre><a name="ref11"></a><br><big><big>ioReadFidsFile</big></big><br><br><pre>  FUNCTION [fids,fidset] = ioReadFidsFile(filename)
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; function for reading '.fids' files
+&nbsp; the function returns the fids and fidset structures which
+&nbsp; correspond to the fids file
+&nbsp;
+&nbsp; INPUT
+&nbsp; filename     the filename of the fids-file (no checking on extension)
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; fids         fidset broken down in pieces
+&nbsp; fidset       array stating where the fidset came from
+&nbsp;
+&nbsp; SEE ALSO ioReadFids
+</pre><a name="ref12"></a><br><big><big>ioReadFiles</big></big><br><br><pre>  FUNCTION filelist = ioReadFiles(filename)
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function reads a filelist from a .files or .filelist file.
+&nbsp; Both files are ascii lists with one filename at each line.
+&nbsp; .files/.filelist files are used to ease the input of filenames
+&nbsp; In the reading process the files contained by the list are read
+&nbsp; The ioReadTS function allows for specifying the input files through
+&nbsp; a .files/.filelist file. 
+&nbsp;
+&nbsp; INPUT
+&nbsp; filename            the filename (no checking of extension)
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; filelist            cellarray with filenames
+&nbsp;
+&nbsp; SEE ALSO ioReadTS
+</pre><a name="ref13"></a><br><big><big>ioReadGEOM</big></big><br><br><pre>  FUNCTION geomindices = ioReadGEOM(filenames)
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function will add a set of geometry (.fac/.pts/.channels) to the GEOM-structure
+&nbsp;
+&nbsp; INPUT
+&nbsp; filenames      The filenames of the geometry files that you want to load. In case multiple
+&nbsp;                datasets are specified first specify the .geom or .fac file then the .pts 
+&nbsp;                and .channels files. To specify a certain surface in a geom file use the
+&nbsp;                file.geom@<number> notation to only retrieve that surface.
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; geomindices    Indices in the GEOM structure specifying where the data is stored
+&nbsp;
+&nbsp; SEE ALSO
+&nbsp; ioWriteGEOM
+</pre><a name="ref14"></a><br><big><big>ioReadGEOMdata</big></big><br><br><pre>  FUNCTION geomdata = ioReadGEOMdata(filenames)
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function will add a set of geometry (.fac/.pts/.channels) to a variable
+&nbsp;
+&nbsp; INPUT
+&nbsp; filenames      The filenames of the geometry files that you want to load. In case multiple
+&nbsp;                datasets are specified first specify the .geom or .fac file then the .pts 
+&nbsp;                and .channels files. To specify a certain surface in a geom file use the
+&nbsp;                file.geom@<number> notation to only retrieve that surface.
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; geomdata       Cell array with one surface per cell
+&nbsp;
+&nbsp; SEE ALSO
+&nbsp; ioWriteGEOMdata
+</pre><a name="ref15"></a><br><big><big>ioReadGeomFacPts</big></big><br><br><pre>  FUNCTION geomindices = ioReadGEOM(filenames)
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function will add a set of geometry (fac/pts/channels) to the GEOM-structure
+&nbsp;
+&nbsp; INPUT
+&nbsp;
+&nbsp; OUTPUT
+&nbsp;
+&nbsp; SEE ALSO
+</pre><a name="ref16"></a><br><big><big>ioReadMap</big></big><br><br><pre>  FUNCTION map = ioReadmap(filename)
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function loads a mapping/channels file. A mapping file is directly loaded
+&nbsp; into memory as it specifies where each channel should be located. A channels file
+&nbsp; is translated to be in the same format of the mapping file if possible. The
+&nbsp; structure of the latter file is different and thence needs a small conversion to
+&nbsp; act as a remapping file. In a mapping file each subsequent lead in the resulting 
+&nbsp; data matrix is assigned a new set of data whereas for a channels file this is not
+&nbsp; necessarily true. Hence in the latter case zeros are put in between.
+&nbsp; 
+&nbsp; INPUT
+&nbsp; filename		name of the file (wildcards allowed)
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; map			a vector specifying which channels should be mapped to position one,two
+&nbsp;                       etc. map(1) is the new lead/frame at position one, map(2) for position two
+&nbsp;                       and so on.
+&nbsp;
+&nbsp; SEE ALSO ioReadChannels, ioReadMapping
+</pre><a name="ref17"></a><br><big><big>ioReadMapping</big></big><br><br><pre>  FUNCTION mapping  = ioReadMapping(filename)
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function reads a .mapping file into a matrix.
+&nbsp;
+&nbsp; INPUT
+&nbsp; filename     name of the file (with or without extension)
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; mapping      vector with the mapping information
+&nbsp;
+&nbsp; SEE ALSO ioReadChannels
+</pre><a name="ref18"></a><br><big><big>ioReadMs</big></big><br><br><pre>  FUNCTION [label,pts] = ioReadMs(filename)
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function disassembles a .ms file from the microscribe digitiser.
+&nbsp; It splits the label and the digitised positions into two arrays.
+&nbsp;
+&nbsp; INPUT
+&nbsp; filename    the name of the .ms file
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; label       a cell array with all the labels recorded in the file
+&nbsp; pts         all the pts recorded in the file.
+&nbsp;
+&nbsp; SEE ALSO -
+</pre><a name="ref19"></a><br><big><big>ioReadPts</big></big><br><br><pre>  FUNCTION pts  = ioReadPts(filename)
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function reads a pts-geometry file into a matrix
+&nbsp;
+&nbsp; INPUT
+&nbsp; filename      name of the pts-file
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; pts           matrix containing the positions of nodes
+&nbsp;
+&nbsp; SEE ALSO ioWritePts, ioReadFac
+</pre><a name="ref20"></a><br><big><big>ioReadTS</big></big><br><br><pre>  FUNCTION TSindices = ioReadTS(filenames,[indexvector],[options])
+&nbsp;
+&nbsp; INPUT
+&nbsp; filenames      An cellarray of strings or a string specifying the files to be loaded. The function requires
+&nbsp;                that you specify the filename complete with extension. The use of wildcards in the filenames
+&nbsp;                is allowed. The filenames can be contained in one or more input arguments. The order of the
+&nbsp;                filenames determines the order in which they are read.
+&nbsp;                Files loaded include .tsdf/.data/.acq/.tsdfc./dfc./.fids/.mapping/.cal/.cal8
+&nbsp;                Warning do not mix .acq and .tsdf it may lead to some unpredicted effects
+&nbsp;                Specifying a TSDFC-file without any TSDF-files will load the complete list contained in the
+&nbsp;                TSDFC-file.
+&nbsp;                Specifying a TSDF-file in combination with a TSDFC-file, will use the TSDFC-files to lookup
+&nbsp;                the data specified for the timeseries in the TSDF-files. Instead of a TSDFC-file a DFC file
+&nbsp;                can be specified as well. The latter is considered to be an array TSDFC-files. If multiple
+&nbsp;                entries are found in the collection of TSDFC-files multiple versions of the TSDF-file are 
+&nbsp;                loaded. 
+&nbsp;                Specifying a GEOM-file or a combination of FAC/PTS/CHANNELS-files will add the geometry to the
+&nbsp;                loaded data. The geometry will be linked to the TS-data in the geom field which has a pointer
+&nbsp;                to geometries specified in GEOM. In order to specify geometries keep up with the following rules
+&nbsp;                specify the geometry files in the following order channels-file followed by a geom or fac file.
+&nbsp;                The latter may be accompanied by pts file as well. The program will keep this search order and
+&nbsp;                groups the geometry files in that order.
+&nbsp;
+&nbsp; indexvector    Specifies which and in which order the timeseries have to be loaded. Assuming the input file
+&nbsp;                series to be number 1 to n. The indexvector tells the function which of those to actually load.
+&nbsp;                Use this function to specify the timeseries in a TSDFC-file or for a TSDF-file with multiple
+&nbsp;                entries. The timeseries are read first scanning the first string array or string then passing to
+&nbsp;                the next argument and scanning through them etc. Use ioScanTS to get an overview of the timeseries
+&nbsp;                specified.
+&nbsp; options        See options section
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; TSindices      The indices to the TS-cell array where the files have been loaded.
+&nbsp;
+&nbsp; NOTE FOR ACQ FILES
+&nbsp;                Calibration and mapping is done while loading of the acq-data. Specify a .mapping and a .cal/.cal8
+&nbsp;                file as input parameters for calibration and mapping of the data. Use sigCalibrate8 to create a
+&nbsp;                calibration file.    
+&nbsp;
+&nbsp; OPTIONS
+&nbsp; Options can be defined as a structured array with fields specifying the options. Hence an option
+&nbsp; is a fieldname and its contents. Default options do not need to be specified (do not include the field)
+&nbsp; Here is a list of options you can use (will be extended in future)
+&nbsp;
+&nbsp; .framemap      Specifies which frames you want to read e.g. [1:20] reads the first twenty
+&nbsp;                The default setting is all frames.
+&nbsp; .leadmap       Specifies which leads you want to read e.g [1 3 5 6 7] reads channels 1,3,5,6,7
+&nbsp;                the default setting is all leads.
+&nbsp; .skiptsdffile  Specifies that you do not want to load the TSDF-files and it will only load the data from
+&nbsp;                the TSDFC-files. This function is turned off default. Just assign it to be one to turn it on.
+&nbsp; .scantsdffile  Specifies that you only want to scan the TSDF-files. This will load details like the label and
+&nbsp;                auditstrings, number of channels and number of leads but not the data itself.
+&nbsp;                This function is turned off default. Just assign it to be one to turn it on.
+&nbsp; .readtsdffids  Read the global fiducials stored in the TSDF-files as well. If this options is turned on, you 
+&nbsp;                cannot skip reading a TSDF-file. Turn this one by setting it to one.
+&nbsp; .timeseries    Another way of specifying which timeseries to load from a TSDF-file. This will apply to all the
+&nbsp;                files you supply. This array contains the number of timeseries you want to load.
+&nbsp; .scalemap      For ACQ files only. This options specifies the scaling of each map. Basicly each channel is multiplied
+&nbsp;                by this value. The scalemap has to be the same size as the number of channels or th e leadmap
+&nbsp;                In case of a leadmap specify the scalemap values in the same order as the leadmap (the way it is done
+&nbsp;                in a .cals file)
+&nbsp; SEE ALSO ioWriteTS
+</pre><a name="ref21"></a><br><big><big>ioReadTSDFCFiles</big></big><br><br><pre>  FUNCTION TSDFarray = ioReadTSDFCFiles(filenames,options)
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function reads the file-pointers contained in a TSDFC-file or a DFC-file. The function
+&nbsp; returns the filenames in the order of the TSDFC-files. Within a TSDFC-file the keys are
+&nbsp; alphabetically sorted by the function. If a DFC-file is supplied this file will be translated into 
+&nbsp; TSDFC-filenames first and subsequently they will be processed as an array of TSDFC-files.
+&nbsp; The function is intented to get all the TSDF-filenames to be loaded. Since the default option
+&nbsp; of ioReadTS in case no TSDF-filename is supplied is to read them all, this function is called
+&nbsp; establish what is all.
+&nbsp;
+&nbsp; INPUT
+&nbsp; filenames      A string or cell-array with strings specifying the TSDFC/DFC-files to be processed
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; TSDFarray      The TDSF-files contained in the DFC/TSDFC-files.
+&nbsp;
+&nbsp; SEE ALSO ioReadDFCFiles
+</pre><a name="ref22"></a><br><big><big>ioReadTSdata</big></big><br><br><pre>  FUNCTION data = ioReadTSdata(filenames,[indexvector],[options])
+&nbsp;
+&nbsp; REMARK
+&nbsp; This function is a copy of ioReadTS but does not load the data in the TS structure but returns a cell array
+&nbsp; directly.
+&nbsp;
+&nbsp; INPUT
+&nbsp; filenames      An cellarray of strings or a string specifying the files to be loaded. The function requires
+&nbsp;                that you specify the filename complete with extension. The use of wildcards in the filenames
+&nbsp;                is allowed. The filenames can be contained in one or more input arguments. The order of the
+&nbsp;                filenames determines the order in which they are read.
+&nbsp;                Files loaded include .tsdf/.tsdfc./dfc/.fids/.acq/.mapping/.cal/.cal8 
+&nbsp;                Specifying a TSDFC-file without any TSDF-files will load the complete list contained in the
+&nbsp;                TSDFC-file.
+&nbsp;                Specifying a TSDF-file in combination with a TSDFC-file, will use the TSDFC-files to lookup
+&nbsp;                the data specified for the timeseries in the TSDF-files. Instead of a TSDFC-file a DFC file
+&nbsp;                can be specified as well. The latter is considered to be an array TSDFC-files. If multiple
+&nbsp;                entries are found in the collection of TSDFC-files multiple versions of the TSDF-file are 
+&nbsp;                loaded. 
+&nbsp;
+&nbsp; indexvector    Specifies which and in which order the timeseries have to be loaded. Assuming the input file
+&nbsp;                series to be number 1 to n. The indexvector tells the function which of those to actually load.
+&nbsp;                Use this function to specify the timeseries in a TSDFC-file or for a TSDF-file with multiple
+&nbsp;                entries. The timeseries are read first scanning the first string array or string then passing to
+&nbsp;                the next argument and scanning through them etc. Use ioScanTS to get an overview of the timeseries
+&nbsp;                specified.
+&nbsp; options        See options section
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; data           A cell array with the data contained in the files.
+&nbsp;
+&nbsp; OPTIONS
+&nbsp; Options can be defined as a structured array with fields specifying the options. Hence an option
+&nbsp; is a fieldname and its contents. Default options do not need to be specified (do not include the field)
+&nbsp; Here is a list of options you can use (will be extended in future)
+&nbsp;
+&nbsp; .framemap      Specifies which frames you want to read e.g. [1:20] reads the first twenty
+&nbsp;                The default setting is all frames.
+&nbsp; .leadmap       Specifies which leads you want to read e.g [1 3 5 6 7] reads channels 1,3,5,6,7
+&nbsp;                the default setting is all leads.
+&nbsp; .skiptsdffile  Specifies that you do not want to load the TSDF-files and it will only load the data from
+&nbsp;                the TSDFC-files. This function is turned off default. Just assign it to be one to turn it on.
+&nbsp; .scantsdffile  Specifies that you only want to scan the TSDF-files. This will load details like the label and
+&nbsp;                auditstrings, number of channels and number of leads but not the data itself.
+&nbsp;                This function is turned off default. Just assign it to be one to turn it on.
+&nbsp; .readtsdffids  Read the global fiducials stored in the TSDF-files as well. If this options is turned on, you 
+&nbsp;                cannot skip reading a TSDF-file. Turn this one by setting it to one.
+&nbsp; .timeseries    Another way of specifying which timeseries to load from a TSDF-file. This will apply to all the
+&nbsp;                files you supply. This array contains the number of timeseries you want to load.
+&nbsp; .scalemap      Adds a scalingmap for a ACQ file. A values are multiplied my the data in this vector
+&nbsp;                The vector should have the same size as the number of leads. 
+&nbsp;
+&nbsp; SEE ALSO ioWriteTS ioWriteTSdata ioReadTS sigCalibrate8
+</pre><a name="ref23"></a><br><big><big>ioTSDFFilename</big></big><br><br><pre>  FUNCTION filename = ioTSDFFilename(label,filenumber,[filenameaddons,...])
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function generates the TSDF filenames from the different pieces
+&nbsp;
+&nbsp; INPUT
+&nbsp; label           the label of the series
+&nbsp; filenumber      the number of the file or files (in case of more numbers it 
+&nbsp;                 creates a cell array of filenames)
+&nbsp; filenamesaddons addons like '_itg' or '_epi' etc.
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; filename        the filename or a list of filenames (cellarray)
+&nbsp;
+&nbsp; SEE ALSO ioTSDFFilename
+</pre><a name="ref24"></a><br><big><big>ioTSDFFilename2</big></big><br><br><pre>  FUNCTION filename = ioTSDFFilename(label,filenumber,[filenameaddons,...])
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function generates the TSDF filenames from the different pieces
+&nbsp;
+&nbsp; INPUT
+&nbsp; label           the label of the series
+&nbsp; filenumber      the number of the file or files (in case of more numbers it 
+&nbsp;                 creates a cell array of filenames)
+&nbsp; filenamesaddons addons like '_itg' or '_epi' etc.
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; filename        the filename or a list of filenames (cellarray)
+&nbsp;
+&nbsp; SEE ALSO ioTSDFFilename
+</pre><a name="ref25"></a><br><big><big>ioUpdateFilename</big></big><br><br><pre>  FUNCTION filename = ioUpdateFilename(fileext,oldfilename,[filenameaddon])
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function generates the CVRTI formatted filename from the different pieces
+&nbsp;
+&nbsp; INPUT
+&nbsp; fileext             the filename extension
+&nbsp; oldfilename         the old filename
+&nbsp; filenamesaddon      an addon like '-itg' or '-ari' etc.
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; filename        the filename or a list of filenames (cellarray)
+&nbsp;
+&nbsp; SEE ALSO ioTSDFFilename
+</pre><a name="ref26"></a><br><big><big>ioWriteCal</big></big><br><br><pre>  FUNCTION ioWriteCal(filename,cal)
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function writes a .cal file.
+&nbsp;
+&nbsp; INPUT
+&nbsp; filename   The filename to be used for the .cal file
+&nbsp;            The extension .cal is automatically added
+&nbsp; cal        The vector containing the calibrations
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; -
+&nbsp;
+&nbsp; SEE ALSO ioReadCal
+</pre><a name="ref27"></a><br><big><big>ioWriteCal8</big></big><br><br><pre>  FUNCTION ioWriteCal(filename,cal)
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function writes a .cal8 file.
+&nbsp; A cal8 file has 8 calibration values per channels (one for each gain setting)
+&nbsp;
+&nbsp; INPUT
+&nbsp; filename   The filename to be used for the .cal file
+&nbsp;            The extension .cal is automatically added
+&nbsp; cal        The vector containing the calibrations
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; -
+&nbsp;
+&nbsp; SEE ALSO ioReadCal8
+</pre><a name="ref28"></a><br><big><big>ioWriteChannels</big></big><br><br><pre>  function result = ioWriteChannels(filename,Channels)
+&nbsp;
+&nbsp; this function writes a fac-geometry file to file
+&nbsp;
+&nbsp; INPUT
+&nbsp;  filename - name of the output file
+&nbsp;  Channels - matrix containing the translation matrix for channel numbers and geometry
+&nbsp;     The first column matches the geometry node number and the second the 
+&nbsp;     the leadnumber in the tsdf data file.
+&nbsp;     Hence every row in the matrix marks a link between a geometry node and a 
+&nbsp;     measurement channel 
+&nbsp;
+&nbsp; OUTPUT
+&nbsp;  result   - is one in case of success or zero in case of failure
+&nbsp;
+&nbsp; SEE ioReadChannels
+</pre><a name="ref29"></a><br><big><big>ioWriteFac</big></big><br><br><pre>  function result = ioWriteFac(filename,Fac)
+&nbsp;
+&nbsp; this function writes a fac-geometry file to file
+&nbsp;
+&nbsp; INPUT
+&nbsp;  filename - name of the output file
+&nbsp;  Fac      - matrix containing the triangulation data
+&nbsp;
+&nbsp; OUTPUT
+&nbsp;  result   - is one in case of success or zero in case of failure
+</pre><a name="ref30"></a><br><big><big>ioWriteGEOM</big></big><br><br><pre>  FUNCTION ioWriteGEOM(filename,geomdata,['noprompt'])
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function writes a .geom file
+&nbsp;
+&nbsp; INPUT
+&nbsp;  filename       the filename(s) for saving the data (append extension .geom)
+&nbsp;  geomdata       indices to the GEOM structure or direct structured data
+&nbsp; 
+&nbsp; OPTIONS
+&nbsp;  noprompt       do not prompt before overwriting a file
+&nbsp;
+&nbsp; OUTPUT
+&nbsp;  -
+&nbsp;
+&nbsp; GEOM STRUCTURE
+&nbsp;  .filename      - filename
+&nbsp;  .name          - the name of the data (where it came from)
+&nbsp;  .pts           - pts file
+&nbsp;  .cpts          - the conductivity tensors per point
+&nbsp;  .fac           - fac file
+&nbsp;  .cfac          - the conductivity tensors per element
+&nbsp;  .channels      - the channels file
+&nbsp;
+&nbsp; SEE ALSO ioReadGEOM, ioReadGEOMdata
+</pre><a name="ref31"></a><br><big><big>ioWriteGEOMdata</big></big><br><br><pre>  FUNCTION ioWriteGEOMdata(filename,geomdata,['noprompt'])
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function writes a .geom file
+&nbsp;
+&nbsp; INPUT
+&nbsp; filename       the filename(s) for saving the data (append extension .geom)
+&nbsp; geomdata       indices to the GEOM structure or direct structured data
+&nbsp; 
+&nbsp; OPTIONS
+&nbsp; noprompt       do not prompt before overwriting a file
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; -
+&nbsp;
+&nbsp; NOTE
+&nbsp; Unlike ioWriteTS/ioWriteTSdata this function does not generate filenames
+&nbsp; automatically, hence you need to supply a filename. The function does not 
+&nbsp; have a overwrite protection neither, except that it prompts for permission 
+&nbsp; whenever overwriting an old geom file.
+&nbsp;
+&nbsp; GEOM STRUCTURE
+&nbsp;  .filename      - filename
+&nbsp;  .name          - the name of the data (where it came from)
+&nbsp;  .pts           - pts file
+&nbsp;  .cpts          - the conductivity tensors per point
+&nbsp;  .fac           - fac file
+&nbsp;  .cfac          - the conductivity tensors per element
+&nbsp;  .channels      - the channels file
+&nbsp;
+&nbsp; SEE ALSO ioReadGEOM, ioReadGEOMdata
+</pre><a name="ref32"></a><br><big><big>ioWriteGEOMfac</big></big><br><br><pre>  FUNCTION ioWriteGEOMfac(filename,geomdata,['noprompt'])
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function writes a .geom file
+&nbsp;
+&nbsp; INPUT
+&nbsp;  filename       the filename for saving the data (append extension .geom)
+&nbsp;  geomdata       indices to the GEOM structure or direct structured data
+&nbsp; 
+&nbsp; OPTIONS
+&nbsp;  noprompt       do not prompt before overwriting a file
+&nbsp;
+&nbsp; OUTPUT
+&nbsp;  -
+&nbsp;
+&nbsp; GEOM STRUCTURE
+&nbsp;  .filename      - filename
+&nbsp;  .name          - the name of the data (where it came from)
+&nbsp;  .pts           - pts file
+&nbsp;  .cpts          - the conductivity tensors per point
+&nbsp;  .fac           - fac file
+&nbsp;  .cfac          - the conductivity tensors per element
+&nbsp;  .channels      - the channels file
+&nbsp;
+&nbsp; SEE ALSO ioReadGEOM, ioReadGEOMdata, ioWriteGEOM, ioWriteGEOMdata
+</pre><a name="ref33"></a><br><big><big>ioWritePts</big></big><br><br><pre>  function result = ioWriteFac(filename,Pts)
+&nbsp;
+&nbsp; this function writes a fac-geometry file to file
+&nbsp;
+&nbsp; INPUT
+&nbsp;  filename - name of the output file
+&nbsp;  Pts      - matrix containing the node position data
+&nbsp;
+&nbsp; OUTPUT
+&nbsp;  result   - is one in case of success or zero in case of failure
+</pre><a name="ref34"></a><br><big><big>ioWriteTS</big></big><br><br><pre>  function newfilenames = ioWriteTS(filenames,TSindices,[options],[overwrite],[noprompt],[oworiginal])
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp;  This function writes TSDF and TSDFC-files 
+&nbsp;
+&nbsp; INPUT
+&nbsp; filenames      An cellarray of strings or a string specifying the files to be loaded. The function requires
+&nbsp;                that you specify the filename complete with extension. The use of wildcards in the filenames
+&nbsp;                is allowed. The filenames can be contained in one or more input arguments. The order of the
+&nbsp;                filenames determines the order in which they are written.
+&nbsp;                Files that can be written are .tsdfc and .tsdf.
+&nbsp;                If you want to write the geometry files (.geom/.fac/.pts/.channels) use ioWriteGeom. 
+&nbsp;                1) Specifying a TSDFC-file without any TSDF-files will try to store each timeseries in a new file.
+&nbsp;                The newfile name will be the filename with the newfileext attached to it.
+&nbsp;              	 If the field newfileext is empty  a statement '_copy' will be added. In this way no source tsdf
+&nbsp;                file will be overwriten. If you want to determine the filename completely, delete the field
+&nbsp;                filename and put the new filename in newfileext. This way you control the filenames.
+&nbsp;                However if the new file already exists the function will not allow you to overwrite any tsdf
+&nbsp;                file. In order to unlock this savety feature, state 'overwrite' at the end of the statement.
+&nbsp;                This will cause the function to prompt for each file you are about to overwrite  
+&nbsp;                2) Specifying a series of TSDF-filenames will overrule the standard generated names and saves
+&nbsp;                your files with these names. Be sure to put 'overwrite' if you want to be able to overwrite 
+&nbsp;                existing files and take care that the list of tsdf filenames equals the dimension of TSindices.	
+&nbsp;                3) if you want multiple timeseries in one file, use ioWriteTSDF instead. This function will not
+&nbsp;                allow more than one timeseries per file. 		 
+&nbsp;             	 Note if you want to write fiducials you have to supply a tsdfcfilename. Ohterwise no fiducials will
+&nbsp;                be saved.
+&nbsp;			
+&nbsp;
+&nbsp; TSindices      Specify which timeseries need to be saved
+&nbsp;
+&nbsp; OPTIONS        
+&nbsp; .tsdfconly     Only write the fiducials to an existing or a new tsdfc-file
+&nbsp;
+&nbsp; OPTIONS TO BE SPECIFIED AS EXTRA ARGUMENTS (SO NO MISTAKES ARE MADE AND NO HIDDEN OPTIONS ARE LOCATED IN THE OPTIONS ARGUMENT) 
+&nbsp; 'overwrite'    Unlock overwriting of tsdf-files (originals: the filename in the field filename is not overwritten)
+&nbsp; 'oworiginal'   Unlock overwriting of the original files. If no newfileext is specified the old file will be overwritten
+&nbsp;                With noprompt off a confirmation will be required before replacing the original file.
+&nbsp; 'noprompt'	 Disable prompting a savety check before saving the file (In case a file is overwritten)
+&nbsp;
+&nbsp;
+&nbsp; SEE ALSO ioReadTS ioWriteTSdata ioReadTSdata
+</pre><a name="ref35"></a><br><big><big>ioWriteTSDFC</big></big><br><br><pre>  FUNCTION ioWriteTSDFC(tsdfcfile,key,TSindex)
+&nbsp;
+&nbsp; INTERNAL FUNCTION
+&nbsp; Try to avoid direct usage of this function. Use ioWriteTS instead
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function writes an entry in the TSDFC-file. At the moment the function only
+&nbsp; supports fiducials, but in the future it should be able to do a rewrite. This still
+&nbsp; requires some programming.
+&nbsp;
+&nbsp; INPUT
+&nbsp; tsdfcfile                the tsdfc file to store the data in
+&nbsp; key                      the name of the tsdf file.
+&nbsp; TSindex                  the index from where to get the fiducials
+&nbsp;
+&nbsp; OUTPUT -
+&nbsp;
+&nbsp; SEE ALSO -
+</pre><a name="ref36"></a><br><big><big>ioWriteTSdata</big></big><br><br><pre>  function newfilenames = ioWriteTS(filenames,TSindices,[options],[overwrite],[noprompt],[oworiginal])
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp;  This function writes TSDF and TSDFC-files. It is a copy ioWriteTS (both do the same thing) 
+&nbsp;
+&nbsp; INPUT
+&nbsp; filenames      An cellarray of strings or a string specifying the files to be loaded. The function requires
+&nbsp;                that you specify the filename complete with extension. The use of wildcards in the filenames
+&nbsp;                is allowed. The filenames can be contained in one or more input arguments. The order of the
+&nbsp;                filenames determines the order in which they are written.
+&nbsp;                Files that can be written are .tsdfc and .tsdf.
+&nbsp;		 If you want to write the geometry files (.geom/.fac/.pts/.channels) use ioWriteGeom. 
+&nbsp;                1) Specifying a TSDFC-file without any TSDF-files will try to store each timeseries in a new file.
+&nbsp;		 The newfile name will be the filename with the newfileext attached to it.
+&nbsp;		 If the field newfileext is empty  a statement '_copy' will be added. In this way no source tsdf
+&nbsp;		 file will be overwriten. If you want to determine the filename completely, delete the field
+&nbsp;                filename and put the new filename in newfileext. This way you control the filenames.
+&nbsp;		 However if the new file already exists the function will not allow you to overwrite any tsdf
+&nbsp;                file. In order to unlock this savety feature, state 'overwrite' at the end of the statement.
+&nbsp;		 This will cause the function to prompt for each file you are about to overwrite  
+&nbsp;		 2) Specifying a series of TSDF-filenames will overrule the standard generated names and saves
+&nbsp;		 your files with these names. Be sure to put 'overwrite' if you want to be able to overwrite 
+&nbsp;                existing files and take care that the list of tsdf filenames equals the dimension of TSindices.	
+&nbsp;		 3) if you want multiple timeseries in one file, use ioWriteTSDF instead. This function will not
+&nbsp;                allow more than one timeseries per file. 		 
+&nbsp;		 Note if you want to write fiducials you have to supply a tsdfcfilename. Ohterwise no fiducials will
+&nbsp;                be saved.
+&nbsp;			
+&nbsp;
+&nbsp; TSindices      Specify which timeseries need to be saved
+&nbsp;
+&nbsp; OPTIONS        
+&nbsp; .tsdfconly     Only write the fiducials to the original or a new tsdfc-file
+&nbsp;
+&nbsp; OPTIONS TO BE SPECIFIED AS EXTRA ARGUMENTS (SO NO MISTAKES ARE MADE AND NO HIDDEN OPTIONS ARE LOCATED IN THE OPTIONS ARGUMENT) 
+&nbsp; 'overwrite'    Unlock overwriting of tsdf-files (originals: the filename in the fieldfilename are not overwritten)
+&nbsp; 'oworiginal'   Unlock overwriting of the original files. If no newfileext is specified the old file will be overwritten
+&nbsp;                With noprompt off a confirmation will be required before replacing the original file.
+&nbsp; 'noprompt'	 Disable prompting a savety check before saving the file (In case a file is overwritten)
+&nbsp;
+&nbsp;
+&nbsp; SEE ioReadTSdata
+</pre><a name="ref37"></a><br><big><big>ioiInputParameters</big></big><br><br><pre>  FUNCTION [files,indices,options,overwrite,append,noprompt,oworiginal,TSrecord] = ioiInputParameters(param,options)
+&nbsp;
+&nbsp; INTERNAL FUNCTION
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function processes the data parsed to the general ioReadTS and ioWriteTS.
+&nbsp; The function accepts a cell array in which the input parameters to these functions are
+&nbsp; stored. This function sorts the input and returns the five parameters these io functions
+&nbsp; need.
+&nbsp; This function sorts the files by file type and puts them in a structure. In case files
+&nbsp; are read the function unpacks dfc files and returns only tsdfc files.
+&nbsp;
+&nbsp; INPUT 
+&nbsp; param        input parameter-cell-array
+&nbsp; options      see options
+&nbsp;
+&nbsp; OPTIONS
+&nbsp; .read			check filenames (default)
+&nbsp; .write		skip the check on filenames and do no wildcards
+&nbsp; .readtsdfc    add the contents of the tsdfc-files to the filelist	
+&nbsp; .nocheck      don't check filenames and don't do wildcards
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; files        structured array in which the time series files are sorted
+&nbsp; indices      the indices of the files to be read or the TSindices to be written
+&nbsp; options      the options that are passed to these functions
+&nbsp; overwrite    is one in case overwriting files is allowed
+&nbsp; append       is one in case appending files is allowed
+&nbsp; noprompt     do not prompt before overwriting files
+&nbsp; oworiginal   overwriting the original data is now allowed
+&nbsp; tsRecord    TS records supplied as full data structures
+&nbsp;
+&nbsp; SEE ALSO -
+</pre><a name="ref38"></a><br><big><big>ioiReadACQ</big></big><br><br><pre>  FUNCTION TSindices = ioiReadACQ(tsdffilename,[indices],[options])
+&nbsp;
+&nbsp; INTERNAL FUNCTION
+&nbsp; Avoid using this function, as it might change in the future
+&nbsp; Use ioReadTS instead
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function reads one ACQ file into the TS-structure. The function is based on
+&nbsp; mexReadACQ, but has some additional functionality, for instance it adds data on where
+&nbsp; the data originated from, so when using ioWriteTSDF it knows what filenames to use by
+&nbsp; default. 
+&nbsp; 
+&nbsp; INPUT
+&nbsp; acqfilename           A single acq-filename for reading
+&nbsp; indices               In case multiple timeseries are stored, select the ones needed
+&nbsp; options               For future usage
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; TSindices             Indices into the TS-structure where the data has been loaded
+&nbsp;
+&nbsp; SEE ALSO ioReadTS, ioWriteTS
+</pre><a name="ref39"></a><br><big><big>ioiReadACQdata</big></big><br><br><pre>  FUNCTION TS = ioiReadACQFdata(tsdffilename,[indices],[options])
+&nbsp;
+&nbsp; INTERNAL FUNCTION
+&nbsp; Avoid using this function, as it might change in the future
+&nbsp; Use ioReadTS instead
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function reads one ACQ file into a structure (not the TS-structure). The function is based on
+&nbsp; mexReadTSDF, but has some additional functionality, for instance it adds data on where
+&nbsp; the data originated from, so when using ioWriteTSDF it knows what filenames to use by
+&nbsp; default. 
+&nbsp; 
+&nbsp; INPUT
+&nbsp; acqfilename          A single acq-filename for reading
+&nbsp; indices               In case multiple timeseries are stored, select the ones needed
+&nbsp; options               For future usage
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; TSindices             Cell with TS-structure where the data has been loaded
+&nbsp;
+&nbsp; SEE ALSO ioReadTS, ioWriteTSDF, ioWriteTS
+</pre><a name="ref40"></a><br><big><big>ioiReadFids</big></big><br><br><pre>  FUNCTION ioiReadFids([TSindex],filenames,options)
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function reads the fiducials from a TSDFC-file and
+&nbsp; from FIDS-files. Even fiducials stored within a TSDF-file are
+&nbsp; processed. The fiducials from external files are read and stored
+&nbsp; in the fids/fidset fields. All the fields will be renumber properly.
+&nbsp;
+&nbsp; INTERNAL FUNCTION
+&nbsp; Please do not use directly but use ioReadTS instead
+&nbsp;
+&nbsp; INPUT
+&nbsp; TSindex        Which timeseries need to be processed
+&nbsp; filenames      What is the filename array (cellarray)
+&nbsp; options        WHich options are specified
+&nbsp;
+&nbsp; OUTPUT -
+&nbsp;
+&nbsp; SEE ALSO ioReadTS
+</pre><a name="ref41"></a><br><big><big>ioiReadFidsdata</big></big><br><br><pre>  FUNCTION TS = ioiReadFidsdata(TS,filenames,options)
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function reads the fiducials from a TSDFC-file and
+&nbsp; from FIDS-files. Even fiducials stored within a TSDF-file are
+&nbsp; processed. The fiducials from external files are read and stored
+&nbsp; in the fids/fidset fields. All the fields will be renumber properly.
+&nbsp;
+&nbsp; INTERNAL FUNCTION
+&nbsp; Please do not use directly but use ioReadTS instead
+&nbsp;
+&nbsp; INPUT
+&nbsp; TSindex        Which timeseries need to be processed
+&nbsp; filenames      What is the filename array (cellarray)
+&nbsp; options        WHich options are specified
+&nbsp;
+&nbsp; OUTPUT -
+&nbsp;
+&nbsp; SEE ALSO ioReadTS
+</pre><a name="ref42"></a><br><big><big>ioiReadTSDF</big></big><br><br><pre>  FUNCTION TSindices = ioiReadTSDF(tsdffilename,[indices],[options])
+&nbsp;
+&nbsp; INTERNAL FUNCTION
+&nbsp; Avoid using this function, as it might change in the future
+&nbsp; Use ioReadTS instead
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function reads one TSDF file into the TS-structure. The function is based on
+&nbsp; mexReadTSDF, but has some additional functionality, for instance it adds data on where
+&nbsp; the data originated from, so when using ioWriteTSDF it knows what filenames to use by
+&nbsp; default. 
+&nbsp; 
+&nbsp; INPUT
+&nbsp; tsdffilename          A single tsdf-filename for reading
+&nbsp; indices               In case multiple timeseries are stored, select the ones needed
+&nbsp; options               For future usage
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; TSindices             Indices into the TS-structure where the data has been loaded
+&nbsp;
+&nbsp; SEE ALSO ioReadTS, ioWriteTSDF, ioWriteTS
+</pre><a name="ref43"></a><br><big><big>ioiReadTSDFCFiles</big></big><br><br><pre>  FUNCTION TSDFarray = ioReadTSDFCFiles(filenames,options)
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function reads the file-pointers contained in a TSDFC-file or a DFC-file. The function
+&nbsp; returns the filenames in the order of the TSDFC-files. Within a TSDFC-file the keys are
+&nbsp; alphabetically sorted by the function. If a DFC-file is supplied this file will be translated into 
+&nbsp; TSDFC-filenames first and subsequently they will be processed as an array of TSDFC-files.
+&nbsp; The function is intented to get all the TSDF-filenames to be loaded. Since the default option
+&nbsp; of ioReadTS in case no TSDF-filename is supplied is to read them all, this function is called
+&nbsp; establish what is all.
+&nbsp;
+&nbsp; INPUT
+&nbsp; filenames      A string or cell-array with strings specifying the TSDFC/DFC-files to be processed
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; TSDFarray      The TDSF-files contained in the DFC/TSDFC-files.
+&nbsp;
+&nbsp; SEE ALSO ioReadDFCFiles
+</pre><a name="ref44"></a><br><big><big>ioiReadTSDFdata</big></big><br><br><pre>  FUNCTION TS = ioiReadTSDFdata(tsdffilename,[indices],[options])
+&nbsp;
+&nbsp; INTERNAL FUNCTION
+&nbsp; Avoid using this function, as it might change in the future
+&nbsp; Use ioReadTS instead
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function reads one TSDF file into a structure (not the TS-structure). The function is based on
+&nbsp; mexReadTSDF, but has some additional functionality, for instance it adds data on where
+&nbsp; the data originated from, so when using ioWriteTSDF it knows what filenames to use by
+&nbsp; default. 
+&nbsp; 
+&nbsp; INPUT
+&nbsp; tsdffilename          A single tsdf-filename for reading
+&nbsp; indices               In case multiple timeseries are stored, select the ones needed
+&nbsp; options               For future usage
+&nbsp;
+&nbsp; OUTPUT
+&nbsp; TSindices             Cell with TS-structure where the data has been loaded
+&nbsp;
+&nbsp; SEE ALSO ioReadTS, ioWriteTSDF, ioWriteTS
+</pre><a name="ref45"></a><br><big><big>ioiUpdateFids</big></big><br><br><pre>  FUNCTION ioiUpdateFids(TSindex,options)
+&nbsp;
+&nbsp; INTERNAL FUNCTION
+&nbsp;
+&nbsp; DESCRIPTION
+&nbsp; This function checks the integrity of the fiducials.
+&nbsp; Only allowing global (length=1) or local fiducial (length=numleads)
+&nbsp; On other configurations the function will fail. As well remapping 
+&nbsp; options are build in and the fiducials will be corrected for this.
+&nbsp; In case no TSDF-data is loaded, the function will check whether only 
+&nbsp; two lengths of fiducias are present, assuming local fiducials to
+&nbsp; have a length other than one, but all need to be the same as they 
+&nbsp; correspond to the same dataset.
+&nbsp; In case of frame renumbering the fiducials will be checked. Any fiducials
+&nbsp; that are out of range will be removed as integrals based on them will not
+&nbsp; be valid. The latter check is only performed in case a number of frames is
+&nbsp; specified, so you will be allowed to load fidsets only
+&nbsp;
+&nbsp; INPUT
+&nbsp; TSindex     The indices of the timeseries to be inspected
+&nbsp; options     Options, specifying lead and frame remapping
+&nbsp; 
+&nbsp; OUTPUT -
+&nbsp;
+&nbsp; SEE ALSO - 
+</pre> <br>
+<br>
+<br>
+<a href="index.html"><big>[documentation home]</big></a><br>
+<script type="text/javascript">postContent();</script>
+</body>
+</html>
