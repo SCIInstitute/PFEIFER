@@ -390,9 +390,7 @@ function GetACQFiles
     % filenames is cellarray with all the filenames of files in folder, like 
     %{'Ran0001.ac2'    'Ru0009.ac2'}
     
-    
-    filenames(strcmp(filenames,'myScriptData.mat'))=[];
-    filenames(strcmp(filenames,'myProcessingData.mat'))=[];
+    filenames(strcmp(filenames,'b'))=[];
     filenames = sort(filenames);
     
     options.scantsdffile = 1;
@@ -411,7 +409,11 @@ function GetACQFiles
     h = waitbar(0,'INDEXING AND READING FILES','Tag','waitbar'); drawnow;
     nFiles=length(filenames);
     for p = 1:nFiles
+        
+        filenames{p}
         T = ioReadTSdata(filenames{p},options);    % read in the file
+        T
+        
         if ~isfield(T{1},'time'), T{1}.time = 'none'; end
         if ~isfield(T{1},'label'), T{1}.label = 'no label'; end
         T{1}.label=myStrTrim(T{1}.label); %necessary, because original strings have weird whitespaces that are not recognized as whitespaces.. really weird!
