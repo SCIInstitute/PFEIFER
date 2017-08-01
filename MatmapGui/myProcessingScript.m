@@ -34,7 +34,7 @@ function myProcessingScript(varargin)
     myUpdateFigure(setting_handle);     % and update it
     setHelpMenus(setting_handle);      
     
-    myUpdateGroups        % analogous to UpdateGroups  (initialize Group Buttons)
+%    myUpdateGroups        % analogous to UpdateGroups  (initialize Group Buttons)
     
     myUpdateACQFiles      % get ACQ Files from input directory to display them and get ACQ LABELS.
 end
@@ -288,7 +288,6 @@ global myScriptData;
 myScriptData.ACQLABEL = 'Run';   %TODO..  leave this like that? ACQLABEL used in calfile stuff
 
 
-
 % olddir = pwd;
 % if ~isempty(myScriptData.ACQDIR)
 %     if exist(myScriptData.ACQDIR,'dir')
@@ -317,32 +316,30 @@ myScriptData.ACQLABEL = 'Run';   %TODO..  leave this like that? ACQLABEL used in
 % label
 % cd(olddir);
     
-
-
 end
 
 
 
 
-function myUpdateGroups()  %TODO get rid of this, pretty sure it's unneccesary
-% not entirely sure..  like UpdateGroups, 
-% sets default values for all the group cellarrays, if no values for a group have been set by the user
-    global myScriptData;
-    fn = fieldnames(myScriptData.TYPE);
-    for q=1:length(myScriptData.RUNGROUPNAMES)
-        len = length(myScriptData.GROUPNAME{q});
-        for p=1:length(fn)
-            if strncmp(myScriptData.TYPE.(fn{p}),'group',5)   % GROUPNAME, GROUPLEADS, GROUPEXTENSION, GROUPEXTENSION, GROUPBADLEADS etc.  
-                cellarray = myScriptData.(fn{p}){q};
-                default = myScriptData.DEFAULT.(fn{p});
-                if length(cellarray) < len, cellarray{len} = default; end
-                for s=1:len
-                    if isempty(cellarray{s}), cellarray{s} = default; end
-                end
-            end
-        end
-    end
-end
+% function myUpdateGroups()  %TODO get rid of this, pretty sure it's unneccesary
+% % not entirely sure..  like UpdateGroups, 
+% % sets default values for all the group cellarrays, if no values for a group have been set by the user
+%     global myScriptData;
+%     fn = fieldnames(myScriptData.TYPE);
+%     for q=1:length(myScriptData.RUNGROUPNAMES)
+%         len = length(myScriptData.GROUPNAME{q});
+%         for p=1:length(fn)
+%             if strncmp(myScriptData.TYPE.(fn{p}),'group',5)   % GROUPNAME, GROUPLEADS, GROUPEXTENSION, GROUPEXTENSION, GROUPBADLEADS etc.  
+%                 cellarray = myScriptData.(fn{p}){q};
+%                 default = myScriptData.DEFAULT.(fn{p});
+%                 if length(cellarray) < len, cellarray{len} = default; end
+%                 for s=1:len
+%                     if isempty(cellarray{s}), cellarray{s} = default; end
+%                 end
+%             end
+%         end
+%     end
+% end
 
 function GetACQFiles
 % this function finds all files in ACQDIR and updates the following fields accordingly:
@@ -355,7 +352,7 @@ function GetACQFiles
 %     listbox
     
 
-    global myScriptData;
+    global myScriptData TS;
    
     oldfilenames = {};
     if ~isempty(myScriptData.ACQFILES)
@@ -373,13 +370,13 @@ function GetACQFiles
     
     olddir = pwd;
     %change into myScriptData.ACQDIR,if it exists and is not empty
-    if ~isempty(myScriptData.ACQDIR)
-        if exist(myScriptData.ACQDIR,'dir')
-            if ~isempty(dir(myScriptData.ACQDIR))
-                cd(myScriptData.ACQDIR);
-            end
-        end
+    try
+        cd(myScriptData.ACQDIR);
+    catch
+        errordlg('input directory doesn''t exist or is not specified.')
+        error('Something wrong with input directory')
     end
+  
     
     
     filenames = {};
@@ -390,13 +387,18 @@ function GetACQFiles
             filenames{end+1} = d(q).name;
         end
     end
+    
     % filenames is cellarray with all the filenames of files in folder, like 
     %{'Ran0001.ac2'    'Ru0009.ac2'}
     
+    % get rid of the processing .mat files, they don't belong here, also sort
+    % files
+    filenames(strcmp(filenames,'myScriptData.mat'))=[];
+    filenames(strcmp(filenames,'myProcessingData.mat'))=[];
     filenames = sort(filenames);
     
-    options.scantsdffile = 1;
-   
+    
+    % initialize/clear old entries
     myScriptData.ACQFILENUMBER = [];
     myScriptData.ACQLISTBOX= {};
     myScriptData.ACQFILENAME = {};
@@ -409,16 +411,43 @@ function GetACQFiles
     end
     
     h = waitbar(0,'INDEXING AND READING FILES','Tag','waitbar'); drawnow;
-    T = ioReadTSdata(filenames,options);    % read in all the file data in cellarray T
-    if isgraphics(h), waitbar(0.8,h); end
-    
-    for p = 1:length(T)
-        if ~isfield(T{p},'time'), T{p}.time = 'none'; end
-        if ~isfield(T{p},'label'), T{p}.label = 'no label'; end
-        T{p}.label=myStrTrim(T{p}.label); %necessary, because original strings have weird whitespaces that are not recognized as whitespaces.. really weird!
+    nFiles=length(filenames);
+    for p = 1:nFiles
+        
+        %%%% load filename in various ways, depending if .mat .ac2..
+        %%%% with/without 'ts_info...
+        [~,~,ext]=fileparts(filenames{p});
+        if strcmp(ext,'.mat')
+            warning('off','all')  % supress warning, if 'ts_info' not in mat
+            load(filenames{p},'ts_info')
+            warning('on','all')
+            if exist('ts_info','var')
+                ts=ts_info;
+            else
+                load(filenames{p},'ts')
+                if ~exist('ts','var')
+                    msg=sprintf('The file %s does not contain a ''ts'' or ''ts_info'' structure.',filenames{p});
+                    errordlg(msg)
+                    error('cannot load file')
+                end
+            end
+        elseif strcmp(ext,'.ac2')
+            index=ioReadTS(filenames{p});
+            ts=TS{index};
+            TS{index}=[];
+        else
+            msg=sprintf('The file %s cannot be loaded, since it''s not a .mat or .ac2 file.',filenames{p});
+            errordlg(msg)
+            error('cannot load file')
+        end
+
+        
+        if ~isfield(ts,'time'), ts.time = 'none'; end
+        if ~isfield(ts,'label'), ts.label = 'no label'; end
+        ts.label=myStrTrim(ts.label); %necessary, because original strings have weird whitespaces that are not recognized as whitespaces.. really weird!
         myScriptData.ACQFILENUMBER(p) = p;      
         
-        %%% find out which rungroup p belongs to
+        %%%% find out which rungroup p belongs to
         rungroup='';
         for s=1:length(myScriptData.RUNGROUPNAMES)
             if ismember(p, myScriptData.RUNGROUPFILES{s})
@@ -427,11 +456,13 @@ function GetACQFiles
             end
         end
         
-        T{p}.time=myStrTrim(T{p}.time);   % use of myStrTrim for the same reason as above..     
-        myScriptData.ACQLISTBOX{p} = sprintf('%04d %15s %15s %13s %20s',myScriptData.ACQFILENUMBER(p),T{p}.filename,rungroup, T{p}.time,T{p}.label);
+        ts.time=myStrTrim(ts.time);   % use of myStrTrim for the same reason as above..     
+        myScriptData.ACQLISTBOX{p} = sprintf('%04d %15s %15s %13s %20s',myScriptData.ACQFILENUMBER(p),ts.filename,rungroup, ts.time,ts.label);
         
-        myScriptData.ACQFILENAME{p} = T{p}.filename;
-        myScriptData.ACQINFO{p} = T{p}.label;
+        myScriptData.ACQFILENAME{p} = ts.filename;
+        myScriptData.ACQINFO{p} = ts.label;
+        
+        if isgraphics(h), waitbar(p/nFiles,h); end
     end
 
     [~,~,myScriptData.ACQFILES] = intersect(oldfilenames,myScriptData.ACQFILENAME);
@@ -889,7 +920,7 @@ function runScript(handle)
     end
 
     if isgraphics(h), close(h); end
-    myUpdateGroups;
+%    myUpdateGroups; DODO
     myUpdateFigure(findobj(allchild(0),'tag','PROCESSINGSCRIPTSETTINGS'));
     myUpdateFigure(findobj(allchild(0),'tag','PROCESSINGSCRIPTMENU')); 
 end
@@ -2090,7 +2121,7 @@ function defaultsettings=getDefaultSettings
                     'ACQDIR','','file',...
                     'ACQCONTAIN','','string',...
                     'ACQCONTAINNOT','','string',...
-                    'ACQEXT','.acq,.ac2','string',...   
+                    'ACQEXT','.mat,.ac2','string',...   
                     'BASELINEWIDTH',5,'integer',...
                     'GROUPNAME','GROUP','groupstring',... 
                     'GROUPLEADS',[],'groupvector',...
