@@ -11,7 +11,6 @@ calfile=myScriptData.CALIBRATIONFILE;  % path to .cal8 file
 DO_CALIBRATION=myScriptData.CALIBRATE_SPLIT;  % do you want to calibrate files as you convert them into .mat files?
 idx2beSplitted=myScriptData.FILES2SPLIT;  % indices of the files in allInputFiles, that will be splitted..
 
-tAll=tic;
 
 %%%% start here, first check input:
 if isempty(outputdir)
@@ -35,7 +34,7 @@ olddir=cd(inputdir);
 h=waitbar(0,'loading & splitting files..');
 
 %%%% read in and split files
-tic
+
 for p=1:length(allInputFiles)
     if DO_CALIBRATION
         TSindex=ioReadTS(allInputFiles{p},calfile);
@@ -59,29 +58,36 @@ for p=1:length(allInputFiles)
         
 end
 cd(olddir);
-toc
+
 
 %%%% rename ts.filename, make sure they all have ts.origin
-tic
-renameTS()
-toc
 
-%%%% save all files of current TS
-tic
+renameTS()
+
+
+%%%% save all files of current TS (including ts_info variable with header)
+
 for p=1:length(TS)
     ts=TS{p};
     fname=fullfile(outputdir,TS{p}.filename);
-    save(fname, 'ts')
-    clear ts
+    
+    %get ts_info
+    fn=fieldnames(ts);
+    for q=1:length(fn)
+        if strcmp(fn{q},'potvals'), continue, end
+        ts_info.(fn{q})=ts.(fn{q});
+    end   
+
+    save(fname,'ts','ts_info','-v6')
+    clear ts ts_info
     if isgraphics(h), waitbar(0.6+0.4*p/length(TS),h,'saving files'), end
 end
-toc
+
 %%%% clean up & close figure
 clear global TS
 if isgraphics(handle), delete(handle), end
 if isgraphics(h), delete(h), end
 
-tAll=toc(tAll);
 fprintf('total time: %s \n', tAll);
 
 

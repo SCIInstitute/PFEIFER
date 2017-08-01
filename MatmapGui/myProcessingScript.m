@@ -352,7 +352,7 @@ function GetACQFiles
 %     listbox
     
 
-    global myScriptData;
+    global myScriptData TS;
    
     oldfilenames = {};
     if ~isempty(myScriptData.ACQFILES)
@@ -387,16 +387,18 @@ function GetACQFiles
             filenames{end+1} = d(q).name;
         end
     end
+    
     % filenames is cellarray with all the filenames of files in folder, like 
     %{'Ran0001.ac2'    'Ru0009.ac2'}
     
-    
+    % get rid of the processing .mat files, they don't belong here, also sort
+    % files
     filenames(strcmp(filenames,'myScriptData.mat'))=[];
     filenames(strcmp(filenames,'myProcessingData.mat'))=[];
     filenames = sort(filenames);
     
-    options.scantsdffile = 1;
-   
+    
+    % initialize/clear old entries
     myScriptData.ACQFILENUMBER = [];
     myScriptData.ACQLISTBOX= {};
     myScriptData.ACQFILENAME = {};
@@ -411,13 +413,41 @@ function GetACQFiles
     h = waitbar(0,'INDEXING AND READING FILES','Tag','waitbar'); drawnow;
     nFiles=length(filenames);
     for p = 1:nFiles
-        T = ioReadTSdata(filenames{p},options);    % read in the file
-        if ~isfield(T{1},'time'), T{1}.time = 'none'; end
-        if ~isfield(T{1},'label'), T{1}.label = 'no label'; end
-        T{1}.label=myStrTrim(T{1}.label); %necessary, because original strings have weird whitespaces that are not recognized as whitespaces.. really weird!
+        
+        %%%% load filename in various ways, depending if .mat .ac2..
+        %%%% with/without 'ts_info...
+        [~,~,ext]=fileparts(filenames{p});
+        if strcmp(ext,'.mat')
+            warning('off','all')  % supress warning, if 'ts_info' not in mat
+            load(filenames{p},'ts_info')
+            warning('on','all')
+            if exist('ts_info','var')
+                ts=ts_info;
+            else
+                load(filenames{p},'ts')
+                if ~exist('ts','var')
+                    msg=sprintf('The file %s does not contain a ''ts'' or ''ts_info'' structure.',filenames{p});
+                    errordlg(msg)
+                    error('cannot load file')
+                end
+            end
+        elseif strcmp(ext,'.ac2')
+            index=ioReadTS(filenames{p});
+            ts=TS{index};
+            TS{index}=[];
+        else
+            msg=sprintf('The file %s cannot be loaded, since it''s not a .mat or .ac2 file.',filenames{p});
+            errordlg(msg)
+            error('cannot load file')
+        end
+
+        
+        if ~isfield(ts,'time'), ts.time = 'none'; end
+        if ~isfield(ts,'label'), ts.label = 'no label'; end
+        ts.label=myStrTrim(ts.label); %necessary, because original strings have weird whitespaces that are not recognized as whitespaces.. really weird!
         myScriptData.ACQFILENUMBER(p) = p;      
         
-        %%% find out which rungroup p belongs to
+        %%%% find out which rungroup p belongs to
         rungroup='';
         for s=1:length(myScriptData.RUNGROUPNAMES)
             if ismember(p, myScriptData.RUNGROUPFILES{s})
@@ -426,11 +456,11 @@ function GetACQFiles
             end
         end
         
-        T{1}.time=myStrTrim(T{1}.time);   % use of myStrTrim for the same reason as above..     
-        myScriptData.ACQLISTBOX{p} = sprintf('%04d %15s %15s %13s %20s',myScriptData.ACQFILENUMBER(p),T{1}.filename,rungroup, T{1}.time,T{1}.label);
+        ts.time=myStrTrim(ts.time);   % use of myStrTrim for the same reason as above..     
+        myScriptData.ACQLISTBOX{p} = sprintf('%04d %15s %15s %13s %20s',myScriptData.ACQFILENUMBER(p),ts.filename,rungroup, ts.time,ts.label);
         
-        myScriptData.ACQFILENAME{p} = T{1}.filename;
-        myScriptData.ACQINFO{p} = T{1}.label;
+        myScriptData.ACQFILENAME{p} = ts.filename;
+        myScriptData.ACQINFO{p} = ts.label;
         
         if isgraphics(h), waitbar(p/nFiles,h); end
     end
@@ -890,7 +920,7 @@ function runScript(handle)
     end
 
     if isgraphics(h), close(h); end
-    myUpdateGroups;
+%    myUpdateGroups; DODO
     myUpdateFigure(findobj(allchild(0),'tag','PROCESSINGSCRIPTSETTINGS'));
     myUpdateFigure(findobj(allchild(0),'tag','PROCESSINGSCRIPTMENU')); 
 end
@@ -2091,7 +2121,7 @@ function defaultsettings=getDefaultSettings
                     'ACQDIR','','file',...
                     'ACQCONTAIN','','string',...
                     'ACQCONTAINNOT','','string',...
-                    'ACQEXT','.acq,.ac2','string',...   
+                    'ACQEXT','.mat,.ac2','string',...   
                     'BASELINEWIDTH',5,'integer',...
                     'GROUPNAME','GROUP','groupstring',... 
                     'GROUPLEADS',[],'groupvector',...
