@@ -34,7 +34,6 @@ olddir=cd(inputdir);
 h=waitbar(0,'loading & splitting files..');
 
 %%%% read in and split files
-
 for p=1:length(allInputFiles)
     if DO_CALIBRATION
         TSindex=ioReadTS(allInputFiles{p},calfile);
@@ -88,7 +87,6 @@ clear global TS
 if isgraphics(handle), delete(handle), end
 if isgraphics(h), delete(h), end
 
-fprintf('total time: %s \n', tAll);
 
 
 function newTSindices = splitUnprocTS(TSindex,frames)
@@ -134,6 +132,10 @@ TS(toBeCleared)=[];
 
 
 function frames = getFrames(TSindex)
+%frames = {[s1:e2],[s2:e2],...,[sn:en]}
+%frames shorter then 70 frames are removed
+
+
 global TS myScriptData
 numframes=TS{TSindex}.numframes;
 intervalLength=myScriptData.SAMPLEFREQ*myScriptData.SPLITINTERVAL;
@@ -144,6 +146,16 @@ for p=1:numIntervals-1
     frames{p}=((p-1)*intervalLength+1):(p*intervalLength);
 end
 frames{end}=((numIntervals-1)*intervalLength+1):numframes;
+
+% remove frames that are too short (<70)
+idx2beRemoved=[];
+for p=1:length(frames)
+    if length(frames{p}) < 70
+        idx2beRemoved=[idx2beRemoved, p];
+    end
+end
+frames(idx2beRemoved)=[];
+        
 
 
 
