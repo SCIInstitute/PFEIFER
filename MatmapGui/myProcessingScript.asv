@@ -346,6 +346,7 @@ function GetACQFiles
         cd(olddir)
         return
     end
+    disp('updating')
     h = waitbar(0,'INDEXING AND READING FILES','Tag','waitbar'); drawnow;
     nFiles=length(filenames);
     for p = 1:nFiles  
@@ -358,8 +359,10 @@ function GetACQFiles
             load(filenames{p},'ts_info')
             warning('on','all')
             if exist('ts_info','var')
+                disp('exists')
                 ts=ts_info;
                 
+                ts.filename
             else  % if no 'ts_info', load ts, but append 'ts_info' to mat file
                 load(filenames{p},'ts')
                 if ~exist('ts','var')
@@ -660,6 +663,7 @@ function setScriptData(handle, mode)
     
     if nargin == 2
         if strcmp(mode,'input')   %if call was by input bar
+            getAC2Labels;   % upate msd.ACQLABEL
             GetACQFiles;    %update all the file related cellarrays, load files into TS cellarray
         end
     end
@@ -819,13 +823,11 @@ function runScript(handle)
     %%%% MAIN LOOP %%%
     acqfiles = unique(myScriptData.ACQFILES);
     h  = waitbar(0,'SCRIPT PROGRESS','Tag','waitbar'); drawnow;
-    
-    
+
     p = 1;
     while (p <= length(acqfiles))
 
         myScriptData.ACQNUM = acqfiles(p);
-        myScriptData.NAVIGATION = 'apply';
         
         %%%% find the current rungroup of processed file
         myScriptData.CURRENTRUNGROUP=[];
@@ -840,8 +842,8 @@ function runScript(handle)
             errordlg(msg);
             error('No Rungroup specified for all files')
         end
-        
-        
+            
+
         ProcessACQFile(myScriptData.ACQFILENAME{acqfiles(p)},myScriptData.ACQDIR);
         
         switch myScriptData.NAVIGATION
