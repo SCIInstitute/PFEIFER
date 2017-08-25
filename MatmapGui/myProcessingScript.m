@@ -615,7 +615,7 @@ function setScriptData(handle, mode)
                 else
                     cellarray = {};
                 end
-                switch objtype(6:end)     %change individual entry of cellarray according to user input. no change here necessary
+                switch objtype(6:end)     %change individual entry of cellarray according to user input.
                     case {'file','string'}
                         cellarray{group} = get(handle,'string');
                     case {'double','vector'}
@@ -764,7 +764,7 @@ function ACQselectLabel(~)
     global myScriptData;
     pat = myScriptData.ACQPATTERN;
     sel = [];
-    for p=1:length(myScriptData.ACQINFO),
+    for p=1:length(myScriptData.ACQINFO)
         if ~isempty(strfind(myScriptData.ACQINFO{p},pat)), sel = [sel myScriptData.ACQFILENUMBER(p)]; end
     end
     myScriptData.ACQFILES = sel;
@@ -933,9 +933,9 @@ function PreLoopScript
                     
                     %find the mappingfile used for the acqcalfiles.
                     mappingfile=[];
-                    for s=1:length(myScriptData.RUNGROUPNAMES)
-                        if ismember(myScriptData.CALIBRATIONACQ,myScriptData.RUNGROUPFILES{s})
-                            mappingfile=myScriptData.RUNGROUPMAPPINGFILE{s};
+                    for rg=1:length(myScriptData.RUNGROUPNAMES)
+                        if ismember(myScriptData.CALIBRATIONACQ,myScriptData.RUNGROUPFILES{rg})
+                            mappingfile=myScriptData.RUNGROUPMAPPINGFILE{rg};
                             break
                         end
                     end
@@ -960,13 +960,12 @@ function PreLoopScript
     end    
     
     %%%% RENDER A GLOBAL LIST OF ALL THE BADLEADS,  set msd.GBADLEADS%%%%
-   
    myScriptData.GBADLEADS={};
    for s=1:length(myScriptData.RUNGROUPNAMES)
        badleads=[];
        for p=1:length(myScriptData.GROUPBADLEADS{s})           
             reference=myScriptData.GROUPLEADS{s}{p}(1)-1;    
-            addBadleads=  myScriptData.GROUPBADLEADS{s}{p} + reference;
+            addBadleads = myScriptData.GROUPBADLEADS{s}{p} + reference;
             
             % check if user input for badleads is correct
             diff=myScriptData.GROUPLEADS{s}{p}(end)-myScriptData.GROUPLEADS{s}{p}(1);
@@ -976,29 +975,35 @@ function PreLoopScript
                 error('specified bad leads are invalid')
             end
             
-
             
             % read in badleadsfile, if there is one
             if ~isempty(myScriptData.GROUPBADLEADSFILE{s}{p}) %TODO, do I want to badleadsfile of this grouplisttype?
                 bfile = load(myScriptData.GROUPBADLEADSFILE{s}{p},'-ASCII');
                 badleads = union(bfile(:)',badleads);
-            end        
+            end
+            if size(addBadleads,2) > 1
+                addBadleads=addBadleads';
+            else
+                disp('blablub') %TODO  remove this
+            end
+            
+            badleads=[badleads; addBadleads];
        end
         
         
         myScriptData.GBADLEADS{s} = badleads;
    end
-
-    
-    
+   % GBADLEADS is now a nRungroup x 1 cellarray with the following entries for each rungroup:
+   % a nBadLeads x 1 array with the badleads in the "global frame" for the rungroup.
+       
     %%%% FIND MAXIMUM LEAD for each rg
     myScriptData.MAXLEAD={};  %set to empty first, just in case
-    for s=1:length(myScriptData.RUNGROUPNAMES)  
+    for rg=1:length(myScriptData.RUNGROUPNAMES)  
         maxlead = 1;
-        for p=1:length(myScriptData.GROUPLEADS{s})
-            maxlead = max([maxlead myScriptData.GROUPLEADS{s}{p}]);  %TODO this can be done a lot easier..
+        for p=1:length(myScriptData.GROUPLEADS{rg})
+            maxlead = max([maxlead myScriptData.GROUPLEADS{rg}{p}]);  %TODO this can be done a lot easier..
         end
-        myScriptData.MAXLEAD{s} = maxlead;
+        myScriptData.MAXLEAD{rg} = maxlead;
     end
     
     
@@ -1009,10 +1014,10 @@ function PreLoopScript
             errordlg('Need to split the signals before interpolation');
             error('ERROR');
         end
-        for s=1:length(myScriptData.RUNGROUPNAMES)  %a edit: for each rg..
-            for q=1:length(myScriptData.GROUPNAME{s})
-                myProcessingData.LIBADLEADS{s}{q} = [];   % TRIGGER INITIATION
-                myProcessingData.LI{s}{q} = [];
+        for rg=1:length(myScriptData.RUNGROUPNAMES)  %a edit: for each rg..
+            for q=1:length(myScriptData.GROUPNAME{rg})
+                myProcessingData.LIBADLEADS{rg}{q} = [];   % TRIGGER INITIATION
+                myProcessingData.LI{rg}{q} = [];
             end
         end
     end
@@ -1064,8 +1069,6 @@ function ProcessACQFile(inputfilename,inputfiledir)
 % - do Activation maps, if that option is selected
 
     
-
-
     olddir = pwd;
     global myScriptData TS myProcessingData;
 
@@ -1102,7 +1105,7 @@ function ProcessACQFile(inputfilename,inputfiledir)
     if isMatFile
         index=ioReadMAT(files{:});
     else
-        index = ioReadTS(files{:});
+        index = ioReadTS(files{:}); % if ac2 file
     end
     
     
@@ -1115,40 +1118,38 @@ TS{index}.filename=[filename ext];
     
     
     
-%%%%%% check if dimensions of potvals are correct, issure error msg if not
-    if size(TS{index}.potvals,1) < myScriptData.MAXLEAD{myScriptData.CURRENTRUNGROUP}
-        errordlg('Maximum lead in settings is greater than number of leads in file');
-        cd(olddir);
-        error('ERROR');
-    end
+%%%%%% check if dimensions of potvals are correct, issue error msg if not
+if size(TS{index}.potvals,1) < myScriptData.MAXLEAD{myScriptData.CURRENTRUNGROUP}
+    errordlg('Maximum lead in settings is greater than number of leads in file');
+    cd(olddir);
+    error('ERROR');
+end
     
 
 %%%% ImportUserSettings (put Data from myProcessingData in TS{currentTS} %%%%%%%%%%    
-    fieldstoload = {'SELFRAMES','AVERAGEMETHOD','AVERAGESTART','AVERAGECHANNEL','AVERAGERMSTYPE','AVERAGEEND','AVERAGEFRAMES','TEMPLATEFRAMES'};
-    if myScriptData.DO_ADDBADLEADS, fieldtoload{end+1} = 'LEADINFO'; end   % DO_ADDBA.. doesnt exist.. remove? TO DO
-      
-    ImportUserSettings(inputfilename,index,fieldstoload);
-    
+fieldstoload = {'SELFRAMES','AVERAGEMETHOD','AVERAGESTART','AVERAGECHANNEL','AVERAGERMSTYPE','AVERAGEEND','AVERAGEFRAMES','TEMPLATEFRAMES'};      
+ImportUserSettings(inputfilename,index,fieldstoload);
+
     
 %%%%  store the GBADLEADS also in the ts structure (in ts.leadinfo)%%%% 
-    badleads=myScriptData.GBADLEADS{myScriptData.CURRENTRUNGROUP};
-    TS{index}.leadinfo(badleads) = 1;
-        
+badleads=myScriptData.GBADLEADS{myScriptData.CURRENTRUNGROUP};
+TS{index}.leadinfo(badleads) = 1;
+
 %%%%% do the temporal filter of current file %%%%%%%%%%%%%%%%
-    if myScriptData.DO_FILTER      % if 'apply temporal filter' is selected
-        if 0 %isfield(myScriptData,'FILTER')     % this doesnt work atm, cause buttons for Filtersettings etc have been removed
-            myScriptData.FILTERSETTINGS = [];
-            for p=1:length(myScriptData.FILTER)
-                if strcmp(myScriptData.FILTER(p).label,myScriptData.FILTERNAME)
-                    myScriptData.FILTERSETTINGS = myScriptData.FILTER(p);
-                end
+if myScriptData.DO_FILTER      % if 'apply temporal filter' is selected
+    if 0 %isfield(myScriptData,'FILTER')     % this doesnt work atm, cause buttons for Filtersettings etc have been removed
+        myScriptData.FILTERSETTINGS = [];
+        for p=1:length(myScriptData.FILTER)
+            if strcmp(myScriptData.FILTER(p).label,myScriptData.FILTERNAME)
+                myScriptData.FILTERSETTINGS = myScriptData.FILTER(p);
             end
-        else
-            myScriptData.FILTERSETTINGS.B = [0.03266412226059 0.06320942361376 0.09378788647083 0.10617422096837 0.09378788647083 0.06320942361376 0.03266412226059];
-            myScriptData.FILTERSETTINGS.A = 1;
         end
-        temporalFilter(index);    % no add audit? shouldnt it be recordet somewhere that this was filtered??? TODO
+    else
+        myScriptData.FILTERSETTINGS.B = [0.03266412226059 0.06320942361376 0.09378788647083 0.10617422096837 0.09378788647083 0.06320942361376 0.03266412226059];
+        myScriptData.FILTERSETTINGS.A = 1;
     end
+    temporalFilter(index);    % no add audit? shouldnt it be recordet somewhere that this was filtered??? TODO
+end
         
 
 %%%%%  call SliceDisplay (if UserInterface is selected) %%%%%%%%%%%%%
@@ -1159,128 +1160,111 @@ TS{index}.filename=[filename ext];
 % -  does some upgrades to bad leads 
 % - calls sigSlice, which in this case:  updates TS{currentIndex} bei
 % keeping only the timeframe-window specified in ts.selframes
-    
-    if myScriptData.DO_SLICE == 1   % DO_SLICE is 1 by default and is never changed, so always 1 -> obsolete?! DOTO  
-        if myScriptData.DO_SLICE_USER == 1  %if 'user interaction' button is pressed
-            handle = mySliceDisplay(index); % this only changes selframes I think it also uses ts.averageframes (and all from export userlist bellow?)
-         
-            waitfor(handle);
- 
-            switch myScriptData.NAVIGATION
-                case {'prev','next','stop','back'}, cd(olddir); tsClear(index); return; 
-            end
+if myScriptData.DO_SLICE_USER == 1  %if 'user interaction' button is pressed
+    handle = mySliceDisplay(index); % this only changes selframes I think it also uses ts.averageframes (and all from export userlist bellow?)
 
-            if myScriptData.KEEPBADLEADS == 1
-                badleads = tsIsBad(index);
-                for p=1:length(myScriptData.GROUPBADLEADS{myScriptData.CURRENTRUNGROUP}) 
-                    [~,localindex] = intersect(myScriptData.GROUPLEADS{myScriptData.CURRENTRUNGROUP}{p},badleads);
-                    myScriptData.GROUPBADLEADS{myScriptData.CURRENTRUNGROUP}{p} = localindex;
-                end
-            end
+    waitfor(handle);
 
-            
-            
-            
-            % SO STORE ALL THE SETTINGS/CHANGES WE MADE
-            
-            ExportUserSettings(inputfilename,index,{'SELFRAMES','AVERAGEMETHOD','AVERAGECHANNEL','AVERAGERMSTYPE','AVERAGESTART','AVERAGEEND','AVERAGEFRAMES','TEMPLATEFRAMES','LEADINFO'});
-        end
-        
-        % CONTINUE AND DO THE SLICING/AVERAGING OPERATION
-        sigSlice(index);   % keeps only the selected timeframes in the potvals, using ts.selframes as start and endpoint
+    switch myScriptData.NAVIGATION  % if any of these was clicked in mySliceDisplay
+        case {'prev','next','stop','back'}, cd(olddir); tsClear(index); return; 
     end
-    
+
+%     if myScriptData.KEEPBADLEADS == 1        %to do: What is this for?    KEEPBADLEADS DOES CURRENTLY NOTHING..
+%         badleads = tsIsBad(index);
+%         for p=1:length(myScriptData.GROUPBADLEADS{myScriptData.CURRENTRUNGROUP}) 
+%             [~,localindex] = intersect(myScriptData.GROUPLEADS{myScriptData.CURRENTRUNGROUP}{p},badleads);
+%             myScriptData.GROUPBADLEADS{myScriptData.CURRENTRUNGROUP}{p} = localindex;
+%         end
+%     end
+end
+
+% SO STORE ALL THE SETTINGS/CHANGES WE MADE
+ExportUserSettings(inputfilename,index,{'SELFRAMES','AVERAGEMETHOD','AVERAGECHANNEL','AVERAGERMSTYPE','AVERAGESTART','AVERAGEEND','AVERAGEFRAMES','TEMPLATEFRAMES','LEADINFO'});
+
+
 %%%%%% if 'blank bad leads' button is selected,   set all values of the bad leads to 0   
-    if myScriptData.DO_BLANKBADLEADS == 1
-        badleads = tsIsBad(index);
-        TS{index}.potvals(badleads,:) = 0;
-        tsSetBlank(index,badleads);
-        tsAddAudit(index,'|Blanked out bad leads');
-    end
- 
-    
+if myScriptData.DO_BLANKBADLEADS == 1
+    badleads = tsIsBad(index);
+    TS{index}.potvals(badleads,:) = 0;
+    tsSetBlank(index,badleads);
+    tsAddAudit(index,'|Blanked out bad leads');
+end
+
+%%%% save the ts as it is now in TS{unslicedDataIndex}. This is needed for autoprocessing later
+unslicedDataIndex=tsNew(1);
+TS{unslicedDataIndex}=TS{index};        
+myScriptData.unslicedDataIndex=unslicedDataIndex;
+
+%%%% slice the current TS{index} and work with that one
+sigSlice(index);   % keeps only the selected timeframes in the potvals, using ts.selframes as start and endpoint
+
+
  %%%%%% import more Usersettings from myProcessingData into TS{index} %%%%
-    fieldstoload = {'FIDS','FIDSET','STARTFRAME'};
-    ImportUserSettings(inputfilename,index,fieldstoload);
+fieldstoload = {'FIDS','FIDSET','STARTFRAME'};
+ImportUserSettings(inputfilename,index,fieldstoload);
     
 %%%%%%%%%% start baseline stuff %%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    if myScriptData.DO_BASELINE_USER, myScriptData.DO_BASELINE = 1; end
-    if (myScriptData.DO_BASELINE == 1)
-    %%%% shift ficucials to the new local frame %%%%%%%%%%%%
-    % fids are always in local frame, but because user selected new local
-    % frame (the selframe), the local frame changed!
-    
-        if ~isfield(TS{index},'selframes')
-            msg=sprintf('Couldn''t find any selected start/end time frames for %s. Either provide one by using a myProcessingData file where this information has been saved previously or select ''User Interaction'' at the Slice/Average'' section to manually select a start/end time frame.',TS{index}.filename);
-            errordlg(msg)
-            TS{index}=[];
-            error('ERROR')
-        end
-        if ~isfield(TS{index},'startframe'), TS{index}.startframe = 1; end
-        newstartframe = TS{index}.selframes(1);  
-        oldstartframe = TS{index}.startframe(1);          
-        fidsShiftFids(index,oldstartframe-newstartframe);    
-        TS{index}.startframe = newstartframe;  % TODO shouldnt this be directly after the slicing? fits better inhaltlich
-        
+if myScriptData.DO_BASELINE_USER, myScriptData.DO_BASELINE = 1; end
+if (myScriptData.DO_BASELINE == 1)
+%%%% shift ficucials to the new local frame %%%%%%%%%%%%
+% fids are always in local frame, but because user selected new local
+% frame (the selframe), the local frame changed!
+
+    if ~isfield(TS{index},'selframes')
+        msg=sprintf('Couldn''t find any selected start/end time frames for %s. Either provide one by using a myProcessingData file where this information has been saved previously or select ''User Interaction'' at the Slice/Average'' section to manually select a start/end time frame.',TS{index}.filename);
+        errordlg(msg)
+        TS{index}=[];
+        error('ERROR')
+    end
+    if ~isfield(TS{index},'startframe'), TS{index}.startframe = 1; end
+    newstartframe = TS{index}.selframes(1);  
+    oldstartframe = TS{index}.startframe(1);          
+    fidsShiftFids(index,oldstartframe-newstartframe);    
+    TS{index}.startframe = newstartframe;  % TODO shouldnt this be directly after the slicing? fits better inhaltlich
+
  
     %%%%  get baseline (the intervall ) from TS (so default or from ImportSettings. If values are weird, set to [1, numframes]
     % and set that as new fiducial
-        baseline = fidsFindFids(index,'baseline');
-        framelength = size(TS{index}.potvals,2);
-        baselinewidth = myScriptData.BASELINEWIDTH;       % also upgrade baselinewidth
-        TS{index}.baselinewidth = baselinewidth;
-        if length(baseline) < 2
-            fidsRemoveFiducial(index,'baseline');
-            fidsAddFiducial(index,1,'baseline');
-            fidsAddFiducial(index,framelength-baselinewidth+1,'baseline');
-        end
+    baseline = fidsFindFids(index,'baseline');
+    framelength = size(TS{index}.potvals,2);
+    baselinewidth = myScriptData.BASELINEWIDTH;       % also upgrade baselinewidth
+    TS{index}.baselinewidth = baselinewidth;
+    if length(baseline) < 2
+        fidsRemoveFiducial(index,'baseline');
+        fidsAddFiducial(index,1,'baseline');
+        fidsAddFiducial(index,framelength-baselinewidth+1,'baseline');
+    end
     %%%% if 'Pre-RMS Baseline correction' button is pressed, do baseline
     %%%% corection of current index (before user selects anything..
-        if myScriptData.DO_BASELINE_RMS == 1
-            baselinewidth = myScriptData.BASELINEWIDTH;
+    if myScriptData.DO_BASELINE_RMS == 1
+        baselinewidth = myScriptData.BASELINEWIDTH;
+        sigBaseLine(index,[],baselinewidth);
+    end
+
+    %%%%   open Fidsdisplay in mode 2, (baseline mode)
+    if myScriptData.DO_BASELINE_USER == 1
+        handle = myFidsDisplay(index,2);    % this changes fids, but nothing else
+        waitfor(handle);
+
+        switch myScriptData.NAVIGATION
+            case {'prev','next','stop','redo','back'}, cd(olddir); tsClear(index); return; 
+        end     
+    end
+    %%%% and save user selections in myProcessingScript    
+    ExportUserSettings(inputfilename,index,{'SELFRAMES','AVERAGEMETHOD','AVERAGECHANNEL','AVERAGERMSTYPE','AVERAGESTART','AVERAGEEND','AVERAGEFRAMES','TEMPLATEFRAMES','LEADINFO','FIDS','FIDSET','STARTFRAME'});
+     
+    %%%% now do the final baseline correction
+    if myScriptData.DO_BASELINE == 1
+        baselinewidth = myScriptData.BASELINEWIDTH;
+        if length(fidsFindFids(index,'baseline')) < 2 
+            han = errordlg('At least two baseline points need to be specified, skipping baseline correction');
+            waitfor(han);
+        else
             sigBaseLine(index,[],baselinewidth);
         end
-    
-    %%%%   open Fidsdisplay in mode 2, (baseline mode)
-        if myScriptData.DO_BASELINE_USER == 1
-            handle = myFidsDisplay(index,2);    % this changes fids, but nothing else
-            waitfor(handle);
-            
-            switch myScriptData.NAVIGATION
-                case {'prev','next','stop','redo','back'}, cd(olddir); tsClear(index); return; 
-            end     
-        end
-    %%%% and save user selections in myProcessingScript    
-        ExportUserSettings(inputfilename,index,{'SELFRAMES','AVERAGEMETHOD','AVERAGECHANNEL','AVERAGERMSTYPE','AVERAGESTART','AVERAGEEND','AVERAGEFRAMES','TEMPLATEFRAMES','LEADINFO','FIDS','FIDSET','STARTFRAME'});
-
-        
-%     %%%% Do_DeltaFOVERF, if that option is selected  (get rid of??)
-%         if myScriptData.DO_DELTAFOVERF == 1 
-%             fidsFindFids(index,20)
-%             fidsFindFids(index,21)
-%             if isempty(fidsFindFids(index,20))||isempty(fidsFindFids(index,21))  %this is always the case?! since 20 and 21 dont exist in fids fkt
-%                 han = errordlg('No interval specified for DetlaF over F correction, skipping correction');
-%                 waitfor(han);
-%             else            
-%                 sigDeltaFoverF(index);
-%             end
-%         end          
-        
-        
-    %%%% now do the final baseline correction
-        if myScriptData.DO_BASELINE == 1
-            baselinewidth = myScriptData.BASELINEWIDTH;
-            if length(fidsFindFids(index,'baseline')) < 2 
-                han = errordlg('At least two baseline points need to be specified, skipping baseline correction');
-                waitfor(han);
-            else
-                sigBaseLine(index,[],baselinewidth);
-            end
-        end    
-        
-  
-    end
+    end    
+end
     
     
     
@@ -1403,8 +1387,12 @@ TS{index}.filename=[filename ext];
         ExportUserSettings(inputfilename,index,{'SELFRAMES','AVERAGEMETHOD','AVERAGERMSTYPE','AVERAGECHANNEL','AVERAGESTART','AVERAGEEND','AVERAGEFRAMES','TEMPLATEFRAMES','LEADINFO','FIDS','FIDSET','STARTFRAME'});
     end
     
+    %%%% now we have a fiducialed beat - use it as template to autoprocess the rest of the data in TS{unslicedDataIndex}
+    autoProcessSignal
+    
+    
         
-    %%%% this blog does the splitting. In detail it
+    %%%% this part does the splitting. In detail it
     % - creates numgroups new ts structures (one for each group) using
     % tsSplitTS
     % - it sets ts.'tsdfcfilename' to myScriptData.GROUPTSDFC(splitgroup)
@@ -1523,41 +1511,7 @@ TS{index}.filename=[filename ext];
         tsSet(mapindices,'newfileext','');
         ioWriteTS(mapindices,'noprompt','oworiginal');
         cd(olddir);
-        tsClear(mapindices);
-        
-%         %%%%%%  all this just changes TS{index}, but those ts are cleared
-%         %%%%%%  without any saving.. totally useless??
-%         
-%         s = tsNew(length(index));    
-%         for j=1:length(index)
-%             
-%             
-%             %%%% make acttime=[act1; act2; act2] .. all the local act
-%             %%%% timeframes,   
-%             acttime = floor(fidsFindLocalFids(index(j),'act'));
-%             acttime = round(median([ones(size(acttime)) acttime  (TS{index(j)}.numframes-1)*ones(size(acttime))],2));
-%  
-%             %%%% why is this commented out?
-%             for p=1:TS{index(j)}.numleads
-% %                keyboard
-%                 if ~isempty(acttime)
-%                     %dvdt(p) = (TS{index(j)}.potvals(p,acttime(p)+1) - TS{index(j)}.potvals(p,acttime(p)))/TS{index(j)}.samplefrequency;    
-%                 else
-%                     %dvdt(p) = 0;
-%                 end
-%             end
-%            % TS{index(j)}.dvdt = dvdt;
-%            
-%            
-%             TS{s(j)} = TS{index(j)};
-%             %TS{s(j)}.potvals = dvdt;
-%             TS{s(j)}.numframes = 1;
-%             TS{s(j)}.pacing = [];
-%             TS{s(j)}.fids = [];
-%             TS{s(j)}.fidset = {};
-%             TS{s(j)}.audit = '| Dv/Dt at activation';           
-%         end
-%         tsClear(s);  %% why clear everything --> makes above pointless?? TODO
+        tsClear(mapindices);      
    end
    
    
@@ -1568,6 +1522,8 @@ TS{index}.filename=[filename ext];
     saveMyProcessingData;
     saveSettings();
     tsClear(index);
+    tsClear(myScriptData.unslicedDataIndex);
+    myScriptData.unslicedDataIndex=NaN;
 end
 
 
@@ -1850,16 +1806,11 @@ function dealWithNewMyScriptData(newFileString)
         errordlg('This myScriptData contained the path to a non existend or wrong myProcessingData. Therefore the origial myProcessingData is kept. The new MyScriptData is still loaded.')
         myScriptData.DATAFILE=oldMyProcessingDataPath;
     end
-    
-    
-    
-    
-    
+
     
     myUpdateFigure(findobj(allchild(0),'tag','PROCESSINGSCRIPTSETTINGS'));
     myUpdateFigure(findobj(allchild(0),'tag','PROCESSINGSCRIPTMENU'));
     myUpdateACQFiles;
-    myUpdateGroups; 
 end
 
 function   checkNewInput(handle, tag)
