@@ -313,7 +313,7 @@ function GetACQFiles
         errordlg('input directory doesn''t exist or is not specified.')
         error('Something wrong with input directory')
     end
-  
+    
     
     
     filenames = {};
