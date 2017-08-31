@@ -1190,10 +1190,12 @@ if myScriptData.DO_BLANKBADLEADS == 1
     tsAddAudit(index,'|Blanked out bad leads');
 end
 
-%%%% save the ts as it is now in TS{unslicedDataIndex}. This is needed for autoprocessing later
-unslicedDataIndex=tsNew(1);
-TS{unslicedDataIndex}=TS{index};        
-myScriptData.unslicedDataIndex=unslicedDataIndex;
+%%%% save the ts as it is now in TS{unslicedDataIndex} for autofiducialicing
+if myScriptData.DO_AUTOFIDUCIALICING
+    unslicedDataIndex=tsNew(1);
+    TS{unslicedDataIndex}=TS{index};        
+    myScriptData.unslicedDataIndex=unslicedDataIndex;
+end
 
 %%%% slice the current TS{index} and work with that one
 sigSlice(index);   % keeps only the selected timeframes in the potvals, using ts.selframes as start and endpoint
@@ -1388,7 +1390,9 @@ end
     end
     
     %%%% now we have a fiducialed beat - use it as template to autoprocess the rest of the data in TS{unslicedDataIndex}
-    autoProcessSignal
+    if myScriptData.DO_AUTOFIDUCIALICING
+        autoProcessSignal
+    end
     
     
         
@@ -1514,16 +1518,14 @@ end
         tsClear(mapindices);      
    end
    
-   
-   
-   
-   
    %%%%% save everything and clear TS
     saveMyProcessingData;
     saveSettings();
     tsClear(index);
-    tsClear(myScriptData.unslicedDataIndex);
-    myScriptData.unslicedDataIndex=NaN;
+    if myScriptData.DO_AUTOFIDUCIALICING
+        tsClear(myScriptData.unslicedDataIndex);
+        myScriptData.unslicedDataIndex=[];
+    end
 end
 
 
@@ -2042,6 +2044,8 @@ function defaultsettings=getDefaultSettings
                     'DO_INTEGRALMAPS',1,'bool',...
                     'DO_ACTIVATIONMAPS',1,'bool',...
                     'DO_FILTER',0,'bool',...
+                    'DO_AUTOFIDUCIALICING',0,'bool',...
+                    'AUTOFID_USER_INTERACTION',0,'bool',...
                     'SAMPLEFREQ', 1000, 'double',...
                     'NAVIGATION','apply','string',...
                     'DISPLAYTYPE',1,'integer',...
