@@ -328,14 +328,14 @@ function GetACQFiles
     % filenames is cellarray with all the filenames of files in folder, like 
     %{'Ran0001.ac2'    'Ru0009.ac2'}
     
-    % get rid of the processing .mat files, they don't belong here, also sort
-    % files
+    %%%% get rid of the processing .mat files, they don't belong here, also sort files
     filenames(strcmp(filenames,'myScriptData.mat'))=[];
     filenames(strcmp(filenames,'myProcessingData.mat'))=[];
+    filenames(strncmp('._',filenames,2))=[];  % necessary to get rid of weird ghost files on server
     filenames = sort(filenames);
     
     
-    % initialize/clear old entries
+    %%%% initialize/clear old entries
     myScriptData.ACQFILENUMBER = [];
     myScriptData.ACQLISTBOX= {};
     myScriptData.ACQFILENAME = {};
