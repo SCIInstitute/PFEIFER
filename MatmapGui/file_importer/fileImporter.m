@@ -167,8 +167,8 @@ nFiles=length(FILEIMPORT.FILENAMES);
 if nFiles < 1, return, end   %if no files in directory
 listbox_obj.Value = 1:nFiles;
 
-dummy='dummy';
-checkoutSelectedFile(listbox_obj,dummy)
+% dummy='dummy';
+% checkoutSelectedFile(listbox_obj,dummy)
 
 
 function usePattern_callback(pat_obj,~)

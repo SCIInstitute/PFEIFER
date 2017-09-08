@@ -6,19 +6,20 @@ function allFids = findAllFids(potvals,signal)
 % Fids are determined based on 'oriFids', die fids done by the user.
 
 
-%%%%% set up stuff
-global myScriptData
+%%%%% get paramters from myScriptData
+global myScriptData AUTOPROCESSING
 accuracy=myScriptData.ACCURACY;  % abort condition5
 fidsKernelLength=myScriptData.FIDSKERNELLENGTH;  % the kernel indices will be from fidsValue-fidsKernelLength  until fidsValue+fidsKernelLength
-kernel_shift=0;       % a "kernel shift", to shift the kernel by kernel_shift
+kernel_shift=0;       % a "kernel shift", to shift the kernel by kernel_shift   % not used, just here as placeholder..
 % reminder: it is kernel_idx=fid_start-fidsKernelLength+kernel_shift:fid_start+fidsKernelLength+kernel_shift
-
 window_width=myScriptData.WINDOW_WIDTH;   % dont search complete beat, but only a window with width window_width,
 % ws=bs+loc_fidsValues(fidNumber)-window_width;  
 % we=bs+loc_fidsValues(fidNumber)+window_width;
 
-%%%%% set up stuff
-global AUTOPROCESSING
+
+
+
+
 
 %%%% clear any nonglobal fids from oriFids
 oriFids=AUTOPROCESSING.oriFids;
@@ -29,6 +30,8 @@ for p=1:length(oriFids)
     end
 end
 oriFids(toBeCleared)=[];
+
+
 
 
 %%%% beat kernel

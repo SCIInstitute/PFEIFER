@@ -388,6 +388,11 @@ function GetACQFiles
         
         if ~isfield(ts,'time'), ts.time = 'none'; end
         if ~isfield(ts,'label'), ts.label = 'no label'; end
+        if ~isfield(ts,'filename')
+            errordlg(sprintf('Problems occured reading file %s. Maybe this file doesn''t belong in input folder?',filenames{p}));
+            error('could''t read in file')
+        end
+        
         ts.label=myStrTrim(ts.label); %necessary, because original strings have weird whitespaces that are not recognized as whitespaces.. really weird!
         myScriptData.ACQFILENUMBER(p) = p;      
         
@@ -401,6 +406,7 @@ function GetACQFiles
         end
         
         ts.time=myStrTrim(ts.time);   % use of myStrTrim for the same reason as above..     
+        
         myScriptData.ACQLISTBOX{p} = sprintf('%04d %15s %15s %13s %20s',myScriptData.ACQFILENUMBER(p),ts.filename,rungroup, ts.time,ts.label);
         
         myScriptData.ACQFILENAME{p} = ts.filename;
