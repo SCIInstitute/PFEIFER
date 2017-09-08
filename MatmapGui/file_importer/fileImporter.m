@@ -320,7 +320,7 @@ for fileNumber=FILEIMPORT.SELECTED_FILES
     %%%% save files with new name
     % get fullfilename
     [~,filename,~]=fileparts(filename);
-    mod_filename=[filename, '-matmap.mat'];
+    mod_filename=[filename, '-mm.mat'];
     fullfilename=fullfile(FILEIMPORT.OUTPUTDIR, mod_filename);
     
    % set up ts structure and save

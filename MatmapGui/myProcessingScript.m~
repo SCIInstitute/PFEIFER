@@ -695,9 +695,7 @@ try
     filename = myScriptData.SCRIPTFILE;
     save(filename,'myScriptData','-mat');
 catch
-    return
-end
-end
+
 
 
 function removeGroup(handle)
