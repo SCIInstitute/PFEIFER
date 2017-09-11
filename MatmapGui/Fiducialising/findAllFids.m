@@ -16,7 +16,7 @@ window_width=myScriptData.WINDOW_WIDTH;   % dont search complete beat, but only 
 % ws=bs+loc_fidsValues(fidNumber)-window_width;  
 % we=bs+loc_fidsValues(fidNumber)+window_width;
 
-
+totalKernelLength = 2*fidsKernelLength +1;   % the length of a kernel
 
 
 
@@ -38,7 +38,7 @@ oriFids(toBeCleared)=[];
 bsk=AUTOPROCESSING.bsk;   %start and end of beat
 bek=AUTOPROCESSING.bek;
 
-%%%% now find the fid (kernels) to be found
+%%%% get the the fids to be found
 %local fids in the "beat frame"
 loc_qrs_start=round(oriFids([oriFids.type]==2).value);
 loc_qrs_end=round(oriFids([oriFids.type]==4).value);
@@ -47,8 +47,7 @@ loc_t_end=round(oriFids([oriFids.type]==7).value);
 loc_t_peak=round(oriFids([oriFids.type]==6).value);
 
 
-% global fids in the "potvals frame"
-
+% global fids template in the "potvals frame"
 glob_qrs_start=bsk-1+loc_qrs_start;        
 glob_qrs_end=bsk-1+loc_qrs_end;    
 glob_t_start=bsk-1+loc_t_start;        
@@ -62,9 +61,17 @@ glob_fidsValues = [glob_qrs_start; glob_qrs_end; glob_t_start; glob_t_end; glob_
 loc_fidsValues = [loc_qrs_start; loc_qrs_end; loc_t_start; loc_t_end; loc_t_peak];
 nFids=length(fidsTypes);
 
-%%%% set up the fsk and fek
-fsk=glob_fidsValues-fidsKernelLength+kernel_shift;
-fek=glob_fidsValues+fidsKernelLength+kernel_shift;
+%%%% set up the fsk and fek and get the first kernels based on the user fiducialized beat
+fsk=glob_fidsValues-fidsKernelLength+kernel_shift;   % fiducial start kernel,  the index in potvals where the kernel for fiducials starts
+fek=glob_fidsValues+fidsKernelLength+kernel_shift;   % analog to fsk, but 'end'
+
+nLeads=size(potvals,1);
+kernels = zeros(nLeads,totalKernelLength, nFids);
+for fidNumber = 1:nFids
+    kernels(:,:,fidNumber) = potvals(:,fsk(fidNumber):fek(fidNumber));
+end
+% kernels is now nLeads x nTimeFramesOfKernel x nFids array containing all kernels for each lead for each fiducial
+% example: kernel(3,:,5)  is kernel for the 3rd lead and the 5th fiducial (in fidsTypes)
 
 
 %%%%% find the beats, get rid of beats before user fiducialiced beat
@@ -99,15 +106,18 @@ for beatNumber=1:nBeats %for each beat
     for fidNumber=1:nFids
 
         
-        %%%% set up windows and kernels
+        %%%% set up windows
         ws=bs+loc_fidsValues(fidNumber)-window_width;  % dont search complete beat, only around fid
         we=bs+loc_fidsValues(fidNumber)+window_width;
         windows=potvals(:,ws:we);
-        kernels=potvals(:,fsk(fidNumber):fek(fidNumber));
+        
+        %%%% set up kernels
+        % to do: every 10th beat or so, get new kernels
+        % kernels = getNewKernels
         
         
         %%%% find fids
-        [globFid, indivFids, variance] = findFid(windows,kernels,'normal');
+        [globFid, indivFids, variance] = findFid(windows,kernels(:,:,fidNumber),'normal');
 
         %put them in global frame
         indivFids=indivFids+fidsKernelLength-kernel_shift+bs-1+loc_fidsValues(fidNumber)-window_width;  % now  newIndivFids is in "complete potvals" frame.
@@ -128,6 +138,81 @@ for beatNumber=1:nBeats %for each beat
 end
 
 if isgraphics(h), delete(h), end
+
+
+
+function kernels = getNewKernels(lastFoundFids,potvals, lastFoundBeats)
+% returns: kernels, a nLeads x nTimeFramesOfKernel x nFids array containing all kernels for each lead for each fiducial
+% example: kernel(3,:,5)  is kernel for the 3rd lead and the 5th fiducial (in fidsTypes)
+
+% inputs:
+% - lastFoundFids: the subset of the last nBeats2avrg beats in allFids:    allFids(currentBeat-mBeats2avrg : currentBeat)
+% - lastFoundBeats:  the subset of .beats of the last nBeat2avrg:  beats(currentBeat-mBeats2avrg : currentBeat)
+% - potvals:  the complete potential values of the whole range of .beats
+global myScriptData AUTOPROCESSING
+
+
+%%%% set up some stuff
+nBeats2avrg = length(lastFoundFids);
+totalKernelLength = 2*AUTOPROCESSING.FIDSKERNELLENGTH +1;   % the length of a kernel
+nFids =length(lastFoundFids{1}) / 2;   % how many fids? divide by 2 because there are local and global fids
+nLeads =size(1,potvals); % how many leads in potvals? 
+beatLength = 1 + AUTOPROCESSING.beats{1}(2) - AUTOPROCESSING.beats{1}(1);   % the length of a beat %TODO: beatLength might change..
+
+
+
+%%%% first get the new local fids to be found as average of the last nBeats2average beats
+allLocalFids = zeros(nBeats2avrg,nFids);   % fids in local "beat frame". 
+for beatNum = 1:nBeats2avrg % for each entry in lastFoundFids
+    allLocalFids(beatNum,:) = [lastFoundFids{beatNum}(nFids+1:2*nFids).value];   % store the global fids of the already processed beats in allLocFids
+end
+% now get the average
+locAvrgdFids = mean(allLocalFids,1);
+
+
+%%%% now average the potential values of the last nBeats2average beats
+allBeatsToAvrg = zeros(nLeads,beatLength,nBeats2avrg);
+for beatNum = 1:nBeats2avrg
+    timeFramesOfBeat = lastFoundBeats{beatNum}(1):lastFoundBeats{beatNum}(2);
+    allBeatsToAvrg(:,:,beatNum) = potvals(:,timeFramesOfBeat);
+end
+% now average over the beats
+avrgdPotvalsOfBeat = mean(allBeatsToAvrg, 3);
+
+
+
+%%%% now that we have avrgdPtovalsOfBeat and locAvrgdFids, get the new kernels
+fsk=locAvrgdFids-fidsKernelLength+kernel_shift;   % fiducial start kernel,  the index in avrgdPotvalsOfBeat where the kernel for fiducials starts
+fek=locAvrgdFids+fidsKernelLength+kernel_shift;   % analog to fsk, but 'end'
+
+
+kernels = zeros(nLeads,totalKernelLength, nFids);
+for fidNumber = 1:nFids
+    kernels(:,:,fidNumber) = avrgdPotvalsOfBeat(:,fsk(fidNumber):fek(fidNumber));
+end
+
+
+
+    
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
