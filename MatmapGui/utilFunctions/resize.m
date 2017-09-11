@@ -10,7 +10,7 @@ function resize(handle,~)
 % - set figure.Units = 'characters'
 % - set the 'Units' property of all children to 'normalized'
 
-
+%This is only in fullAutomation
 
 objects=allchild(handle);  
 
