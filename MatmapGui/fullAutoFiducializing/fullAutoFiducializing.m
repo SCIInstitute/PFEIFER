@@ -3,19 +3,28 @@ function fullAutoFiducializingOfFile
 
 global myScriptData TS XXX
 
-%%%% if XXX not set up, set it up now
-global XXX
 
+%%%% set up stuff for testing %%%   stuff that will be removed later on
+XXX.RunToStartWith = '0137';
+XXX.FiducialTypes = [ 2 4 5 7 6]; 
+
+
+
+%%%% if XXX not set up, set it up now
 if ~isfield(XXX,'settedUp')
+    XXX.settedUp = 1;
     setUpStuff
 end
 
 
+
 %%%% get the template beat for autofiducializing
 if XXX.FirstFile % if first time, no templates set yet
-    getStartBeat    
+    getBeatTemplate    
     XXX.FirstFile = 0;
-elseif round(XXX.BeatCounter/
+elseif round(XXX.BeatCounter/XXX.BeatIntervall) == XXX.BeatCounter/XXX.BeatIntervall   % if it has been XXX.BeatIntervall beats since beat template has been updated
+    updateBeatTemplate
+end
 
     
     
@@ -23,12 +32,52 @@ elseif round(XXX.BeatCounter/
 index = loadAndPreprocessFiles;
 
 
-function getStartBeat
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%% functions %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+function getBeatTemplate
 % get the first processed beat as template
 
-%%%% for now, just use data from Run0171
-
+%%%% load XXX.RunToStartWith
 pathToProcessed = '/usr/sci/cibc/Maprodxn/InSitu/17-06-30/Data/Processed';  % not needed atm but nice to have
+
+fullPathToTemplateFile = [pathToProcessed 'Run' XXX.RunToStartWith '-ns.mat'];
+load(fullPathToTemplateFile)
+
+
+%%%% get selframes  (start end index)
+
+beatTemplateIndeces = [ts.selframes(1):ts.selframes(2)];
+
+
+
+
+
+
+
+
+
+
+function updateBeatTemplate
+% get a new beatTemplate (fids and beatkernel) based on the last XXX.NumToAverageOver beats
 
 
 
