@@ -40,7 +40,7 @@ function Navigation(handle,mode)
     %callback function:   FidsDisplay('Navigation',gcbf,'next')
     %also callback to "apply" button!!
     
-    global myScriptData;
+    global myScriptData FIDSDISPLAY
     
     switch mode
     case {'prev','next','stop','redo','back'}
@@ -48,6 +48,19 @@ function Navigation(handle,mode)
         set(handle,'DeleteFcn','');  % normally, DeleteFcn is: FidsDisplay('Navigation',gcbf,'stop')  (why?!)
         delete(handle);
     case {'apply'}
+        
+        if myScriptData.DO_AUTOFIDUCIALICING
+            %%%% check if user has selected everyting needed for autofiducializing
+            neededFidTypes = [2 3, 5];
+            for type = FIDSDISPLAY.EVENTS{1}.type
+                neededFidTypes(type == neededFidTypes) = [];  % remove the types that were that by user (and therefore are not needed anymore)
+            end
+            if ~isempty(neededFidTypes)  % if user did not select all neededFidTypes
+                errordlg('QRS-Wave, T-Wave and T-Peak needed for autofiducializing!')
+                error('Not all necesarry fiducials were selected to do autofiducialicing')
+            end
+        end
+        
         EventsToFids;
         myScriptData.NAVIGATION = 'apply';
         set(handle,'DeleteFcn','');
