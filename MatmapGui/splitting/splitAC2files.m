@@ -20,7 +20,7 @@ elseif DO_CALIBRATION && isempty(calfile)
     errordlg('No calfile for calibration provided.')
     return
 elseif isempty(myScriptData.SPLITINTERVAL)
-    errordlg('The desired length of a splitted file was not given.')
+    errordlg('The length of a splitted file was not given.')
     return
 end
 

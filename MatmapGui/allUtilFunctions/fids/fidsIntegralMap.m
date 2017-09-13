@@ -1,4 +1,5 @@
 function TSmapindex = fidsIntegralMap(TSmapindex,TSindices,startframe,endframe,average)
+
 % FUNCTION TSmapindex = fidsIntegralMap(TSmapindex,TSindices,startframe,endframe,['average'])
 % OR       TSmapdata  = fidsIntegralMap(TSmapdata,TSdata,startframe,endframe,['average'])
 %
@@ -128,7 +129,6 @@ if isstruct(TSindices)
 end
 
 % Startframe to bring the data in a better format
-
 if iscell(startframe)
 	newstartframe = zeros(numleads,length(startframe));
 	for p=1:length(startframe)
@@ -210,9 +210,7 @@ for p = 1:length(TSindices)
         audit = [audit sprintf('|AddIntegralMap( file=%s, start=%d, end=%d)',TS{TSindices(p)}.filename,startframe(1,p),endframe(1,p))];
         for q=1:numleads
             idx=startframe(q,p):endframe(q,p);
-            
-            x=TS{TSindices(p)}.potvals(q,idx);
-            
+            x=TS{TSindices(p)}.potvals(q,idx);         
             map(q,p) = sum(x);
             leadinfo(q) = leadinfo(q) & TS{TSindices(p)}.leadinfo(q);
         end

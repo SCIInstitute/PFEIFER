@@ -2,7 +2,6 @@ function resize(handle,~)
 %this is the SizeChangedFcn callback for all windows of the gui.
 %It adjust the fontsize of all the windows whenever the windows are resized
 %so everything still looks nice..
-% this function works best if all textfields have the same size..
 
 % what you need to do to make this function work and make figure resizable with changing fontsize
 % - make this function the callback for the 'SizeChangedFcn' of figure
@@ -22,10 +21,9 @@ for p=1:length(objects)
         obj.Units='pixel';
         avail_widht=obj.Position(3);
         avail_height=obj.Position(4);
-        
-        %%%% try increasingly smaller fontsizes and check if they are small enough
-        for temp_fontsize=[13:-1:5]  % for each fontsize
-            obj.FontSize=temp_fontsize; 
+
+        for temp_fontsize=[13:-1:5]  %try increasingly smaller fontsizes and check if they are small enough
+            obj.FontSize=temp_fontsize;
             needed_width=obj.Extent(3);
             needed_height=obj.Extent(4);
 
