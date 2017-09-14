@@ -184,6 +184,16 @@ if isfield(fids,'variance'),  fids=rmfield(fids,'variance'); end  %variance not 
 TS{newBeatIdx}.fids=fids;
 
 
+%%%%%% if 'blank bad leads' button is selected,   set all values of the bad leads to 0   
+if myScriptData.DO_BLANKBADLEADS == 1
+    badleads = tsIsBad(newBeatIdx);
+    TS{newBeatIdx}.potvals(badleads,:) = 0;
+    tsSetBlank(newBeatIdx,badleads);
+    tsAddAudit(newBeatIdx,'|Blanked out bad leads');
+end
+
+
+
 %%%%  baseline correction
 if myScriptData.DO_BASELINE
     sigBaseLine(newBeatIdx,[1,length(beatframes)-myScriptData.BASELINEWIDTH],myScriptData.BASELINEWIDTH);

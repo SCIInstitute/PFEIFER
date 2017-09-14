@@ -22,7 +22,7 @@ if isnumeric(TSindices)
     for p=TSindices
         TS{p}.leadinfo(lead) = bitor(TS{p}.leadinfo(lead),2);
     end
-    TS{p}.leadinfo(lead)
+    TS{p}.leadinfo(lead);
 end
 
 if isstruct(TSindices)

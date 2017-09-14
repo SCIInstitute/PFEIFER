@@ -992,7 +992,7 @@ function PreLoopScript
             if size(addBadleads,2) > 1
                 addBadleads=addBadleads';
             else
-                disp('blablub') %TODO  remove this
+                %TODO  remove this
             end
             
             badleads=[badleads; addBadleads];
@@ -1170,7 +1170,6 @@ end
 % keeping only the timeframe-window specified in ts.selframes
 if myScriptData.DO_SLICE_USER == 1  %if 'user interaction' button is pressed
     handle = mySliceDisplay(index); % this only changes selframes I think it also uses ts.averageframes (and all from export userlist bellow?)
-
     waitfor(handle);
 
     switch myScriptData.NAVIGATION  % if any of these was clicked in mySliceDisplay
@@ -1189,7 +1188,6 @@ end
 % SO STORE ALL THE SETTINGS/CHANGES WE MADE
 ExportUserSettings(inputfilename,index,{'SELFRAMES','AVERAGEMETHOD','AVERAGECHANNEL','AVERAGERMSTYPE','AVERAGESTART','AVERAGEEND','AVERAGEFRAMES','TEMPLATEFRAMES','LEADINFO'});
 
-
 %%%%%% if 'blank bad leads' button is selected,   set all values of the bad leads to 0   
 if myScriptData.DO_BLANKBADLEADS == 1
     badleads = tsIsBad(index);
@@ -1197,7 +1195,6 @@ if myScriptData.DO_BLANKBADLEADS == 1
     tsSetBlank(index,badleads);
     tsAddAudit(index,'|Blanked out bad leads');
 end
-
 %%%% save the ts as it is now in TS{unslicedDataIndex} for autofiducialicing
 if myScriptData.DO_AUTOFIDUCIALICING
     unslicedDataIndex=tsNew(1);
@@ -1212,7 +1209,9 @@ sigSlice(index);   % keeps only the selected timeframes in the potvals, using ts
  %%%%%% import more Usersettings from myProcessingData into TS{index} %%%%
 fieldstoload = {'FIDS','FIDSET','STARTFRAME'};
 ImportUserSettings(inputfilename,index,fieldstoload);
-    
+
+
+
 %%%%%%%%%% start baseline stuff %%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if myScriptData.DO_BASELINE_USER, myScriptData.DO_BASELINE = 1; end
@@ -1251,7 +1250,7 @@ if (myScriptData.DO_BASELINE == 1)
         baselinewidth = myScriptData.BASELINEWIDTH;
         sigBaseLine(index,[],baselinewidth);
     end
-
+    
     %%%%   open Fidsdisplay in mode 2, (baseline mode)
     if myScriptData.DO_BASELINE_USER == 1
         handle = myFidsDisplay(index,2);    % this changes fids, but nothing else
@@ -1277,80 +1276,9 @@ if (myScriptData.DO_BASELINE == 1)
 end
     
     
-    
-    
-    %%% Do_LAPLACIAN_INTERPOLATE %%%%%%%%%%%%%%%%%%%%%%%%
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%     if myScriptData.DO_LAPLACIAN_INTERPOLATE == 1
-%         
-%          %%% find the groups to be processed. splitgroup=[1 3] if there are
-%          %%% 3 groups but the 2 shouldnt be processed
-%         splitgroup = [];
-%         for p=1:length(myScriptData.GROUPNAME{myScriptData.CURRENTRUNGROUP})
-%             if myScriptData.GROUPDONOTPROCESS{myScriptData.CURRENTRUNGROUP}{p} == 0, splitgroup = [splitgroup p]; end
-%         end
-%         
-%         
-%         
-%         for q=1:length(splitgroup)   %for each group to be processed
-%             
-%             %%% continue, if group has no bad leads
-%             if isempty(myScriptData.GBADLEADS{myScriptData.CURRENTRUNGROUP}{splitgroup(q)})
-%                 continue;
-%             end
-%             
-%             
-%             %%% initialice LIBADLEADS with [], if not initialized yet
-%             if ~isfield(myProcessingData,'LIBADLEADS')
-%                 myProcessingData.LIBADLEADS{myScriptData.CURRENTRUNGROUP}{q} = [];
-%             end
-%             
-%             
-%             %%% if GBADLEADS(groupIndex) without LIBADLEADS(groupIndex) is
-%             %%% not empty
-%             if ~isempty(setdiff(myScriptData.GBADLEADS{myScriptData.CURRENTRUNGROUP}{splitgroup(q)},myProcessingData.LIBADLEADS{myScriptData.CURRENTRUNGROUP}{q}))
-%                 myProcessingData.LI{myScriptData.CURRENTRUNGROUP}{splitgroup(q)} = [];
-%                 
-%                 
-%                 %%% if no GROUPGEOM-file is given, continue
-%                 %%% file= { GEOM-File,  GroupChannel-File} 
-%                 files = {};
-%                 files{1} = myScriptData.GROUPGEOM{myScriptData.CURRENTRUNGROUP}{splitgroup(q)};
-%                 if isempty(files{1})
-%                     continue;
-%                 end
-%                 if ~isempty(myScriptData.GROUPCHANNELS{myScriptData.CURRENTRUNGROUP}{splitgroup(q)})
-%                     files{2} = myScriptData.GROUPCHANNELS{myScriptData.CURRENTRUNGROUP}{splitgroup(q)};
-%                 end
-%                 
-%                 
-%                 
-%                 
-%                 myProcessingData.LI{myScriptData.CURRENTRUNGROUP}{splitgroup(q)} = sparse(triLaplacianInterpolation(files{:},myScriptData.GBADLEADS{myScriptData.CURRENTRUNGROUP}{splitgroup(q)},length(myScriptData.GROUPLEADS{myScriptData.CURRENTRUNGROUP}{splitgroup(q)})));
-%             end
-%             
-%             
-%             %%% continue, if triLaplacian interpolation didnt return
-%             %%% anything
-%             if isempty(myProcessingData.LI{myScriptData.CURRENTRUNGROUP}{splitgroup(q)})
-%                 continue;
-%             end
-%             
-%             %%% potvals(groupleads{p})=potvals(groupleads{p})*LI{p}..
-%             leads = myScriptData.GROUPLEADS{myScriptData.CURRENTRUNGROUP}{splitgroup(q)};
-%             TS{index}.potvals(leads,:) = myProcessingData.LI{myScriptData.CURRENTRUNGROUP}{splitgroup(q)}*TS{index}.potvals(leads,:);
-%             
-%             
-%             %%% mark interpolated leads as interpolated
-%             tsSetInterp(index,leads(myScriptData.GBADLEADS{myScriptData.CURRENTRUNGROUP}{splitgroup(q)}));
-%           
-%         end
-%         tsAddAudit(index,'|Interpolated bad leads (Laplacian interpolation)');
-%     end
-    
-    
+
+
     %%%%%%%% now detect the rest of fiducials, if 'detect fids' was selected   
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     if myScriptData.DO_DETECT_USER, myScriptData.DO_DETECT=1; end
     if myScriptData.DO_DETECT == 1
         fieldstoload = {'FIDS','FIDSET','STARTFRAME'};
