@@ -29,61 +29,88 @@ end
 %%%% set up stuff
 clear global TS  % just to be sure
 global TS
-olddir=cd(inputdir);
+
 
 h=waitbar(0,'loading & splitting files..');
 
-%%%% read in and split files
+fileCount = 1;
+%%%% read in, split and save files
 for p=1:length(allInputFiles)
+    TS={};
+    
+    %%%% load file
+    olddir=cd(inputdir);
     if DO_CALIBRATION
         TSindex=ioReadTS(allInputFiles{p},calfile);
     else
         TSindex=ioReadTS(allInputFiles{p});
     end
+    cd(olddir);
     
-    if isgraphics(h), waitbar(0.6*p/length(allInputFiles),h), end
     
     
+    
+    if isgraphics(h), waitbar(p/length(allInputFiles),h), end
+    
+    
+    %%%% split if file is to be splitted
+    splitted = false;
     if ismember(p, idx2beSplitted)
+        splitted = true;
         %%%% determine where you want to split file
         frames=getFrames(TSindex);
+        
         %%%% split TSindex into newTsIndices
         newTSindices=splitUnprocTS(TSindex, frames);
-        %%%% change the filenames of newTSindices
+        
+        %%%% add origin to newTSindices
         for q=1:length(newTSindices)
             TS{newTSindices(q)}.origin=[TS{newTSindices(q)}.filename '_' sprintf('%03d',q)];
         end
+    else
+        TS{TSindex}.origin = TS{TSindex}.filename;
     end
-        
-end
-cd(olddir);
-
-
-%%%% rename ts.filename, make sure they all have ts.origin
-
-renameTS()
-
-
-%%%% save all files of current TS (including ts_info variable with header)
-
-for p=1:length(TS)
-    ts=TS{p};
-    fname=fullfile(outputdir,TS{p}.filename);
     
-    %get ts_info
-    fn=fieldnames(ts);
-    for q=1:length(fn)
-        if strcmp(fn{q},'potvals'), continue, end
-        ts_info.(fn{q})=ts.(fn{q});
-    end   
+    
+    %%%% now save the file
+    
+    if splitted
+        for spltTSIdx = newTSindices
+            ts=TS{spltTSIdx};
+            TS{spltTSIdx} = 1;  % make it empty
+            ts.filename = ['Run' sprintf('%04d',fileCount) '.mat'];
+            fname=fullfile(outputdir,ts.filename);
+           
+            %get ts_info
+            fn=fieldnames(ts);
+            for q=1:length(fn)
+                if strcmp(fn{q},'potvals'), continue, end
+                ts_info.(fn{q})=ts.(fn{q});
+            end   
 
-    save(fname,'ts','ts_info','-v6')
-    clear ts ts_info
-    if isgraphics(h), waitbar(0.6+0.4*p/length(TS),h,'saving files'), end
+            save(fname,'ts','ts_info','-v6')
+            clear ts ts_info
+            fileCount = fileCount + 1;
+        end
+    else
+        ts=TS{TSindex};
+        TS{TSindex} = 1;
+        ts.filename = ['Run' sprintf('%04d',fileCount) '.mat'];
+        fname=fullfile(outputdir,ts.filename);
+
+        %get ts_info
+        fn=fieldnames(ts);
+        for q=1:length(fn)
+            if strcmp(fn{q},'potvals'), continue, end
+            ts_info.(fn{q})=ts.(fn{q});
+        end   
+
+        save(fname,'ts','ts_info','-v6')
+        clear ts ts_info 
+        fileCount = fileCount + 1;
+    end  
 end
 
-%%%% clean up & close figure
-clear global TS
 if isgraphics(handle), delete(handle), end
 if isgraphics(h), delete(h), end
 
@@ -104,30 +131,8 @@ for p=1:nsplits
   TS{newTSindices(p)}.potvals = TS{newTSindices(p)}.potvals(:,frames{p});
   TS{newTSindices(p)}.numframes = length(frames{p});
 end
-TS{TSindex}=1;
+TS{TSindex}=1; % clear memory
 
-
-
-function renameTS()
-% - 'cleans up' TS,
-% - makes sure there is ts.origin everywhere,
-% - renames ts.filename from 'Run001.mat' to 'Run(lenghtTS).mat'
-
-global TS
-count=1;
-toBeCleared=[];
-for p=1:length(TS)
-    if isempty(TS{p}) || isfloat(TS{p})
-        toBeCleared(end+1)=p;
-    else
-        if ~isfield(TS{p},'origin')
-            TS{p}.origin=TS{p}.filename;
-        end
-        TS{p}.filename=['Run' sprintf('%04d',count) '.mat'];
-        count=count+1;
-    end
-end
-TS(toBeCleared)=[];
 
 
 
