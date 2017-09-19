@@ -1,26 +1,32 @@
 # Matmap3
 
-# MatMap Documentation
+![Matmap](DocumentationFigures/Matmap_logo.png)
 
-## General MatMap Workflow
+# Matmap Documentation
 
-### Starting MatMap
+## Matmap overview
 
-Once you have downloaded the source code from the GitHub repository you can immediately open MatLab and begin using the testing functionality. To start Matmap change your Matlab working directory to the location MatMap is stored and type "myProcessingScript" in the Matlab command line.
+Matmap is a signal processing tool specifically designed to process experimentally recorded  electrocardiography  data.  Matmap is designed to enable user guided processing on multi-channel data with several recording instances.  There are many available tools including baseline correction, cardiac signal feature selection, ativation and recovery time calculation, and many others.
+
+## General Matmap Workflow
+
+### Starting Matmap
+
+Once you have downloaded the source code from the GitHub repository you can immediately open MatLab and begin using the testing functionality. To start Matmap change your Matlab working directory to the location Matmap is stored and type "myProcessingScript" in the Matlab command line.
 
 The following two GUI windows should populate: 
 
 ### Processing Script Settings Window
 
-![alt text](https://github.com/SCIInstitute/Matmap3/DocumentationFigures/1.png)
+![Processing Script Settings Window](DocumentationFigures/1.png)
 
-A: Location of the processing script file. If opening for the first time MatMap will create a new processing script "myProcessingScript" in the current working directory. This file will store all the settings set lower in the window. 
+A: Location of the processing script file. If opening for the first time Matmap will create a new processing script "myProcessingScript" in the current working directory. This file will store all the settings set lower in the window. 
 
 B: Location of the processing data file. This is the location of the myProcessingData file created upon initializing matmap i.e. "helper files"
 
-C: Input Directory. This is the location of the input directory, or the data you would like to input into MatMap
+C: Input Directory. This is the location of the input directory, or the data you would like to input into Matmap
 
-D: MATLAB output Directory: This is the location of the output data as created by the MatMap program (MatMap creates a series of .mat files following completion of the processing of input data) 
+D: MATLAB output Directory: This is the location of the output data as created by the Matmap program (Matmap creates a series of .mat files following completion of the processing of input data) 
 
 E: Baseline width: Width of the average used during isoelectric beat selection in order to perform baseline correction. 
 
@@ -42,11 +48,11 @@ M: GroupName: Modifying or creating a group name for a specific set of channels
 
 N: Lead Numbers: The lead numbers that correspond to the group name created above. 
 
-O: Filename Extension: The extension name applied to the output files MatMap creates for the specific groups. 
+O: Filename Extension: The extension name applied to the output files Matmap creates for the specific groups. 
 
 P: Bad Leads: The channels that correspond to leads with poor signal quality. These numbers will be taken out of RMS calculation 
 
-Q: File Extensions: The file types that MatMap will attempt to open
+Q: File Extensions: The file types that Matmap will attempt to open
 
 R: Group Name: Dropdown for selecting each individual group for editing M, N, O, and P. 
 
@@ -62,7 +68,7 @@ W: Mapping File: This is the location of the .mapping file that describes which 
 
 ### Processing Script Menu Window
 
-![alt text](https://github.com/SCIInstitute/Matmap3/DocumentationFigures/2.png)
+![Processing Script Menu Window](DocumentationFigures/2.png)
 
 A: Calibrate signal: Apply information from the premade calibration file to the imported dataset
 B: Blank Bad Leads: Apply a zero value to leads marked as "bad leads" assigned. 
@@ -84,7 +90,7 @@ File Converter: Converting non-acq type files into a matmap readable file format
 
 ### Slice/Averaging Window
 
-![alt text](https://github.com/SCIInstitute/Matmap3/DocumentationFigures/3.png)
+![Slice/Averaging Window](DocumentationFigures/3.png)
 
 A: File Navigation: Navigates between beats in order shown in the processing script menu
 B: Signal Viewer Window: Displays signal for file selected.
@@ -96,7 +102,7 @@ F: Keep Bad Lead Settings: In Progress
 ### Baseline Correction Window
 
 
-![alt text](https://github.com/SCIInstitute/Matmap3/DocumentationFigures/4.png)
+![Baseline Correction Window](DocumentationFigures/4.png)
 
 A: Signal Viewer Window: Displays signal for file selected.
 B: Fiducial Selector: Allows user to modify baseline selected if not satisfactory in the slice averaging window. Both bounds should be set to zero 
@@ -105,17 +111,18 @@ C: Display Window Settings:  Allows user to modify visualization of data by grou
 ### Fiducial Selection Window
 
 
-![alt text](https://github.com/SCIInstitute/Matmap3/DocumentationFigures/5.png)
+![Fiducial Selection Window](DocumentationFigures/5.png)
 
 
 A: Signal Viewer Window: Displays signal for file selected.
-B: Display Window Settings:  Allows user to modify visualization of data by group, apply labels, and modify offset. C: Fiducial Settings: Allows the user to select which fiducial is being identified and which data to apply the fiducial point.
+B: Display Window Settings:  Allows user to modify visualization of data by group, apply labels, and modify offset. 
+C: Fiducial Settings: Allows the user to select which fiducial is being identified and which data to apply the fiducial point.
 **Select looping order: Allows user to specify the order that fiducial points will be selected and automatically change fiducial selector after each click. 
 D: Auto-detection: Standard detection of activation and recovery times
 
 ### AutoFiducializing Window
 
-![alt text](https://github.com/SCIInstitute/Matmap3/DocumentationFigures/6.png)
+![AutoFiducializing Window](DocumentationFigures/6.png)
 
 A: Faulty Beats: Options to view faulty leads as detected during the autofiducializing process. 
 B: Critical Variance: Defining the "critical variance" that will be used to select faulty leads during the autofiducializing process. 
