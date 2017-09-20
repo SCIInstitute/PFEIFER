@@ -1,4 +1,4 @@
-function [globFid, indivFids, variance] = findFid(windows,kernels,method)
+function [globFid, indivFids, variance] = findFid(windows,kernels)
 % inputs:
 %   - windows:  a nLeads x length(beat) - array with all the windows of a beat
 %   - kernels: a nLeads x length(kernel) - array with all the kernels of one fiducial
@@ -30,6 +30,8 @@ end
 [~,globFid]=max(sum(xc,1),[],2);
 % variance
 variance=var(indivFids);
+
+
 
 
 

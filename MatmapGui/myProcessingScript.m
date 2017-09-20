@@ -19,7 +19,12 @@ function myProcessingScript(varargin)
     
     
     initMyScriptData();    %init myScriptData mit default values or with data from scriptfile, if there is one.
-    initMyProcessingData();  % initialise myScriptData with default values  
+    try
+        initMyProcessingData();
+    catch
+        disp('myProcessingData not loaded')
+    end
+    
     loadMyProcessingData;    % load myProcessingData form MSD.DATAFILE (whose default is pwd)
     
 
@@ -71,11 +76,13 @@ function initMyScriptData()
         myScriptData.DEFAULT.(defaultsettings{p})=defaultsettings{p+1};
     end
 
+    
     % now check if myScriptData.mat exists in current Directory. If yes, load it (and thus
     % overwrite old myScriptData)
     
     if exist(fullfile(pwd,myScriptData.SCRIPTFILE), 'file')==2
         load(fullfile(pwd,myScriptData.SCRIPTFILE));
+        
         old2newMyScriptData();
     else
         save('myScriptData','myScriptData');
@@ -89,7 +96,7 @@ function initMyProcessingData()
 
     global myProcessingData myScriptData 
     if exist(fullfile(pwd,myScriptData.DATAFILE),'file')    % if mpd exists in current folder, load it
-        loadMyProcessingData
+        load(myScriptData.DATAFILE,'-mat');
     else                                      % else set default and save that
         myProcessingData = struct;
         myProcessingData.SELFRAMES = {};
@@ -174,8 +181,11 @@ function saveMyProcessingData()
 % analogous to function SaveScriptData
 
     global myScriptData myProcessingData;
-    
-    save(myScriptData.DATAFILE,'myProcessingData');
+    try
+        save(myScriptData.DATAFILE,'myProcessingData');
+    catch
+        disp('not saving.. change this!!')
+    end
 end
 
 
@@ -1880,7 +1890,7 @@ function old2newMyScriptData()
             end
         end   
     end
-
+    
 
     %%%% create the 'RUNGROUP..'  fields, if there aren't there yet.
     for p=1:3:length(defaultsettings)
@@ -1919,8 +1929,8 @@ function old2newMyScriptData()
         myScriptData.GROUPSELECT=length(myScriptData.GROUPNAME{myScriptData.RUNGROUPSELECT});
     else
         myScriptData.GROUPSELECT=0;
-    end
-    
+    end  
+
 end
 
 

@@ -34,6 +34,8 @@ AUTOPROCESSING.oriFids=TS{myScriptData.CURRENTTS}.fids;
 %%%% get signal, the RMS needed to find beats
 signal = preprocessPotvals(TS{unslicedDataIndex}.potvals(leadsOfAllGroups,:));   % make signal out of leadsOfAllGroups
 
+
+
 %%%% find allFids based on oriFids and signal
 AUTOPROCESSING.allFids=findAllFids(TS{unslicedDataIndex}.potvals(AUTOPROCESSING.leadsToAutoprocess,:),signal);
 

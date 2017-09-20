@@ -75,7 +75,15 @@ end
 
 
 %%%%% find the beats, get rid of beats before user fiducialiced beat
+
+
+bsk
+bek
+
 beats=findMatches(signal, signal(bsk:bek), accuracy);
+
+ 
+
 
 
 % find oriBeatIdx, the index of the template beat
@@ -117,7 +125,7 @@ for beatNumber=1:nBeats %for each beat
         
         
         %%%% find fids
-        [globFid, indivFids, variance] = findFid(windows,kernels(:,:,fidNumber),'normal');
+        [globFid, indivFids, variance] = findFid(windows,kernels(:,:,fidNumber));
 
         %put them in global frame
         indivFids=indivFids+fidsKernelLength-kernel_shift+bs-1+loc_fidsValues(fidNumber)-window_width;  % now  newIndivFids is in "complete potvals" frame.
