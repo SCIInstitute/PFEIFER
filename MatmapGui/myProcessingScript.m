@@ -22,7 +22,7 @@ function myProcessingScript(varargin)
     try
         initMyProcessingData();
     catch
-        disp('myProcessingData not loaded')
+        disp('There are problems with the myProcessingData file..')
     end
     
     loadMyProcessingData;    % load myProcessingData form MSD.DATAFILE (whose default is pwd)
@@ -181,11 +181,7 @@ function saveMyProcessingData()
 % analogous to function SaveScriptData
 
     global myScriptData myProcessingData;
-    try
-        save(myScriptData.DATAFILE,'myProcessingData');
-    catch
-        disp('not saving.. change this!!')
-    end
+    save(myScriptData.DATAFILE,'myProcessingData');
 end
 
 
@@ -711,7 +707,7 @@ try
     filename = myScriptData.SCRIPTFILE;
     save(filename,'myScriptData','-mat');
 catch
-    return
+    disp('tried to save settings (myScriptData.mat), but was not able to do so..')
 end
 end
 
@@ -1666,7 +1662,11 @@ function tf = isCorrectFile(pathstring,toBeFile,flag)
                     'FILTERNAME','NONE','string',...
                     'FILTERNAMES',{'NONE'},'string',...
                     'FILTER',[],'string',...
-                    'INPUTTSDFC','','string'
+                    'INPUTTSDFC','','string',...
+                    'ACCURACY', 0.9, 'double',...
+                    'FIDSKERNELLENGTH',10,'integer',...
+                    'WINDOW_WIDTH', 20, 'integer',...
+                    'NTOBEFIDUCIALISED', 10, 'integer'
             };
         
 
@@ -1835,9 +1835,6 @@ function old2newMyScriptData()
     global myScriptData
     defaultsettings=getDefaultSettings;
     
-    
-    
-   
     
     %%%%% make sure myScriptData only has the fields specified in default
     %%%%% settings and no unnecessary fields
@@ -2058,6 +2055,8 @@ function defaultsettings=getDefaultSettings
                     'RUNGROUPMAPPINGFILE','','rungroupstring',...
                     'RUNGROUPCALIBRATIONMAPPINGUSED','','rungroupstring',...
                     'RUNGROUPFILECONTAIN', '', 'rungroupstring',...
+                    'DO_AUTOFIDUCIALICING', 0, 'bool',...
+                    'AUTOFID_USER_INTERACTION', 0, 'bool',...
                     'ACCURACY', 0.9, 'double',...
                     'FIDSKERNELLENGTH',10,'integer',...
                     'WINDOW_WIDTH', 20, 'integer',...

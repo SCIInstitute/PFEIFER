@@ -77,14 +77,8 @@ end
 %%%%% find the beats, get rid of beats before user fiducialiced beat
 
 
-bsk
-bek
 
 beats=findMatches(signal, signal(bsk:bek), accuracy);
-
- 
-
-
 
 % find oriBeatIdx, the index of the template beat
 for beatNumber=1:length(beats)
