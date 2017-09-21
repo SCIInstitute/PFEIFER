@@ -49,7 +49,7 @@ function Navigation(handle,mode)
         delete(handle);
     case {'apply'}
         
-        if myScriptData.DO_AUTOFIDUCIALISING
+        if myScriptData.DO_AUTOFIDUCIALISING && FIDSDISPLAY.MODE == 1
             %%%% check if user has selected everyting needed for autofiducializing
             neededFidTypes = [2 3, 5];
             for type = FIDSDISPLAY.EVENTS{1}.type
