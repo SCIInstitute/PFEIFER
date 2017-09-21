@@ -161,9 +161,7 @@ end
 
 
 function processBeat(beatNumber)
-%index: index to orignial ts obtained just before sigSlice in
-%myProcessingScript -> mapping, calibration, temporal filter, badleads already done!
-%selframes:  frames for slicing  [start:end]
+
 global TS myScriptData AUTOPROCESSING
 
 

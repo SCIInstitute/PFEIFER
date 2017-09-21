@@ -1,4 +1,4 @@
-function myProcessingScript(varargin)
+function matmap(varargin)
     %this is the first function to be called from the command line
     %jobs:
 %         - Init myscriptdata
@@ -1266,7 +1266,7 @@ if (myScriptData.DO_BASELINE == 1)
             case {'prev','next','stop','redo','back'}, cd(olddir); tsClear(index); return; 
         end     
     end
-    %%%% and save user selections in myProcessingScript    
+    %%%% and save user selections in myProcessingData    
     ExportUserSettings(inputfilename,index,{'SELFRAMES','AVERAGEMETHOD','AVERAGECHANNEL','AVERAGERMSTYPE','AVERAGESTART','AVERAGEEND','AVERAGEFRAMES','TEMPLATEFRAMES','LEADINFO','FIDS','FIDSET','STARTFRAME'});
      
     %%%% now do the final baseline correction
@@ -1666,9 +1666,7 @@ function tf = isCorrectFile(pathstring,toBeFile,flag)
                     'ACCURACY', 0.9, 'double',...
                     'FIDSKERNELLENGTH',10,'integer',...
                     'WINDOW_WIDTH', 20, 'integer',...
-                    'NTOBEFIDUCIALISED', 10, 'integer',...
-                    'DO_AUTOFIDUCIALISING', 0, 'bool',...
-                    'AUTOFID_USER_INTERACTION', 0, 'bool'
+                    'NTOBEFIDUCIALISED', 10, 'integer'
             };
         
 
@@ -1750,7 +1748,7 @@ function dealWithNewMyScriptData(newFileString)
     end
     
     %%%% check the myProcessingData specified in the new myScriptData
-    if exist(myScriptData.DATAFILE,'file') && isCorrectFile(newFileString,'myProcessingScript','supressMessages') 
+    if exist(myScriptData.DATAFILE,'file') && isCorrectFile(newFileString,'myProcessingScript','supressMessages')      %to do: this is false, it shouldb be 'myProcessingScript'
         load(myScriptData.DATAFILE)    
     else
         errordlg('This myScriptData contained the path to a non existend or wrong myProcessingData. Therefore the origial myProcessingData is kept. The new MyScriptData is still loaded.')
