@@ -1,7 +1,6 @@
 function test
 
-x=ones(3,4,5);
+x={'a', 2, 3};
 
-size(x)
-
-a=mean(x,3)
+x(2)=[];
+x

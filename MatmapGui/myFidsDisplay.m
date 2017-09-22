@@ -49,15 +49,15 @@ function Navigation(handle,mode)
         delete(handle);
     case {'apply'}
         
-        if myScriptData.DO_AUTOFIDUCIALICING
+        if myScriptData.DO_AUTOFIDUCIALISING && FIDSDISPLAY.MODE == 1
             %%%% check if user has selected everyting needed for autofiducializing
             neededFidTypes = [2 3, 5];
             for type = FIDSDISPLAY.EVENTS{1}.type
                 neededFidTypes(type == neededFidTypes) = [];  % remove the types that were that by user (and therefore are not needed anymore)
             end
             if ~isempty(neededFidTypes)  % if user did not select all neededFidTypes
-                errordlg('QRS-Wave, T-Wave and T-Peak needed for autofiducializing!')
-                error('Not all necesarry fiducials were selected to do autofiducialicing')
+                errordlg('QRS-Wave, T-Wave and T-Peak needed for autofiducialising!')
+                error('Not all necesarry fiducials were selected to do autofiducialising')
             end
         end
         

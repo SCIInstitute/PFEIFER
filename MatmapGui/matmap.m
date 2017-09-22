@@ -1,4 +1,4 @@
-function myProcessingScript(varargin)
+function matmap(varargin)
     %this is the first function to be called from the command line
     %jobs:
 %         - Init myscriptdata
@@ -19,7 +19,12 @@ function myProcessingScript(varargin)
     
     
     initMyScriptData();    %init myScriptData mit default values or with data from scriptfile, if there is one.
-    initMyProcessingData();  % initialise myScriptData with default values  
+    try
+        initMyProcessingData();
+    catch
+        disp('There are problems with the myProcessingData file..')
+    end
+    
     loadMyProcessingData;    % load myProcessingData form MSD.DATAFILE (whose default is pwd)
     
 
@@ -71,11 +76,13 @@ function initMyScriptData()
         myScriptData.DEFAULT.(defaultsettings{p})=defaultsettings{p+1};
     end
 
+    
     % now check if myScriptData.mat exists in current Directory. If yes, load it (and thus
     % overwrite old myScriptData)
     
     if exist(fullfile(pwd,myScriptData.SCRIPTFILE), 'file')==2
         load(fullfile(pwd,myScriptData.SCRIPTFILE));
+        
         old2newMyScriptData();
     else
         save('myScriptData','myScriptData');
@@ -89,7 +96,7 @@ function initMyProcessingData()
 
     global myProcessingData myScriptData 
     if exist(fullfile(pwd,myScriptData.DATAFILE),'file')    % if mpd exists in current folder, load it
-        loadMyProcessingData
+        load(myScriptData.DATAFILE,'-mat');
     else                                      % else set default and save that
         myProcessingData = struct;
         myProcessingData.SELFRAMES = {};
@@ -174,7 +181,6 @@ function saveMyProcessingData()
 % analogous to function SaveScriptData
 
     global myScriptData myProcessingData;
-    
     save(myScriptData.DATAFILE,'myProcessingData');
 end
 
@@ -701,7 +707,7 @@ try
     filename = myScriptData.SCRIPTFILE;
     save(filename,'myScriptData','-mat');
 catch
-    return
+    disp('tried to save settings (myScriptData.mat), but was not able to do so..')
 end
 end
 
@@ -992,7 +998,7 @@ function PreLoopScript
             if size(addBadleads,2) > 1
                 addBadleads=addBadleads';
             else
-                disp('blablub') %TODO  remove this
+                %TODO  remove this
             end
             
             badleads=[badleads; addBadleads];
@@ -1170,7 +1176,6 @@ end
 % keeping only the timeframe-window specified in ts.selframes
 if myScriptData.DO_SLICE_USER == 1  %if 'user interaction' button is pressed
     handle = mySliceDisplay(index); % this only changes selframes I think it also uses ts.averageframes (and all from export userlist bellow?)
-
     waitfor(handle);
 
     switch myScriptData.NAVIGATION  % if any of these was clicked in mySliceDisplay
@@ -1189,7 +1194,6 @@ end
 % SO STORE ALL THE SETTINGS/CHANGES WE MADE
 ExportUserSettings(inputfilename,index,{'SELFRAMES','AVERAGEMETHOD','AVERAGECHANNEL','AVERAGERMSTYPE','AVERAGESTART','AVERAGEEND','AVERAGEFRAMES','TEMPLATEFRAMES','LEADINFO'});
 
-
 %%%%%% if 'blank bad leads' button is selected,   set all values of the bad leads to 0   
 if myScriptData.DO_BLANKBADLEADS == 1
     badleads = tsIsBad(index);
@@ -1197,9 +1201,8 @@ if myScriptData.DO_BLANKBADLEADS == 1
     tsSetBlank(index,badleads);
     tsAddAudit(index,'|Blanked out bad leads');
 end
-
 %%%% save the ts as it is now in TS{unslicedDataIndex} for autofiducialicing
-if myScriptData.DO_AUTOFIDUCIALICING
+if myScriptData.DO_AUTOFIDUCIALISING
     unslicedDataIndex=tsNew(1);
     TS{unslicedDataIndex}=TS{index};        
     myScriptData.unslicedDataIndex=unslicedDataIndex;
@@ -1212,7 +1215,9 @@ sigSlice(index);   % keeps only the selected timeframes in the potvals, using ts
  %%%%%% import more Usersettings from myProcessingData into TS{index} %%%%
 fieldstoload = {'FIDS','FIDSET','STARTFRAME'};
 ImportUserSettings(inputfilename,index,fieldstoload);
-    
+
+
+
 %%%%%%%%%% start baseline stuff %%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if myScriptData.DO_BASELINE_USER, myScriptData.DO_BASELINE = 1; end
@@ -1251,7 +1256,7 @@ if (myScriptData.DO_BASELINE == 1)
         baselinewidth = myScriptData.BASELINEWIDTH;
         sigBaseLine(index,[],baselinewidth);
     end
-
+    
     %%%%   open Fidsdisplay in mode 2, (baseline mode)
     if myScriptData.DO_BASELINE_USER == 1
         handle = myFidsDisplay(index,2);    % this changes fids, but nothing else
@@ -1261,7 +1266,7 @@ if (myScriptData.DO_BASELINE == 1)
             case {'prev','next','stop','redo','back'}, cd(olddir); tsClear(index); return; 
         end     
     end
-    %%%% and save user selections in myProcessingScript    
+    %%%% and save user selections in myProcessingData    
     ExportUserSettings(inputfilename,index,{'SELFRAMES','AVERAGEMETHOD','AVERAGECHANNEL','AVERAGERMSTYPE','AVERAGESTART','AVERAGEEND','AVERAGEFRAMES','TEMPLATEFRAMES','LEADINFO','FIDS','FIDSET','STARTFRAME'});
      
     %%%% now do the final baseline correction
@@ -1277,80 +1282,9 @@ if (myScriptData.DO_BASELINE == 1)
 end
     
     
-    
-    
-    %%% Do_LAPLACIAN_INTERPOLATE %%%%%%%%%%%%%%%%%%%%%%%%
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%     if myScriptData.DO_LAPLACIAN_INTERPOLATE == 1
-%         
-%          %%% find the groups to be processed. splitgroup=[1 3] if there are
-%          %%% 3 groups but the 2 shouldnt be processed
-%         splitgroup = [];
-%         for p=1:length(myScriptData.GROUPNAME{myScriptData.CURRENTRUNGROUP})
-%             if myScriptData.GROUPDONOTPROCESS{myScriptData.CURRENTRUNGROUP}{p} == 0, splitgroup = [splitgroup p]; end
-%         end
-%         
-%         
-%         
-%         for q=1:length(splitgroup)   %for each group to be processed
-%             
-%             %%% continue, if group has no bad leads
-%             if isempty(myScriptData.GBADLEADS{myScriptData.CURRENTRUNGROUP}{splitgroup(q)})
-%                 continue;
-%             end
-%             
-%             
-%             %%% initialice LIBADLEADS with [], if not initialized yet
-%             if ~isfield(myProcessingData,'LIBADLEADS')
-%                 myProcessingData.LIBADLEADS{myScriptData.CURRENTRUNGROUP}{q} = [];
-%             end
-%             
-%             
-%             %%% if GBADLEADS(groupIndex) without LIBADLEADS(groupIndex) is
-%             %%% not empty
-%             if ~isempty(setdiff(myScriptData.GBADLEADS{myScriptData.CURRENTRUNGROUP}{splitgroup(q)},myProcessingData.LIBADLEADS{myScriptData.CURRENTRUNGROUP}{q}))
-%                 myProcessingData.LI{myScriptData.CURRENTRUNGROUP}{splitgroup(q)} = [];
-%                 
-%                 
-%                 %%% if no GROUPGEOM-file is given, continue
-%                 %%% file= { GEOM-File,  GroupChannel-File} 
-%                 files = {};
-%                 files{1} = myScriptData.GROUPGEOM{myScriptData.CURRENTRUNGROUP}{splitgroup(q)};
-%                 if isempty(files{1})
-%                     continue;
-%                 end
-%                 if ~isempty(myScriptData.GROUPCHANNELS{myScriptData.CURRENTRUNGROUP}{splitgroup(q)})
-%                     files{2} = myScriptData.GROUPCHANNELS{myScriptData.CURRENTRUNGROUP}{splitgroup(q)};
-%                 end
-%                 
-%                 
-%                 
-%                 
-%                 myProcessingData.LI{myScriptData.CURRENTRUNGROUP}{splitgroup(q)} = sparse(triLaplacianInterpolation(files{:},myScriptData.GBADLEADS{myScriptData.CURRENTRUNGROUP}{splitgroup(q)},length(myScriptData.GROUPLEADS{myScriptData.CURRENTRUNGROUP}{splitgroup(q)})));
-%             end
-%             
-%             
-%             %%% continue, if triLaplacian interpolation didnt return
-%             %%% anything
-%             if isempty(myProcessingData.LI{myScriptData.CURRENTRUNGROUP}{splitgroup(q)})
-%                 continue;
-%             end
-%             
-%             %%% potvals(groupleads{p})=potvals(groupleads{p})*LI{p}..
-%             leads = myScriptData.GROUPLEADS{myScriptData.CURRENTRUNGROUP}{splitgroup(q)};
-%             TS{index}.potvals(leads,:) = myProcessingData.LI{myScriptData.CURRENTRUNGROUP}{splitgroup(q)}*TS{index}.potvals(leads,:);
-%             
-%             
-%             %%% mark interpolated leads as interpolated
-%             tsSetInterp(index,leads(myScriptData.GBADLEADS{myScriptData.CURRENTRUNGROUP}{splitgroup(q)}));
-%           
-%         end
-%         tsAddAudit(index,'|Interpolated bad leads (Laplacian interpolation)');
-%     end
-    
-    
+
+
     %%%%%%%% now detect the rest of fiducials, if 'detect fids' was selected   
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     if myScriptData.DO_DETECT_USER, myScriptData.DO_DETECT=1; end
     if myScriptData.DO_DETECT == 1
         fieldstoload = {'FIDS','FIDSET','STARTFRAME'};
@@ -1398,7 +1332,7 @@ end
     end
     
     %%%% now we have a fiducialed beat - use it as template to autoprocess the rest of the data in TS{unslicedDataIndex}
-    if myScriptData.DO_AUTOFIDUCIALICING
+    if myScriptData.DO_AUTOFIDUCIALISING
         autoProcessSignal
     end
     
@@ -1530,7 +1464,7 @@ end
     saveMyProcessingData;
     saveSettings();
     tsClear(index);
-    if myScriptData.DO_AUTOFIDUCIALICING
+    if myScriptData.DO_AUTOFIDUCIALISING
         tsClear(myScriptData.unslicedDataIndex);
         myScriptData.unslicedDataIndex=[];
     end
@@ -1728,7 +1662,11 @@ function tf = isCorrectFile(pathstring,toBeFile,flag)
                     'FILTERNAME','NONE','string',...
                     'FILTERNAMES',{'NONE'},'string',...
                     'FILTER',[],'string',...
-                    'INPUTTSDFC','','string'
+                    'INPUTTSDFC','','string',...
+                    'ACCURACY', 0.9, 'double',...
+                    'FIDSKERNELLENGTH',10,'integer',...
+                    'WINDOW_WIDTH', 20, 'integer',...
+                    'NTOBEFIDUCIALISED', 10, 'integer'
             };
         
 
@@ -1810,7 +1748,7 @@ function dealWithNewMyScriptData(newFileString)
     end
     
     %%%% check the myProcessingData specified in the new myScriptData
-    if exist(myScriptData.DATAFILE,'file') && isCorrectFile(newFileString,'myProcessingScript','supressMessages') 
+    if exist(myScriptData.DATAFILE,'file') && isCorrectFile(newFileString,'myProcessingScript','supressMessages')      %to do: this is false, it shouldb be 'myProcessingScript'
         load(myScriptData.DATAFILE)    
     else
         errordlg('This myScriptData contained the path to a non existend or wrong myProcessingData. Therefore the origial myProcessingData is kept. The new MyScriptData is still loaded.')
@@ -1898,9 +1836,6 @@ function old2newMyScriptData()
     defaultsettings=getDefaultSettings;
     
     
-    
-   
-    
     %%%%% make sure myScriptData only has the fields specified in default
     %%%%% settings and no unnecessary fields
     mappingfile='';
@@ -1952,7 +1887,7 @@ function old2newMyScriptData()
             end
         end   
     end
-
+    
 
     %%%% create the 'RUNGROUP..'  fields, if there aren't there yet.
     for p=1:3:length(defaultsettings)
@@ -1991,8 +1926,8 @@ function old2newMyScriptData()
         myScriptData.GROUPSELECT=length(myScriptData.GROUPNAME{myScriptData.RUNGROUPSELECT});
     else
         myScriptData.GROUPSELECT=0;
-    end
-    
+    end  
+
 end
 
 
@@ -2052,8 +1987,6 @@ function defaultsettings=getDefaultSettings
                     'DO_INTEGRALMAPS',1,'bool',...
                     'DO_ACTIVATIONMAPS',1,'bool',...
                     'DO_FILTER',0,'bool',...
-                    'DO_AUTOFIDUCIALICING',0,'bool',...
-                    'AUTOFID_USER_INTERACTION',0,'bool',...
                     'SAMPLEFREQ', 1000, 'double',...
                     'NAVIGATION','apply','string',...
                     'DISPLAYTYPE',1,'integer',...
@@ -2120,6 +2053,8 @@ function defaultsettings=getDefaultSettings
                     'RUNGROUPMAPPINGFILE','','rungroupstring',...
                     'RUNGROUPCALIBRATIONMAPPINGUSED','','rungroupstring',...
                     'RUNGROUPFILECONTAIN', '', 'rungroupstring',...
+                    'DO_AUTOFIDUCIALISING', 0, 'bool',...
+                    'AUTOFID_USER_INTERACTION', 0, 'bool',...
                     'ACCURACY', 0.9, 'double',...
                     'FIDSKERNELLENGTH',10,'integer',...
                     'WINDOW_WIDTH', 20, 'integer',...

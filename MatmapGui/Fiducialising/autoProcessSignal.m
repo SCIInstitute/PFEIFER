@@ -34,6 +34,8 @@ AUTOPROCESSING.oriFids=TS{myScriptData.CURRENTTS}.fids;
 %%%% get signal, the RMS needed to find beats
 signal = preprocessPotvals(TS{unslicedDataIndex}.potvals(leadsOfAllGroups,:));   % make signal out of leadsOfAllGroups
 
+
+
 %%%% find allFids based on oriFids and signal
 AUTOPROCESSING.allFids=findAllFids(TS{unslicedDataIndex}.potvals(AUTOPROCESSING.leadsToAutoprocess,:),signal);
 
@@ -159,9 +161,7 @@ end
 
 
 function processBeat(beatNumber)
-%index: index to orignial ts obtained just before sigSlice in
-%myProcessingScript -> mapping, calibration, temporal filter, badleads already done!
-%selframes:  frames for slicing  [start:end]
+
 global TS myScriptData AUTOPROCESSING
 
 
@@ -182,6 +182,16 @@ for fidNumber=1:length(fids)
 end
 if isfield(fids,'variance'),  fids=rmfield(fids,'variance'); end  %variance not wanted in the output
 TS{newBeatIdx}.fids=fids;
+
+
+%%%%%% if 'blank bad leads' button is selected,   set all values of the bad leads to 0   
+if myScriptData.DO_BLANKBADLEADS == 1
+    badleads = tsIsBad(newBeatIdx);
+    TS{newBeatIdx}.potvals(badleads,:) = 0;
+    tsSetBlank(newBeatIdx,badleads);
+    tsAddAudit(newBeatIdx,'|Blanked out bad leads');
+end
+
 
 
 %%%%  baseline correction
