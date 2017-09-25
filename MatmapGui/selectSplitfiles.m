@@ -14,13 +14,13 @@ function setUpDisplay(handle)
 % set up all objects of the  split display
 
 global myScriptData
-files2split=myScriptData.FILES2SPLIT;
+files2split=ScriptData.FILES2SPLIT;
 
 %%%% set up the listbox
 obj=findobj(allchild(handle),'tag','SPLITFILELISTBOX');
-cellarray = myScriptData.('ACQLISTBOX');
+cellarray = ScriptData.('ACQLISTBOX');
 if ~isempty(cellarray) 
-    values = intersect(myScriptData.ACQFILENUMBER,files2split);
+    values = intersect(ScriptData.ACQFILENUMBER,files2split);
     set(obj,'string',cellarray,'max',length(cellarray),'value',values,'enable','on');
 else
     set(obj,'string',{'NO ACQ or AC2 FILES FOUND','',''},'max',3,'value',[],'enable','off');
@@ -33,21 +33,21 @@ set(obj,'string',mynum2str(files2split));
 
 %%%% set up 'select label containing'
 obj=findobj(allchild(handle),'tag','SPLITFILECONTAIN');
-obj.String=myScriptData.SPLITFILECONTAIN;
+obj.String=ScriptData.SPLITFILECONTAIN;
 
 %%%% output directory
 obj=findobj(allchild(handle),'tag','SPLITDIR');
-set(obj,'string',myScriptData.SPLITDIR);
+set(obj,'string',ScriptData.SPLITDIR);
 
 
 %%%% split interval
 obj=findobj(allchild(handle),'tag','SPLITINTERVAL');
-obj.String=num2str(myScriptData.SPLITINTERVAL);
+obj.String=num2str(ScriptData.SPLITINTERVAL);
 
 
 %%%% calibrate splitfiles
 obj=findobj(allchild(handle),'tag','CALIBRATE_SPLIT');
-set(obj,'value',myScriptData.CALIBRATE_SPLIT);
+set(obj,'value',ScriptData.CALIBRATE_SPLIT);
 
 end
 
@@ -56,12 +56,12 @@ end
 
 
 function setValues(handle)
-global myScriptData
+global ScriptData
 
 %%%% first check input
 switch handle.Tag
     case 'SPLITDIR'
-        if ~exist(myScriptData.SPLITDIR,'dir')
+        if ~exist(ScriptData.SPLITDIR,'dir')
             errordlg('Specified folder doesn''t exist.')
             setUpDisplay(handle.Parent);
             return
@@ -74,57 +74,57 @@ switch handle.Tag
         end
 end
 
-%%%% now set myScriptData with new user input
+%%%% now set ScriptData with new user input
 switch handle.Tag
     case {'CALIBRATE_SPLIT'}
-        myScriptData.(handle.Tag) = handle.Value;
+        ScriptData.(handle.Tag) = handle.Value;
     case {'SPLITFILECONTAIN','SPLITDIR'}
-        myScriptData.(handle.Tag)=handle.String;
+        ScriptData.(handle.Tag)=handle.String;
     case {'FILES2SPLIT'}
-        myScriptData.(handle.Tag)=mystr2num(handle.String);
+        ScriptData.(handle.Tag)=mystr2num(handle.String);
     case {'SPLITFILELISTBOX'}
-        myScriptData.FILES2SPLIT=handle.Value;
+        ScriptData.FILES2SPLIT=handle.Value;
     case {'SPLITINTERVAL'}
-        myScriptData.(handle.Tag)=str2double(handle.String);
+        ScriptData.(handle.Tag)=str2double(handle.String);
 end
 setUpDisplay(handle.Parent)
 end
 
 function selectAll_callback(handle)
-global myScriptData
+global ScriptData
 
-myScriptData.FILES2SPLIT=myScriptData.ACQFILENUMBER;
+ScriptData.FILES2SPLIT=ScriptData.ACQFILENUMBER;
 setUpDisplay(handle.Parent)
 end
 
 function clearSelection_callback(handle)
-global myScriptData
-myScriptData.FILES2SPLIT=[];
+global ScriptData
+ScriptData.FILES2SPLIT=[];
 setUpDisplay(handle.Parent)
 end
 
 
 function selectLabel_callback(handle)
-global myScriptData
-pat = myScriptData.SPLITFILECONTAIN;
+global ScriptData
+pat = ScriptData.SPLITFILECONTAIN;
 sel = [];
-for p=1:length(myScriptData.ACQINFO)
-    if ~isempty(strfind(myScriptData.ACQINFO{p},pat))
-       sel(end+1)=myScriptData.ACQFILENUMBER(p); 
+for p=1:length(ScriptData.ACQINFO)
+    if ~isempty(strfind(ScriptData.ACQINFO{p},pat))
+       sel(end+1)=ScriptData.ACQFILENUMBER(p); 
     end
 end
-myScriptData.FILES2SPLIT= sel;
+ScriptData.FILES2SPLIT= sel;
 
 setUpDisplay(handle.Parent)
 end
 
 function Browse(handle)
 disp('ja')
-global myScriptData
+global ScriptData
 
 pathstring  = uigetdir(pwd,'SELECT DIRECTORY');
 if (pathstring == 0), return; end
-myScriptData.SPLITDIR=pathstring;
+ScriptData.SPLITDIR=pathstring;
 
 setUpDisplay(handle);
 end

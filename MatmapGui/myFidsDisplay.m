@@ -197,7 +197,7 @@ function InitFiducials(handle,mode)
     % calls FidsToEvents
     
 
-    global FIDSDISPLAY myScriptData TS;
+    global FIDSDISPLAY ScriptData TS;
 
     FIDSDISPLAY.MODE = 1;
     if nargin == 2
@@ -205,14 +205,14 @@ function InitFiducials(handle,mode)
     end    
     
      if FIDSDISPLAY.MODE == 1
-        myScriptData.DISPLAYTYPEF = myScriptData.DISPLAYTYPEF1;
+        ScriptData.DISPLAYTYPEF = ScriptData.DISPLAYTYPEF1;
     else
-        myScriptData.DISPLAYTYPEF = myScriptData.DISPLAYTYPEF2;
+        ScriptData.DISPLAYTYPEF = ScriptData.DISPLAYTYPEF2;
      end    
     
      
     % for all fiducial types
-    events.dt = myScriptData.BASELINEWIDTH/myScriptData.SAMPLEFREQ;
+    events.dt = ScriptData.BASELINEWIDTH/ScriptData.SAMPLEFREQ;
     events.value = [];
     events.type = [];
     events.handle = [];
@@ -226,9 +226,9 @@ function InitFiducials(handle,mode)
     
 
     FIDSDISPLAY.SELFIDS = 1;
-    if isempty(myScriptData.LOOP_ORDER), myScriptData.LOOP_ORDER=1; end %should be unnecesarry, but weird stuff happened..
+    if isempty(ScriptData.LOOP_ORDER), ScriptData.LOOP_ORDER=1; end %should be unnecesarry, but weird stuff happened..
     if FIDSDISPLAY.MODE == 1
-        FIDSDISPLAY.NEWFIDSTYPE = myScriptData.LOOP_ORDER(1);
+        FIDSDISPLAY.NEWFIDSTYPE = ScriptData.LOOP_ORDER(1);
     else
         FIDSDISPLAY.NEWFIDSTYPE = 6;           
     end
@@ -254,9 +254,9 @@ function InitFiducials(handle,mode)
      
     events.maxn = 1;
     events.class = 1; FIDSDISPLAY.EVENTS{1} = events;  % GLOBAL EVENTS
-    events.maxn = length(myScriptData.GROUPLEADS{myScriptData.CURRENTRUNGROUP});
+    events.maxn = length(ScriptData.GROUPLEADS{ScriptData.CURRENTRUNGROUP});
     events.class = 2; FIDSDISPLAY.EVENTS{2} = events;  % GROUP EVENTS
-    events.maxn = size(TS{myScriptData.CURRENTTS}.potvals,1);
+    events.maxn = size(TS{ScriptData.CURRENTTS}.potvals,1);
     events.class = 3; FIDSDISPLAY.EVENTS{3} = events;  % LOCAL EVENTS
 
     FidsToEvents;
@@ -266,19 +266,19 @@ end
 function FidsButton(handle)
     %callback to middle-down left  and complete down.  
 
-    global myScriptData
+    global ScriptData
     
     tag = get(handle,'tag');
     switch tag
         case {'FIDSLOOPFIDS','FIDSAUTOREC','FIDSAUTOACT'}
-            myScriptData= setfield(myScriptData,tag,get(handle,'value'));
+            ScriptData= setfield(ScriptData,tag,get(handle,'value'));
         case {'ACTNEG','RECNEG'}
-            myScriptData = setfield(myScriptData,tag,get(handle,'value')-1);
+            ScriptData = setfield(ScriptData,tag,get(handle,'value')-1);
             parent = get(handle,'parent');
             UpdateDisplay(parent);        
             
         case {'ACTWIN','ACTDEG','RECWIN','RECDEG'}
-            myScriptData = setfield(myScriptData,tag,str2num(get(handle,'string')));
+            ScriptData = setfield(ScriptData,tag,str2num(get(handle,'string')));
             parent = get(handle,'parent');
             UpdateDisplay(parent);             
             
@@ -289,7 +289,7 @@ function DisplayFiducials
     % this functions plotts the lines/patches when u select the fiducials
     % (the line u can move around with your mouse)
     
-    global FIDSDISPLAY myScriptData;
+    global FIDSDISPLAY ScriptData;
     
     % GLOBAL EVENTS
     events = FIDSDISPLAY.EVENTS{1};
@@ -311,7 +311,7 @@ function DisplayFiducials
     end
     FIDSDISPLAY.EVENTS{1} = events;           
 
-    if myScriptData.DISPLAYTYPEF == 1, return; end
+    if ScriptData.DISPLAYTYPEF == 1, return; end
     
     % GROUP FIDUCIALS
     
@@ -346,7 +346,7 @@ function DisplayFiducials
     end
     FIDSDISPLAY.EVENTS{2} = events;   
     
-    if myScriptData.DISPLAYTYPEF == 2, return; end
+    if ScriptData.DISPLAYTYPEF == 2, return; end
     
     % LOCAL FIDUCIALS
     
@@ -430,52 +430,52 @@ end
 end
   
 function InitDisplayButtons(handle)
-    %A.  Initialices the display with values from myScriptData
+    %A.  Initialices the display with values from ScriptData
 
-    global myScriptData FIDSDISPLAY;
+    global ScriptData FIDSDISPLAY;
 
     button = findobj(allchild(handle),'tag','DISPLAYTYPEF');
-    set(button,'string',{'Global RMS','Group RMS','Individual'},'value',myScriptData.DISPLAYTYPEF);
+    set(button,'string',{'Global RMS','Group RMS','Individual'},'value',ScriptData.DISPLAYTYPEF);
     
     button = findobj(allchild(handle),'tag','DISPLAYOFFSET');
-    set(button,'string',{'Offset ON','Offset OFF'},'value',myScriptData.DISPLAYOFFSET);
+    set(button,'string',{'Offset ON','Offset OFF'},'value',ScriptData.DISPLAYOFFSET);
     
     button = findobj(allchild(handle),'tag','DISPLAYLABELF');
-    set(button,'string',{'Label ON','Label OFF'},'value',myScriptData.DISPLAYLABELF);
+    set(button,'string',{'Label ON','Label OFF'},'value',ScriptData.DISPLAYLABELF);
     
     button = findobj(allchild(handle),'tag','DISPLAYPACINGF');
-    set(button,'string',{'Pacing ON','Pacing OFF'},'value',myScriptData.DISPLAYPACINGF);
+    set(button,'string',{'Pacing ON','Pacing OFF'},'value',ScriptData.DISPLAYPACINGF);
     
     button = findobj(allchild(handle),'tag','DISPLAYGRIDF');
-    set(button,'string',{'No grid','Coarse grid','Fine grid'},'value',myScriptData.DISPLAYGRIDF);
+    set(button,'string',{'No grid','Coarse grid','Fine grid'},'value',ScriptData.DISPLAYGRIDF);
     
     button = findobj(allchild(handle),'tag','DISPLAYSCALINGF');
-    set(button,'string',{'Local','Global'},'value',myScriptData.DISPLAYSCALINGF);
+    set(button,'string',{'Local','Global'},'value',ScriptData.DISPLAYSCALINGF);
 
     button = findobj(allchild(handle),'tag','ACTWIN');
-    set(button,'string',num2str(myScriptData.ACTWIN));
+    set(button,'string',num2str(ScriptData.ACTWIN));
    
     button = findobj(allchild(handle),'tag','ACTDEG');
-    set(button,'string',num2str(myScriptData.ACTDEG));
+    set(button,'string',num2str(ScriptData.ACTDEG));
 
     button = findobj(allchild(handle),'tag','RECWIN');
-    set(button,'string',num2str(myScriptData.RECWIN));
+    set(button,'string',num2str(ScriptData.RECWIN));
    
     button = findobj(allchild(handle),'tag','RECDEG');
-    set(button,'string',num2str(myScriptData.RECDEG));    
+    set(button,'string',num2str(ScriptData.RECDEG));    
     
     button = findobj(allchild(handle),'tag','ACTNEG');
-    set(button,'value',myScriptData.ACTNEG+1); 
+    set(button,'value',ScriptData.ACTNEG+1); 
     
     button = findobj(allchild(handle),'tag','RECNEG');
-    set(button,'value',myScriptData.RECNEG+1);    
+    set(button,'value',ScriptData.RECNEG+1);    
     
     button = findobj(allchild(handle),'tag','DISPLAYGROUPF');
-    group = myScriptData.GROUPNAME{myScriptData.CURRENTRUNGROUP};
+    group = ScriptData.GROUPNAME{ScriptData.CURRENTRUNGROUP};
 
-    %%%% check if myScriptData.DISPLAYGROUPF has valid values
-    myScriptData.DISPLAYGROUPF = 1:length(group);
-    set(button,'string',group,'max',length(group),'value',myScriptData.DISPLAYGROUPF);
+    %%%% check if ScriptData.DISPLAYGROUPF has valid values
+    ScriptData.DISPLAYGROUPF = 1:length(group);
+    set(button,'string',group,'max',length(group),'value',ScriptData.DISPLAYGROUPF);
 
     if ~isfield(FIDSDISPLAY,'XWIN'), FIDSDISPLAY.XWIN = []; end
     if ~isfield(FIDSDISPLAY,'YWIN'), FIDSDISPLAY.YWIN = []; end
@@ -495,18 +495,18 @@ end
     
 function DisplayButton(handle)
     % callback to  links oben, to all 5 "mini dropdown-menues")
-    global myScriptData;
+    global ScriptData;
     
     tag = get(handle,'tag');
     switch tag
         case {'DISPLAYTYPEF','DISPLAYOFFSET','DISPLAYSCALINGF','DISPLAYPACINGF','DISPLAYGROUPF'}
-            myScriptData = setfield(myScriptData,tag,get(handle,'value'));
+            ScriptData = setfield(ScriptData,tag,get(handle,'value'));
             parent = get(handle,'parent');
             SetupDisplay(parent);
             UpdateDisplay(parent);       
  
         case {'DISPLAYLABELF','DISPLAYGRIDF'}
-            myScriptData = setfield(myScriptData,tag,get(handle,'value'));
+            ScriptData = setfield(ScriptData,tag,get(handle,'value'));
             parent = get(handle,'parent');
             UpdateDisplay(parent); 
       
@@ -520,16 +520,16 @@ function SetupDisplay(handle)
 
     pointer = get(handle,'pointer');
     set(handle,'pointer','watch');
-    global TS myScriptData FIDSDISPLAY;
+    global TS ScriptData FIDSDISPLAY;
     
-    tsindex = myScriptData.CURRENTTS;
+    tsindex = ScriptData.CURRENTTS;
     
     numframes = size(TS{tsindex}.potvals,2);
-    FIDSDISPLAY.TIME = [1:numframes]*(1/myScriptData.SAMPLEFREQ);
-    FIDSDISPLAY.XLIM = [1 numframes]*(1/myScriptData.SAMPLEFREQ);
+    FIDSDISPLAY.TIME = [1:numframes]*(1/ScriptData.SAMPLEFREQ);
+    FIDSDISPLAY.XLIM = [1 numframes]*(1/ScriptData.SAMPLEFREQ);
 
 %    if isempty(FIDSDISPLAY.XWIN);
-        FIDSDISPLAY.XWIN = [median([0 FIDSDISPLAY.XLIM]) median([3000/myScriptData.SAMPLEFREQ FIDSDISPLAY.XLIM])];
+        FIDSDISPLAY.XWIN = [median([0 FIDSDISPLAY.XLIM]) median([3000/ScriptData.SAMPLEFREQ FIDSDISPLAY.XLIM])];
         %    else
         %FIDSDISPLAY.XWIN = [median([FIDSDISPLAY.XWIN(1) FIDSDISPLAY.XLIM]) median([FIDSDISPLAY.XWIN(2) FIDSDISPLAY.XLIM])];
         %end
@@ -545,7 +545,7 @@ function SetupDisplay(handle)
     end
     
     
-    groups = myScriptData.DISPLAYGROUPF;
+    groups = ScriptData.DISPLAYGROUPF;
     numgroups = length(groups);
     
     FIDSDISPLAY.NAME ={};
@@ -554,16 +554,16 @@ function SetupDisplay(handle)
     FIDSDISPLAY.COLORLIST = {[1 0 0],[0 0.7 0],[0 0 1],[0.5 0 0],[0 0.3 0],[0 0 0.5],[1 0.3 0.3],[0.3 0.7 0.3],[0.3 0.3 1],[0.75 0 0],[0 0.45 0],[0 0 0.75]};
     
     if FIDSDISPLAY.MODE == 1
-        myScriptData.DISPLAYTYPEF1 = myScriptData.DISPLAYTYPEF;
+        ScriptData.DISPLAYTYPEF1 = ScriptData.DISPLAYTYPEF;
     else
-        myScriptData.DISPLAYTYPEF2 = myScriptData.DISPLAYTYPEF;
+        ScriptData.DISPLAYTYPEF2 = ScriptData.DISPLAYTYPEF;
     end    
     
-    switch myScriptData.DISPLAYTYPEF
+    switch ScriptData.DISPLAYTYPEF
         case 1   % show global RMS
             ch  = []; 
             for p=groups 
-                leads = myScriptData.GROUPLEADS{myScriptData.CURRENTRUNGROUP}{p};
+                leads = ScriptData.GROUPLEADS{ScriptData.CURRENTRUNGROUP}{p};
                 index = TS{tsindex}.leadinfo(leads)==0;  % index of only the 'good' leads, filter out badleads
                 ch = [ch leads(index)];   % ch is leads only of the leads of the groubs selected, not of all leads
             end
@@ -589,11 +589,11 @@ function SetupDisplay(handle)
         case 2
             FIDSDISPLAY.SIGNAL = zeros(numgroups,numframes);
             for p=1:numgroups
-                leads = myScriptData.GROUPLEADS{myScriptData.CURRENTRUNGROUP}{groups(p)};
+                leads = ScriptData.GROUPLEADS{ScriptData.CURRENTRUNGROUP}{groups(p)};
                 index = find(TS{tsindex}.leadinfo(leads)==0);
                 FIDSDISPLAY.SIGNAL(p,:) = sqrt(mean(TS{tsindex}.potvals(leads(index),:).^2)); 
                 FIDSDISPLAY.SIGNAL(p,:) = FIDSDISPLAY.SIGNAL(p,:)-min(FIDSDISPLAY.SIGNAL(p,:));
-                FIDSDISPLAY.NAME{p} = [myScriptData.GROUPNAME{myScriptData.CURRENTRUNGROUP}{groups(p)} ' RMS']; 
+                FIDSDISPLAY.NAME{p} = [ScriptData.GROUPNAME{ScriptData.CURRENTRUNGROUP}{groups(p)} ' RMS']; 
             end
             FIDSDISPLAY.GROUPNAME = FIDSDISPLAY.NAME;
             FIDSDISPLAY.GROUP = 1:numgroups;
@@ -617,14 +617,14 @@ function SetupDisplay(handle)
             FIDSDISPLAY.LEADGROUP = [];
             ch  = []; 
             for p=groups
-                ch = [ch myScriptData.GROUPLEADS{myScriptData.CURRENTRUNGROUP}{p}]; 
-                FIDSDISPLAY.GROUP = [FIDSDISPLAY.GROUP p*ones(1,length(myScriptData.GROUPLEADS{myScriptData.CURRENTRUNGROUP}{p}))];
-                FIDSDISPLAY.LEADGROUP = [FIDSDISPLAY.GROUP myScriptData.GROUPLEADS{myScriptData.CURRENTRUNGROUP}{p}];
-                FIDSDISPLAY.LEAD = [FIDSDISPLAY.LEAD myScriptData.GROUPLEADS{myScriptData.CURRENTRUNGROUP}{p}];
-                for q=1:length(myScriptData.GROUPLEADS{myScriptData.CURRENTRUNGROUP}{p}), FIDSDISPLAY.NAME{end+1} = sprintf('%s # %d',myScriptData.GROUPNAME{myScriptData.CURRENTRUNGROUP}{p},q); end 
+                ch = [ch ScriptData.GROUPLEADS{ScriptData.CURRENTRUNGROUP}{p}]; 
+                FIDSDISPLAY.GROUP = [FIDSDISPLAY.GROUP p*ones(1,length(ScriptData.GROUPLEADS{ScriptData.CURRENTRUNGROUP}{p}))];
+                FIDSDISPLAY.LEADGROUP = [FIDSDISPLAY.GROUP ScriptData.GROUPLEADS{ScriptData.CURRENTRUNGROUP}{p}];
+                FIDSDISPLAY.LEAD = [FIDSDISPLAY.LEAD ScriptData.GROUPLEADS{ScriptData.CURRENTRUNGROUP}{p}];
+                for q=1:length(ScriptData.GROUPLEADS{ScriptData.CURRENTRUNGROUP}{p}), FIDSDISPLAY.NAME{end+1} = sprintf('%s # %d',ScriptData.GROUPNAME{ScriptData.CURRENTRUNGROUP}{p},q); end 
             end
             for p=1:length(groups)
-                FIDSDISPLAY.GROUPNAME{p} = [myScriptData.GROUPNAME{myScriptData.CURRENTRUNGROUP}{groups(p)}]; 
+                FIDSDISPLAY.GROUPNAME{p} = [ScriptData.GROUPNAME{ScriptData.CURRENTRUNGROUP}{groups(p)}]; 
             end 
             FIDSDISPLAY.SIGNAL = TS{tsindex}.potvals(ch,:);
             FIDSDISPLAY.LEADINFO = TS{tsindex}.leadinfo(ch);
@@ -633,7 +633,7 @@ function SetupDisplay(handle)
             set(findobj(allchild(handle),'tag','FIDSLOCAL'),'enable','on');
     end
         
-    switch myScriptData.DISPLAYSCALINGF
+    switch ScriptData.DISPLAYSCALINGF
         case 1
             k = max(abs(FIDSDISPLAY.SIGNAL),[],2);
             [m,~] = size(FIDSDISPLAY.SIGNAL);
@@ -658,7 +658,7 @@ function SetupDisplay(handle)
             FIDSDISPLAY.SIGNAL = s*FIDSDISPLAY.SIGNAL;
     end
     
-    if myScriptData.DISPLAYTYPEF == 3
+    if ScriptData.DISPLAYTYPEF == 3
         FIDSDISPLAY.SIGNAL = 0.5*FIDSDISPLAY.SIGNAL+0.5;
     end
     
@@ -708,7 +708,7 @@ end
 function UpdateDisplay(handle)
     %plots the FD.SIGNAL,  makes the plot..  also calls  DisplayFiducials
 
-    global FIDSDISPLAY myScriptData ;
+    global FIDSDISPLAY ScriptData ;
     ax=FIDSDISPLAY.AXES;
     axes(ax);
     cla(ax);
@@ -719,13 +719,13 @@ function UpdateDisplay(handle)
     ylim = FIDSDISPLAY.YLIM;
     
     numframes = size(FIDSDISPLAY.SIGNAL,2);
-    startframe = max([floor(myScriptData.SAMPLEFREQ*xwin(1)) 1]);
-    endframe = min([ceil(myScriptData.SAMPLEFREQ*xwin(2)) numframes]);
+    startframe = max([floor(ScriptData.SAMPLEFREQ*xwin(1)) 1]);
+    endframe = min([ceil(ScriptData.SAMPLEFREQ*xwin(2)) numframes]);
 
     % DRAW THE GRID
     
-    if myScriptData.DISPLAYGRIDF > 1
-        if myScriptData.DISPLAYGRIDF > 2
+    if ScriptData.DISPLAYGRIDF > 1
+        if ScriptData.DISPLAYGRIDF > 2
             clines = 0.04*[floor(xwin(1)/0.04):ceil(xwin(2)/0.04)];
             X = [clines; clines]; Y = ywin'*ones(1,length(clines));
             line(ax,X,Y,'color',[0.9 0.9 0.9],'hittest','off');
@@ -735,9 +735,9 @@ function UpdateDisplay(handle)
         line(ax,X,Y,'color',[0.5 0.5 0.5],'hittest','off');
     end
 
-    if myScriptData.DISPLAYPACINGF == 1
+    if ScriptData.DISPLAYPACINGF == 1
         if  ~isempty(FIDSDISPLAY.PACING)
-            plines = FIDSDISPLAY.PACING/myScriptData.SAMPLEFREQ;
+            plines = FIDSDISPLAY.PACING/ScriptData.SAMPLEFREQ;
             plines = plines((plines >xwin(1)) & (plines < xwin(2)));
             X = [plines; plines]; Y = ywin'*ones(1,length(plines));
             line(ax,X,Y,'color',[0.55 0 0.65],'hittest','off','linewidth',2);    
@@ -745,7 +745,7 @@ function UpdateDisplay(handle)
     end
     
     numchannels = size(FIDSDISPLAY.SIGNAL,1);
-    if myScriptData.DISPLAYOFFSET == 1
+    if ScriptData.DISPLAYOFFSET == 1
         chend = numchannels - max([floor(ywin(1)) 0]);
         chstart = numchannels - min([ceil(ywin(2)) numchannels])+1;
     else
@@ -764,7 +764,7 @@ function UpdateDisplay(handle)
         end
         
         plot(ax,FIDSDISPLAY.TIME(k),FIDSDISPLAY.SIGNAL(p,k),'color',color,'hittest','off');
-        if (myScriptData.DISPLAYLABELF == 1)&&(chend-chstart < 30) && (FIDSDISPLAY.YWIN(2) >= numchannels-p+1),
+        if (ScriptData.DISPLAYLABELF == 1)&&(chend-chstart < 30) && (FIDSDISPLAY.YWIN(2) >= numchannels-p+1),
             text(ax,FIDSDISPLAY.XWIN(1),numchannels-p+1,FIDSDISPLAY.NAME{p},'color',color,'VerticalAlignment','top','hittest','off'); 
         end
     end
@@ -772,18 +772,18 @@ function UpdateDisplay(handle)
     set(FIDSDISPLAY.AXES,'YTick',[],'YLim',ywin,'XLim',xwin);
     
     xlen = (xlim(2)-xlim(1)-xwin(2)+xwin(1));
-    if xlen < (1/myScriptData.SAMPLEFREQ), xslider = 0.99999; else xslider = (xwin(1)-xlim(1))/xlen; end
-    if xlen >= (1/myScriptData.SAMPLEFREQ), xfill = (xwin(2)-xwin(1))/xlen; else xfill = myScriptData.SAMPLEFREQ; end
-    xinc = median([(1/myScriptData.SAMPLEFREQ) xfill/2 0.99999]);
-    xfill = median([(1/myScriptData.SAMPLEFREQ) xfill myScriptData.SAMPLEFREQ]);
+    if xlen < (1/ScriptData.SAMPLEFREQ), xslider = 0.99999; else xslider = (xwin(1)-xlim(1))/xlen; end
+    if xlen >= (1/ScriptData.SAMPLEFREQ), xfill = (xwin(2)-xwin(1))/xlen; else xfill = ScriptData.SAMPLEFREQ; end
+    xinc = median([(1/ScriptData.SAMPLEFREQ) xfill/2 0.99999]);
+    xfill = median([(1/ScriptData.SAMPLEFREQ) xfill ScriptData.SAMPLEFREQ]);
     xslider = median([0 xslider 0.99999]);
     set(FIDSDISPLAY.XSLIDER,'value',xslider,'sliderstep',[xinc xfill]);
 
     ylen = (ylim(2)-ylim(1)-ywin(2)+ywin(1));
-    if ylen < (1/myScriptData.SAMPLEFREQ), yslider = 0.99999; else yslider = ywin(1)/ylen; end
-    if ylen >= (1/myScriptData.SAMPLEFREQ), yfill = (ywin(2)-ywin(1))/ylen; else yfill =myScriptData.SAMPLEFREQ; end
-    yinc = median([(1/myScriptData.SAMPLEFREQ) yfill/2 0.99999]);
-    yfill = median([(1/myScriptData.SAMPLEFREQ) yfill myScriptData.SAMPLEFREQ]);
+    if ylen < (1/ScriptData.SAMPLEFREQ), yslider = 0.99999; else yslider = ywin(1)/ylen; end
+    if ylen >= (1/ScriptData.SAMPLEFREQ), yfill = (ywin(2)-ywin(1))/ylen; else yfill =ScriptData.SAMPLEFREQ; end
+    yinc = median([(1/ScriptData.SAMPLEFREQ) yfill/2 0.99999]);
+    yfill = median([(1/ScriptData.SAMPLEFREQ) yfill ScriptData.SAMPLEFREQ]);
     yslider = median([0 yslider 0.99999]);
     set(FIDSDISPLAY.YSLIDER,'value',yslider,'sliderstep',[yinc yfill]);
     
@@ -933,7 +933,7 @@ function ButtonUp(handle)
    % - do some Activation/Recovery stuff (TODO: remove this?)
    % - Set the 'Choose Fiducials' listbox to NEWFIDSTYPE (necessary if
    % looping is activated)
-    global FIDSDISPLAY  myScriptData;
+    global FIDSDISPLAY  ScriptData;
     events = FIDSDISPLAY.EVENTS{FIDSDISPLAY.SELFIDS};  
     if events.sel(1) > 0
  	    point = get(FIDSDISPLAY.AXES,'CurrentPoint');
@@ -948,8 +948,8 @@ function ButtonUp(handle)
         
         
         %%%% do activation/recovery if FIDSAUTOACT is on
-        if (events.type(sel) == 2) && (myScriptData.FIDSAUTOACT == 1), DetectActivation(handle); end
-        if (events.type(sel) == 3) && (myScriptData.FIDSAUTOREC == 1), DetectRecovery(handle); end
+        if (events.type(sel) == 2) && (ScriptData.FIDSAUTOACT == 1), DetectActivation(handle); end
+        if (events.type(sel) == 3) && (ScriptData.FIDSAUTOREC == 1), DetectRecovery(handle); end
     end
     
     set(findobj(allchild(handle),'tag','FIDSTYPE'),'value',find(events.num == FIDSDISPLAY.NEWFIDSTYPE)); %in case fiducial was looped
@@ -1139,7 +1139,7 @@ function events = AddEvent(events,t,~)
 % - draw the new event
 % - if LoopFiducials is activated, set newtype to next type
   
-  global FIDSDISPLAY myScriptData;
+  global FIDSDISPLAY ScriptData;
   newtype = FIDSDISPLAY.NEWFIDSTYPE;  % newtype is 1,2, ..9, 10. z.b. 1 for 'P-wave'
 
   switch(events.typelist(newtype))   % what type of patch is to be drawn?
@@ -1225,8 +1225,8 @@ function events = AddEvent(events,t,~)
   end
   % drawnow;
   
-  if myScriptData.FIDSLOOPFIDS ==  1 && FIDSDISPLAY.MODE == 1
-      loop_order=myScriptData.LOOP_ORDER;
+  if ScriptData.FIDSLOOPFIDS ==  1 && FIDSDISPLAY.MODE == 1
+      loop_order=ScriptData.LOOP_ORDER;
       if isempty(loop_order)
           loop_order=1;
       end
@@ -1269,7 +1269,7 @@ end
 
 function KeyPress(handle)
 %callback for KeyPress
-    global myScriptData FIDSDISPLAY;
+    global ScriptData FIDSDISPLAY;
 
     key = real(get(handle,'CurrentCharacter'));
     
@@ -1301,9 +1301,9 @@ function KeyPress(handle)
                 % get the current position and change it accordingly
                 t=events.value(events.latestEvent(3),events.latestEvent(1),events.latestEvent(2));    
                 if key(1)==28
-                    t=t-(0.5/myScriptData.SAMPLEFREQ);
+                    t=t-(0.5/ScriptData.SAMPLEFREQ);
                 else
-                    t=t+(0.5/myScriptData.SAMPLEFREQ);
+                    t=t+(0.5/ScriptData.SAMPLEFREQ);
                 end
                 t = median([FIDSDISPLAY.XLIM t]);
                 
@@ -1318,8 +1318,8 @@ function KeyPress(handle)
                 events.sel3=0;
                 FIDSDISPLAY.EVENTS{FIDSDISPLAY.SELFIDS} = events;
                 
-                if (events.type(sel) == 2) && (myScriptData.FIDSAUTOACT == 1), DetectActivation(handle); end
-                if (events.type(sel) == 3) && (myScriptData.FIDSAUTOREC == 1), DetectRecovery(handle); end
+                if (events.type(sel) == 2) && (ScriptData.FIDSAUTOACT == 1), DetectActivation(handle); end
+                if (events.type(sel) == 3) && (ScriptData.FIDSAUTOREC == 1), DetectRecovery(handle); end
 
             end
             drawnow;
@@ -1348,10 +1348,10 @@ function DetectRecovery(handle)
 
 
 %%%% some initialisation, setting the mouse pointer..
-global TS myScriptData FIDSDISPLAY; 
+global TS ScriptData FIDSDISPLAY; 
 pointer = get(handle,'pointer');
 set(handle,'pointer','watch');    
-tsindex = myScriptData.CURRENTTS;
+tsindex = ScriptData.CURRENTTS;
 numchannels = size(TS{tsindex}.potvals,1);
 
 
@@ -1360,19 +1360,19 @@ numchannels = size(TS{tsindex}.potvals,1);
 %%%% initialise rec=zeroes(numchan,1)
 qstart = zeros(numchannels,1);
 qend = zeros(numchannels,1);
-rec = ones(FIDSDISPLAY.EVENTS{3}.maxn,1)*(1/myScriptData.SAMPLEFREQ);  
+rec = ones(FIDSDISPLAY.EVENTS{3}.maxn,1)*(1/ScriptData.SAMPLEFREQ);  
 ind = find(FIDSDISPLAY.EVENTS{1}.type == 3);
 if ~isempty(ind)
     qstart = FIDSDISPLAY.EVENTS{1}.value(1,ind(1),1)*ones(numchannels,1);
     qend   = FIDSDISPLAY.EVENTS{1}.value(1,ind(1),2)*ones(numchannels,1);
 end
 
-numgroups = length(myScriptData.GROUPLEADS{myScriptData.CURRENTRUNGROUP});
+numgroups = length(ScriptData.GROUPLEADS{ScriptData.CURRENTRUNGROUP});
 ind = find(FIDSDISPLAY.EVENTS{2}.type == 3);  % find the T-wave events
 if ~isempty(ind)
     for p=1:numgroups
-        qstart(myScriptData.GROUPLEADS{myScriptData.CURRENTRUNGROUP}{p}) = FIDSDISPLAY.EVENTS{2}.value(p,ind(1),1);
-        qend(myScriptData.GROUPLEADS{myScriptData.CURRENTRUNGROUP}{p})   = FIDSDISPLAY.EVENTS{2}.value(p,ind(1),2);
+        qstart(ScriptData.GROUPLEADS{ScriptData.CURRENTRUNGROUP}{p}) = FIDSDISPLAY.EVENTS{2}.value(p,ind(1),1);
+        qend(ScriptData.GROUPLEADS{ScriptData.CURRENTRUNGROUP}{p})   = FIDSDISPLAY.EVENTS{2}.value(p,ind(1),2);
     end
 end    
 
@@ -1385,14 +1385,14 @@ end
 qs = min([qstart qend],[],2);
 qe = max([qstart qend],[],2);
 
-win = myScriptData.RECWIN;
-deg = myScriptData.RECDEG;
-neg = myScriptData.RECNEG;
+win = ScriptData.RECWIN;
+deg = ScriptData.RECDEG;
+neg = ScriptData.RECNEG;
 
 for p=1:numgroups
-    for q=myScriptData.GROUPLEADS{myScriptData.CURRENTRUNGROUP}{p}
+    for q=ScriptData.GROUPLEADS{ScriptData.CURRENTRUNGROUP}{p}
         if qs(q) > 0  %if T-wave is set..
-            rec(q) = ARdetect(TS{tsindex}.potvals(q,round(myScriptData.SAMPLEFREQ*qs(q)):round(myScriptData.SAMPLEFREQ*qe(q))),win,deg,neg)/myScriptData.SAMPLEFREQ + qs(q);
+            rec(q) = ARdetect(TS{tsindex}.potvals(q,round(ScriptData.SAMPLEFREQ*qs(q)):round(ScriptData.SAMPLEFREQ*qe(q))),win,deg,neg)/ScriptData.SAMPLEFREQ + qs(q);
         end
     end
 end
@@ -1416,18 +1416,18 @@ function DetectActivation(handle)
    
    
    %%%% load globals and set mouse arrow to waiting
-    global TS myScriptData FIDSDISPLAY;
+    global TS ScriptData FIDSDISPLAY;
     pointer = get(handle,'pointer');
     set(handle,'pointer','watch');
     
     
     %%%% get current tsIndex,  set qstart=qend=zeros(numchannel,1),
-    %%%% act=(1/myScriptData.SAMPLEFREQ)*ones(numleads,1)
-    tsindex = myScriptData.CURRENTTS;
+    %%%% act=(1/ScriptData.SAMPLEFREQ)*ones(numleads,1)
+    tsindex = ScriptData.CURRENTTS;
     numchannels = size(TS{tsindex}.potvals,1);
     qstart = zeros(numchannels,1);
     qend = zeros(numchannels,1);
-    act = ones(FIDSDISPLAY.EVENTS{3}.maxn,1)*(1/myScriptData.SAMPLEFREQ);
+    act = ones(FIDSDISPLAY.EVENTS{3}.maxn,1)*(1/ScriptData.SAMPLEFREQ);
     
     
     %%%% qstart/end=QRS-Komplex-start/end-timeframe as saved in
@@ -1437,12 +1437,12 @@ function DetectActivation(handle)
         qstart = FIDSDISPLAY.EVENTS{1}.value(1,ind(1),1)*ones(numchannels,1);
         qend   = FIDSDISPLAY.EVENTS{1}.value(1,ind(1),2)*ones(numchannels,1);
     end   
-    numgroups = length(myScriptData.GROUPLEADS{myScriptData.CURRENTRUNGROUP});
+    numgroups = length(ScriptData.GROUPLEADS{ScriptData.CURRENTRUNGROUP});
     ind = find(FIDSDISPLAY.EVENTS{2}.type == 2);
     if ~isempty(ind)
         for p=1:numgroups
-            qstart(myScriptData.GROUPLEADS{myScriptData.CURRENTRUNGROUP}{p}) = FIDSDISPLAY.EVENTS{2}.value(p,ind(1),1);
-            qend(myScriptData.GROUPLEADS{myScriptData.CURRENTRUNGROUP}{p})   = FIDSDISPLAY.EVENTS{2}.value(p,ind(1),2);
+            qstart(ScriptData.GROUPLEADS{ScriptData.CURRENTRUNGROUP}{p}) = FIDSDISPLAY.EVENTS{2}.value(p,ind(1),1);
+            qend(ScriptData.GROUPLEADS{ScriptData.CURRENTRUNGROUP}{p})   = FIDSDISPLAY.EVENTS{2}.value(p,ind(1),2);
         end
     end
     
@@ -1461,25 +1461,25 @@ function DetectActivation(handle)
 
     
     %%%% init win/deg/neg
-    win = myScriptData.ACTWIN;
-    deg = myScriptData.ACTDEG;
-    neg = myScriptData.ACTNEG;
+    win = ScriptData.ACTWIN;
+    deg = ScriptData.ACTDEG;
+    neg = ScriptData.ACTNEG;
 
     %%%% find act for all leads within QRS using ARdetect() 
     for p=1:numgroups
-        for q=myScriptData.GROUPLEADS{myScriptData.CURRENTRUNGROUP}{p}
+        for q=ScriptData.GROUPLEADS{ScriptData.CURRENTRUNGROUP}{p}
          %for each lead in each group = for all leads..  
             if qe(q) > qs(q)      % if not qe=qs=0 (as initialised -> if QRS was previously selected)
                 if isfield(TS{tsindex},'noisedrange')
                     % anton: act(q)=ARdetec(potval(p, qs:qe), win,
-                    % deg,neg,noisedrange(q))  /myScriptData.SAMPLEFREQ + qs
+                    % deg,neg,noisedrange(q))  /ScriptData.SAMPLEFREQ + qs
                     
-                    [act(q)] = (ARdetect(TS{tsindex}.potvals(q,round(myScriptData.SAMPLEFREQ*qs(q)):round(myScriptData.SAMPLEFREQ*qe(q))),win,deg,neg,TS{tsindex}.noisedrange(q))-1)/myScriptData.SAMPLEFREQ + qs(q);
-                    %[act(q),dvdt] = (ARdetect(TS{tsindex}.potvals(q,round(myScriptData.SAMPLEFREQ*qs(q)):round(myScriptData.SAMPLEFREQ*qe(q))),win,deg,neg,TS{tsindex}.noisedrange(q))-1)/myScriptData.SAMPLEFREQ + qs(q);
+                    [act(q)] = (ARdetect(TS{tsindex}.potvals(q,round(ScriptData.SAMPLEFREQ*qs(q)):round(ScriptData.SAMPLEFREQ*qe(q))),win,deg,neg,TS{tsindex}.noisedrange(q))-1)/ScriptData.SAMPLEFREQ + qs(q);
+                    %[act(q),dvdt] = (ARdetect(TS{tsindex}.potvals(q,round(ScriptData.SAMPLEFREQ*qs(q)):round(ScriptData.SAMPLEFREQ*qe(q))),win,deg,neg,TS{tsindex}.noisedrange(q))-1)/ScriptData.SAMPLEFREQ + qs(q);
                     %TS{tsindex}.dvdt(q) = dvdt;
                 else
-                    [act(q)] = (ARdetect(TS{tsindex}.potvals(q,round(myScriptData.SAMPLEFREQ*qs(q)):round(myScriptData.SAMPLEFREQ*qe(q))),win,deg,neg)-1)/myScriptData.SAMPLEFREQ + qs(q);
-                    %[act(q),dvdt] = (ARdetect(TS{tsindex}.potvals(q,round(myScriptData.SAMPLEFREQ*qs(q)):round(myScriptData.SAMPLEFREQ*qe(q))),win,deg,neg)-1)/myScriptData.SAMPLEFREQ + qs(q);
+                    [act(q)] = (ARdetect(TS{tsindex}.potvals(q,round(ScriptData.SAMPLEFREQ*qs(q)):round(ScriptData.SAMPLEFREQ*qe(q))),win,deg,neg)-1)/ScriptData.SAMPLEFREQ + qs(q);
+                    %[act(q),dvdt] = (ARdetect(TS{tsindex}.potvals(q,round(ScriptData.SAMPLEFREQ*qs(q)):round(ScriptData.SAMPLEFREQ*qe(q))),win,deg,neg)-1)/ScriptData.SAMPLEFREQ + qs(q);
                     %TS{tsindex}.dvdt(q) = dvdt;
                 end
             end
@@ -1669,13 +1669,13 @@ end
 function FidsToEvents
     %puts ts.fids  to .EVENTS
 
-    global TS FIDSDISPLAY myScriptData;
+    global TS FIDSDISPLAY ScriptData;
 
-    samplefreq = myScriptData.SAMPLEFREQ;
+    samplefreq = ScriptData.SAMPLEFREQ;
     isamplefreq = 1/samplefreq;
     
-    if ~isfield(TS{myScriptData.CURRENTTS},'fids'), return; end
-    fids = TS{myScriptData.CURRENTTS}.fids;
+    if ~isfield(TS{ScriptData.CURRENTTS},'fids'), return; end
+    fids = TS{ScriptData.CURRENTTS}.fids;
     if isempty(fids), return; end
     
     pval = []; qval = []; tval = []; Fval = [];
@@ -1696,7 +1696,7 @@ function FidsToEvents
         end
     end
     
-    numchannels = size(TS{myScriptData.CURRENTTS}.potvals,1);
+    numchannels = size(TS{ScriptData.CURRENTTS}.potvals,1);
             
     for p=1:length(fids)
         
@@ -1744,7 +1744,7 @@ function FidsToEvents
             case 6
                 mtype = 5; val1 = fids(p).value*isamplefreq; val2 = val1;
             case 16
-                mtype = 6; val1 = fids(p).value*isamplefreq; val2 = val1+myScriptData.BASELINEWIDTH/samplefreq;
+                mtype = 6; val1 = fids(p).value*isamplefreq; val2 = val1+ScriptData.BASELINEWIDTH/samplefreq;
             case 10
                 mtype = 7; val1 = fids(p).value*isamplefreq; val2 = val1;
             case 13
@@ -1769,16 +1769,16 @@ function FidsToEvents
         if (length(val1) == numchannels)&&(length(val2) == numchannels)
             
             isgroup = 1;
-            for q=1:length(myScriptData.GROUPLEADS{myScriptData.CURRENTRUNGROUP})
-                channels = myScriptData.GROUPLEADS{myScriptData.CURRENTRUNGROUP}{q};
+            for q=1:length(ScriptData.GROUPLEADS{ScriptData.CURRENTRUNGROUP})
+                channels = ScriptData.GROUPLEADS{ScriptData.CURRENTRUNGROUP}{q};
                 if(nnz(val1(channels)-val1(channels(1)))>0), isgroup = 0; end
                 if(nnz(val2(channels)-val2(channels(1)))>0), isgroup = 0; end
             end
    
             if isgroup == 1
                 gval1 = []; gval2 =[];
-                for q=1:length(myScriptData.GROUPLEADS{myScriptData.CURRENTRUNGROUP})
-                    channels = myScriptData.GROUPLEADS{myScriptData.CURRENTRUNGROUP}{q};
+                for q=1:length(ScriptData.GROUPLEADS{ScriptData.CURRENTRUNGROUP})
+                    channels = ScriptData.GROUPLEADS{ScriptData.CURRENTRUNGROUP}{q};
                     gval1(q) = val1(channels(1));
                     gval2(q) = val2(channels(1));
                 end
@@ -1800,9 +1800,9 @@ function FidsToEvents
     
 function EventsToFids
 
-    global TS FIDSDISPLAY myScriptData;
+    global TS FIDSDISPLAY ScriptData;
 
-    samplefreq = myScriptData.SAMPLEFREQ;
+    samplefreq = ScriptData.SAMPLEFREQ;
     isamplefreq = (1/samplefreq);
     fids = [];
     fidset = {};
@@ -1819,13 +1819,13 @@ function EventsToFids
     end
     
     % now the group fids
-    numchannels = size(TS{myScriptData.CURRENTTS}.potvals,1);
+    numchannels = size(TS{ScriptData.CURRENTTS}.potvals,1);
     for p=1:length(FIDSDISPLAY.EVENTS{2}.type)
         v1 = ones(numchannels,1);
         v2 = ones(numchannels,1);
-        for q=1:length(myScriptData.GROUPLEADS{myScriptData.CURRENTRUNGROUP})
-            v1(myScriptData.GROUPLEADS{myScriptData.CURRENTRUNGROUP}{q}) = FIDSDISPLAY.EVENTS{2}.value(q,p,1)*samplefreq;
-            v2(myScriptData.GROUPLEADS{myScriptData.CURRENTRUNGROUP}{q}) = FIDSDISPLAY.EVENTS{2}.value(q,p,2)*samplefreq;
+        for q=1:length(ScriptData.GROUPLEADS{ScriptData.CURRENTRUNGROUP})
+            v1(ScriptData.GROUPLEADS{ScriptData.CURRENTRUNGROUP}{q}) = FIDSDISPLAY.EVENTS{2}.value(q,p,1)*samplefreq;
+            v2(ScriptData.GROUPLEADS{ScriptData.CURRENTRUNGROUP}{q}) = FIDSDISPLAY.EVENTS{2}.value(q,p,2)*samplefreq;
         end
         val1{end+1} = v1;
         val2{end+1} = v2;
@@ -1850,7 +1850,7 @@ function EventsToFids
     
     %%%% remove baseline (16) and 20,21 from ts.fids
     if FIDSDISPLAY.MODE == 2
-        fids = TS{myScriptData.CURRENTTS}.fids;
+        fids = TS{ScriptData.CURRENTTS}.fids;
         rem = [];
         for p=1:length(fids)
             if (fids(p).type == 16)||(fids(p).type == 20)||(fids(p).type == 21)
@@ -1935,8 +1935,8 @@ function EventsToFids
         end
     end
     
-    TS{myScriptData.CURRENTTS}.fids = fids;
-    TS{myScriptData.CURRENTTS}.fidset = fidset;
+    TS{ScriptData.CURRENTTS}.fids = fids;
+    TS{ScriptData.CURRENTTS}.fidset = fidset;
     
     end
     
