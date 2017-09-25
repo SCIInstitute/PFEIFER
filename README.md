@@ -12,7 +12,7 @@ Matmap is a signal processing tool specifically designed to process experimental
 
 ### Starting Matmap
 
-Once you have downloaded the source code from the GitHub repository you can immediately open MatLab and begin using the testing functionality. To start Matmap change your Matlab working directory to the location Matmap is stored and type "matmap" in the Matlab command line.
+Once you have downloaded the source code from the GitHub repository you can immediately open Matlab and begin using the testing functionality. To start Matmap, add the Matmap directory and subfolders to your Malab Path and type "matmap" in the Matlab command line.
 
 The following two GUI windows should populate: 
 
