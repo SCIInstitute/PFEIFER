@@ -16,7 +16,6 @@ function temporalFilter(index)
 %       going on. Basically the TS structure can be modified as one wishes
 %
 % SEE ALSO
-% -
 
 
 global ScriptData TS;
@@ -44,8 +43,8 @@ h = waitbar(0,'Filtering signal please wait...');
 D = TS{index}.potvals';
 %Zi = ones(max(length(A),length(B))-1,1)*D(1,:);
 D = filter(B,A,D);
-D(1:(max(length(A),length(B))-1),:) = ones(max(length(A),length(B))-1,1)*D(max(length(A),length(B)),:);
-TS{index}.potvals = D';
+D(  1: (max(length(A),length(B))-1)   , :) = ones( max(length(A),length(B))-1  ,1 )  *  D( max(length(A),length(B)) ,:);
+TS{index}.potvals = D'; 
 
 
 if isgraphics(h), close(h); end

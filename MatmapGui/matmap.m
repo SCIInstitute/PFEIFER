@@ -75,13 +75,6 @@ ProcessingData.AVERAGEEND = {};
 ProcessingData.FILENAME={};
 end
 
-function loadProcessingData()
-    % just load ProcessingData from a mat file. Thus the
-    % old ProcessingData is overwritten
-    global ScriptData; 
-    load(ScriptData.DATAFILE,'-mat');
-end
-
 function ExportUserSettings(filename,index,fields)
     % save TS{index}.fids.(fields) in ProcessingData 
     % if fields doesnt exist in ts, it will be set to [] in mps. It's no
@@ -335,9 +328,9 @@ function GetACQFiles
             else  % if no 'ts_info', load ts, but append 'ts_info' to mat file
                 load(filenames{p},'ts')
                 if ~exist('ts','var')
-                    msg=sprintf('The file %s does not contain a ''ts'' or ''ts_info'' structure.',filenames{p});
+                    msg=sprintf('The file %s in the input directory does not contain a ''ts'' or ''ts_info'' structure. Loading failed..',filenames{p});
                     errordlg(msg)
-                    error('cannot load file')
+                    error(msg)
                 end
                 
                 % create and append ts_info to .mat file
@@ -355,7 +348,7 @@ function GetACQFiles
         else
             msg=sprintf('The file %s cannot be loaded, since it''s not a .mat or .ac2 file.',filenames{p});
             errordlg(msg)
-            error('cannot load file')
+            error(msg)
         end
 
         
@@ -407,14 +400,21 @@ end
 
 function CloseFcn(~)
 %callback function for the 'close' buttons.
- saveSettings([])
+ global ScriptData FIDSDISPLAY SLICEDISPLAY
+ 
+ if ~isempty(ScriptData.SCRIPTFILE)
+     saveSettings
+     disp('Saved SETTINGS before closing matmap')
+ else
+     disp('matmap closed without saving SETTINGs')
+ end
  delete(findobj(allchild(0),'tag','PROCESSINGSCRIPTMENU')); 
  delete(findobj(allchild(0),'tag','PROCESSINGSCRIPTSETTINGS')); 
  delete(findobj(allchild(0),'tag','SLICEDISPLAY'));
  delete(findobj(allchild(0),'tag','FIDSDISPLAY'));
  close(findobj(allchild(0),'Tag','waitbar'))  %delete all waitbars
  
- global ScriptData FIDSDISPLAY SLICEDISPLAY
+
  clear ScriptData FIDSDISPLAY SLICEDISPLAY
 end
 
@@ -455,24 +455,22 @@ function Browse(handle,ext,mode)
         case 'ACQDIR'
             ScriptData.(tag)=newFileString;
             myUpdateACQFiles(handle)
-        case 'SCRIPTFILE'
-            oldDataFilePath =  ScriptData.DATAFILE;
-            
-            loadScriptData(pathString)
-            ScriptData.SCRIPTFILE = pathString;
-            ScriptData.DATAFILE = oldDataFilePath;
+        case 'SCRIPTFILE'  
+            success = loadScriptData(newFileString);
+            if success
+                ScriptData.SCRIPTFILE = newFileString;
+            else
+                return
+            end
             %%%% update stuff
             myUpdateFigure(findobj(allchild(0),'tag','PROCESSINGSCRIPTSETTINGS'));
             myUpdateFigure(findobj(allchild(0),'tag','PROCESSINGSCRIPTMENU')); 
             GetACQFiles
         case 'DATAFILE'
-            if isCorrectFile(newFileString,'ProcessingData')
-                load(newFileString)
+            success = loadProcessingData(newFileString);
+            if success
                 ScriptData.DATAFILE=newFileString;
-            else
-                % to do
             end
-            
         case 'RUNGROUPMAPPINGFILE'
            ScriptData.(tag){ScriptData.RUNGROUPSELECT}=newFileString; 
         otherwise
@@ -656,19 +654,20 @@ if ~exist(pathString,'file')
     return
 end
 
-
-oldDataFilePath =  ScriptData.DATAFILE;
-%%%% if path exists, set new path, load file and update figures
-loadScriptData(pathString)
-ScriptData.SCRIPTFILE = pathString;
-ScriptData.DATAFILE = oldDataFilePath;
+%%%% if pathString is path to correct ScriptData file, set new path, load file, else return
+success = loadScriptData(pathString);
+if success
+    ScriptData.SCRIPTFILE = pathString;
+else
+    handle.String = ScriptData.SCRIPTFILE;
+    return
+end
 
 
 %%%% update stuff
 myUpdateFigure(findobj(allchild(0),'tag','PROCESSINGSCRIPTSETTINGS'));
 myUpdateFigure(findobj(allchild(0),'tag','PROCESSINGSCRIPTMENU')); 
 GetACQFiles
-
 end
 
 
@@ -685,24 +684,69 @@ if ~exist(pathString,'file')
     return
 end
 
-%%%% if path exists, set new path, load file and update figures
-load(pathString)
-ScriptData.DATAFILE = pathString;
+%%%% if path contains correct ProcessingData file, load it and set new path. Otherwise nothing is loaded and old one is kept.
+succes = loadProcessingData(pathString);
+if succes
+    ScriptData.DATAFILE = pathString;
+else
+    handle.String = ScriptData.DATAFILE;
+end
 end
 
 
-function loadScriptData(pathString)
-% update ScriptData accourding to ScriptData in pathString
-% if pathString is wrong, issue errordlg and keep old ScriptData
-% basically just like load(pathString), but checks content of pathString
+function success = loadProcessingData(pathString)
+% update ProcessingData accourding to ScriptData in pathString
+% if pathString is wrong, issue error
+% basically just like load(pathString), but issues error if not a correct ProcessingData
+success = 1;    
+
+%%%% check the file if it looks like a ProcessingData file, if it is wrong, simply return
+global ProcessingData
+[~, ~, ext]=fileparts(pathString);
+if ~strcmp('.mat',ext)
+    errordlg('Not a  ''.mat'' file. File not loaded..')
+    success = 0;
+    return
+else
+    metastruct=load(pathString);
+    fn=fieldnames(metastruct);
+
+    if length(fn) ~=1
+        errordlg('loaded ProcessingData.mat file contains not just one variable. File not loaded..')
+        success = 0;
+        return
+    else
+        newProcessingData=metastruct.(fn{1});
+        necFields = {'SELFRAMES', 'FILENAME'};
+        for p=1:3:length(necFields)
+            if ~isfield(newProcessingData, necFields{p})
+                errormsg = sprintf('The chosen file doesn''t seem to be a ScriptData file. \n It doesn''t have the %s field. File not loaded..', necFields{p});
+                errordlg(errormsg);
+                success = 0;
+                return
+            end
+        end
+    end
+end
     
+%%%%  change the global, convert newFormat if necessary
+ProcessingData =  newProcessingData;
+end
+
+
+function success = loadScriptData(pathString)
+% update ScriptData accourding to ScriptData in pathString
+% if pathString is wrong, issue error
+% basically just like load(pathString), but checks content of pathString and converst to new ScriptData format
+success = 1;    
 global ScriptData;
-oldScriptDataPath =ScriptData.SCRIPTFILE;
+oldProcessingDataPath =ScriptData.DATAFILE;
 
 %%%% check the file if it looks like a ScriptData file, if it is wrong, simply return
 [~, ~, ext]=fileparts(pathString);
 if ~strcmp('.mat',ext)
     errordlg('Not a  ''.mat'' file.')
+    success = 0;
     return
 else
     metastruct=load(pathString);
@@ -710,14 +754,16 @@ else
 
     if length(fn) ~=1
         errordlg('loaded ScriptData.mat file contains not just one variable')
+        success = 0;
         return
     else
-        newScriptData=fn{1};
+        newScriptData=metastruct.(fn{1});
         necFields = get_necFields;
-        for p=1:3:length(nec_fields)
-            if ~isfield(newScriptData, nec_fields{p})
-                errormsg = sprintf('The choosen file doesn''t seem to be a ScriptData file. \n It doesn''t have the %s field.', nec_fields{p});
+        for p=1:3:length(necFields)
+            if ~isfield(newScriptData, necFields{p})
+                errormsg = sprintf('The choosen file doesn''t seem to be a ScriptData file. \n It doesn''t have the %s field.', necFields{p});
                 errordlg(errormsg);
+                success = 0;
                 return
             end
         end
@@ -727,8 +773,7 @@ end
 %%%%  change the global, convert newFormat if necessary
 ScriptData =  newScriptData;
 old2newScriptData
-
-ScriptData.DATAFILE =  oldScriptDataPath;
+ScriptData.DATAFILE =  oldProcessingDataPath;
 end
 
 
@@ -736,7 +781,7 @@ function save_create_callbacks(cbobj)
 % callback to the two save buttons
 global ScriptData ProcessingData
 
-if strcmp(cbobj.Tag, 'SAVEScriptData')
+if strcmp(cbobj.Tag, 'SAVESCRIPTDATA')
     DialogTitle ='Save ScriptData';
     if ~isempty(ScriptData.SCRIPTFILE)
         FilterSpec = ScriptData.SCRIPTFILE;
@@ -759,7 +804,7 @@ if isequal(FileName,0), return, end  % if user selected 'cancel'
 
 %%%% save helper file
 fullFileName = fullfile(PathName,FileName);
-if strcmp(cbobj.Tag, 'SAVEScriptData')
+if strcmp(cbobj.Tag, 'SAVESCRIPTDATA')
     save(fullFileName,'ScriptData')
 else
     save(fullFileName, 'ProcessingData')
@@ -770,14 +815,13 @@ end
     
 
 
-function saveSettings(~)
+function saveSettings()
 %callback function for Save Settings Button
 % save ScriptData as a matfile in the filename/path specified in
 % ScriptData.SCRIPTFILE
 try
     global ScriptData;
-    filename = ScriptData.SCRIPTFILE;
-    save(filename,'ScriptData','-mat');
+    save(ScriptData.SCRIPTFILE,'ScriptData','-mat');
 catch
     disp('tried to save settings (ScriptData.mat), but was not able to do so..')
 end
@@ -885,16 +929,26 @@ function runScript(handle)
 %   - at very end when everything is processed: update figure and groups
 %       
     global ScriptData
-    saveSettings();
-    
-    loadProcessingData;  
-    saveSettings
-    h = [];   %for waitbar
-%     olddir =pwd;      %why?     seems not important TODO
-%     cd(ScriptData.PWD); 
-    PreLoopScript;
-    saveSettings(handle);
 
+    h = [];   %for waitbar
+    PreLoopScript;
+    
+    %%%% make sure helper files are selected to save data
+    if isempty(ScriptData.DATAFILE)
+        errordlg('No Processing Data File given to save processing data. Provide a Processing Data File to run the script.')
+        return
+    end
+    if isempty(ScriptData.SCRIPTFILE)
+        errordlg('No Script Data File given to save settings. Provide a Script Data File to run the script.')
+        return
+    end
+    
+    %%%% save helper files 
+    saveProcessingData;
+    saveSettings;
+    
+    
+    %%%% make sure a rungroup is defined for each selected file
     for s=1:length(ScriptData.RUNGROUPNAMES)
         if isempty(ScriptData.GROUPNAME{s})
             errordlg('you need to define groups for each defined rungroup in order to  process the data.');
@@ -1534,7 +1588,7 @@ end
    
    %%%%% save everything and clear TS
     saveProcessingData;
-    saveSettings();
+    saveSettings;
     tsClear(index);
     if ScriptData.DO_AUTOFIDUCIALISING
         tsClear(ScriptData.unslicedDataIndex);
@@ -1614,8 +1668,9 @@ end
 
 
 function necFields = get_necFields
-necFields = { 'PWD','','file',...
-                'CALIBRATIONFILE','','file', ...
+% whenever a ScriptData file is loaded, it is checked if these fields are in the loaded ScriptData struct
+% if any of these necFields is missing, a warning is issued and the file is not loaded
+necFields = {'CALIBRATIONFILE','','file', ...
                 'CALIBRATIONACQ','','vector', ...
                 'CALIBRATIONACQUSED','','vector',...
                 'SCRIPTFILE','','file',...
@@ -1706,23 +1761,7 @@ necFields = { 'PWD','','file',...
                 'ACTNEG',1,'integer',...
                 'RECWIN',7,'integer',...
                 'RECDEG',3,'integer',...
-                'RECNEG',0,'integer',...
-                'ALEADNUM',1,'integer',...
-                'ADOFFSET',0.2,'double',...
-                'ADISPLAYTYPE',1,'integer',...
-                'ADISPLAYOFFSET',1,'integer',...
-                'ADISPLAYGRID',1,'integer',...
-                'ADISPLAYGROUP',1,'vector',...
-                'OPTICALLABEL','','string',...
-                'FILTERFILE','','string',...
-                'FILTERNAME','NONE','string',...
-                'FILTERNAMES',{'NONE'},'string',...
-                'FILTER',[],'string',...
-                'INPUTTSDFC','','string',...
-                'ACCURACY', 0.9, 'double',...
-                'FIDSKERNELLENGTH',10,'integer',...
-                'WINDOW_WIDTH', 20, 'integer',...
-                'NTOBEFIDUCIALISED', 10, 'integer'
+                'RECNEG',0,'integer'
         };
 end
 
@@ -1767,10 +1806,8 @@ function old2newScriptData()
 
     global ScriptData
     defaultsettings=getDefaultSettings;
-    
-    
-    %%%%% make sure ScriptData only has the fields specified in default
-    %%%%% settings and no unnecessary fields
+
+    %%%%% remove unnecesary fields in the ScriptData file, that are not in the defaultsettings..
     mappingfile='';
     if isfield(ScriptData,'MAPPINGFILE'), mappingfile=ScriptData.MAPPINGFILE; end  %remember the mappingfile, before that information is deleted
     oldfields=fieldnames(ScriptData);
@@ -1778,8 +1815,7 @@ function old2newScriptData()
     ScriptData=rmfield(ScriptData,fields2beRemoved);
     
     
-    %%%% now set .DEFAULT and TYPE and add missing fields that are
-    %%%% unrelated to (run)groups
+    %%%% now set .DEFAULT and TYPE and set/add missing fields with default values for all fields exept the ones related to (run)groups
     ScriptData.DEFAULT=struct();
     ScriptData.TYPE=struct();
     for p=1:3:length(defaultsettings)
@@ -1791,30 +1827,27 @@ function old2newScriptData()
     end
     
     
-    %%%% fix some problems with old ScriptData
+    %%%% fix some problems with old ScriptData: in some cases there where e.g. 5 groups, but not all group related entries hat 5 entries.  This is fixed here by giving each group default values, if no values are provided yet
     if ~isempty(ScriptData.GROUPNAME)
         if ~iscell(ScriptData.GROUPNAME{1})  % if it is an old ScriptData
             len=length(ScriptData.GROUPNAME);
             for p=1:3:length(defaultsettings)
-                if strncmp(ScriptData.TYPE.(defaultsettings{p}),'group',5) && (length(ScriptData.(defaultsettings{p})) <len)
+                if strncmp(ScriptData.TYPE.(defaultsettings{p}),'group',5) && (length(ScriptData.(defaultsettings{p})) < len)
                     ScriptData.defaultsettings{p}(1:len)=defaultsettings{p+1};
                 end
             end
         end
     end
                     
-                
-    
-    
-    
+ 
     %%%% convert 'GROUP..' fields into new format
     fn=fieldnames(ScriptData.TYPE);
     rungroupAdded=0;
-    for p=1:length(fn)
-        if strncmp(ScriptData.TYPE.(fn{p}),'group',5)            
-            if ~isempty(ScriptData.(fn{p}))  
-                if ~iscell(ScriptData.(fn{p}){1})
-                    ScriptData.(fn{p})={ScriptData.(fn{p})};
+    for p=1:length(fn)                                    % for each group
+        if strncmp(ScriptData.TYPE.(fn{p}),'group',5)          % if it is a group field  
+            if ~isempty(ScriptData.(fn{p}))       % if there is an entry for it
+                if ~iscell(ScriptData.(fn{p}){1}) % if old format
+                    ScriptData.(fn{p})={ScriptData.(fn{p})};  % make it a cell  -> new ScriptData format
                     if ~rungroupAdded, rungroupAdded=1; end
                 end
             end
