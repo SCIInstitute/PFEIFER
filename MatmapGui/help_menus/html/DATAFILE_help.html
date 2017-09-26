@@ -66,7 +66,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
 
-  </style></head><body><div class="content"><h1>myProcessingScript</h1><!--introduction--><p>in a Processing Data File matmap stores all the settings/user selections that are file specific, eg. fiducials, start/endframe or information about the baseline correction.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">explanation</a></li><li><a href="#2">notes</a></li></ul></div><h2 id="1">explanation</h2><div><ul><li>When matlab is started, it looks for a 'myProcessingData.mat' file in the current folder. If it finds one, all the settings from that file are imported. Any changes the user makes will also be saved in that file (overwriting previous user selections). If there is no 'myProcessingData.mat' file in the current folder at the start of matmap, matmap creates one and saves all future file specific user selections in that created file.</li><li>Whenever the path in the Processing Data File text bar is changed, matmap looks if the file specified by the path exists. If it does, all the file specific settings from that file are imported and future user selections saved in that file. If it doesn't, matmap creates a file at the specified path and from that point on uses that file as a Processing Data File.</li></ul></div><h2 id="2">notes</h2><div><ul><li>matmap links the chosen file specific user selections to the corresponding data input files (eg. .ac2 files) by their file name. Thus, if the filenames are changed, matmap cannot link the chosen settings to the rigth file anymore.</li></ul></div><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2017a</a><br></p></div><!--
+  </style></head><body><div class="content"><h1>myProcessingScript</h1><!--introduction--><p>in a Processing Data File matmap stores all the settings/user selections that are file specific, eg. fiducials, start/endframe or information about the baseline correction.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">explanation</a></li><li><a href="#2">notes</a></li></ul></div><h2 id="1">explanation</h2><div><ul><li>When matlab is started, it looks for a 'ProcessingData.mat' file in the current folder. If it finds one, all the settings from that file are imported. Any changes the user makes will also be saved in that file (overwriting previous user selections). If there is no 'ProcessingData.mat' file in the current folder at the start of matmap, matmap creates one and saves all future file specific user selections in that created file.</li><li>Whenever the path in the Processing Data File text bar is changed, matmap looks if the file specified by the path exists. If it does, all the file specific settings from that file are imported and future user selections saved in that file. If it doesn't, matmap creates a file at the specified path and from that point on uses that file as a Processing Data File.</li></ul></div><h2 id="2">notes</h2><div><ul><li>matmap links the chosen file specific user selections to the corresponding data input files (eg. .ac2 files) by their file name. Thus, if the filenames are changed, matmap cannot link the chosen settings to the rigth file anymore.</li></ul></div><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2017a</a><br></p></div><!--
 ##### SOURCE BEGIN #####
 %% myProcessingScript
 % in a Processing Data File matmap stores all the settings/user selections
@@ -75,11 +75,11 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 % 
 %% explanation
 %
-% * When matlab is started, it looks for a 'myProcessingData.mat' file in the
+% * When matlab is started, it looks for a 'ProcessingData.mat' file in the
 % current folder. If it finds one, all the settings from that file are
 % imported. Any changes the user makes will also be saved in that file
 % (overwriting previous user selections). If there is no
-% 'myProcessingData.mat' file in the current folder at the start of matmap,
+% 'ProcessingData.mat' file in the current folder at the start of matmap,
 % matmap creates one and saves all future file specific user selections in
 % that created file.
 % * Whenever the path in the Processing Data File text bar is changed,

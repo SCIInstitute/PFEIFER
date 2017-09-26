@@ -5,11 +5,11 @@
 % 
 %% explanation
 %
-% * When matlab is started, it looks for a 'myProcessingData.mat' file in the
+% * When matlab is started, it looks for a 'ProcessingData.mat' file in the
 % current folder. If it finds one, all the settings from that file are
 % imported. Any changes the user makes will also be saved in that file
 % (overwriting previous user selections). If there is no
-% 'myProcessingData.mat' file in the current folder at the start of matmap,
+% 'ProcessingData.mat' file in the current folder at the start of matmap,
 % matmap creates one and saves all future file specific user selections in
 % that created file.
 % * Whenever the path in the Processing Data File text bar is changed,

@@ -31,16 +31,16 @@ function handle = SliceDisplay(varargin)
 
 function Navigation(handle,mode)
     %callback to all navigation buttons (including apply)
-    global myScriptData
+    global ScriptData
     
     switch mode
     case {'prev','next','stop'}
-        myScriptData.NAVIGATION = mode;
+        ScriptData.NAVIGATION = mode;
         set(handle,'DeleteFcn','');
         delete(handle);
     case {'apply'}
         global TS;
-        tsindex = myScriptData.CURRENTTS;
+        tsindex = ScriptData.CURRENTTS;
         if ~isfield(TS{tsindex},'selframes')
             errordlg('No selection has been made; use the mouse to select a piece of signal');
         elseif isempty(TS{tsindex}.selframes)
@@ -48,7 +48,7 @@ function Navigation(handle,mode)
         else
     %        if DetectAlignment(handle) == 0, return; end        I turned
     %        this of
-            myScriptData.NAVIGATION = 'apply';
+            ScriptData.NAVIGATION = 'apply';
             set(handle,'DeleteFcn','');
             delete(handle);
         end
@@ -61,8 +61,8 @@ function Navigation(handle,mode)
 function SetupNavigationBar(handle)
     % sets up Filename, Filelabel etc in the top bar (right to navigation
     % bar)
-    global myScriptData TS;
-    tsindex = myScriptData.CURRENTTS;
+    global ScriptData TS;
+    tsindex = ScriptData.CURRENTTS;
     
     t = findobj(allchild(handle),'tag','NAVFILENAME');
     t.String=['FILENAME: ' TS{tsindex}.filename];
@@ -80,7 +80,7 @@ function SetupNavigationBar(handle)
     t.Units='normalize';
     
     t = findobj(allchild(handle),'tag','NAVACQNUM');
-    t.String=sprintf('ACQNUM: %d',myScriptData.ACQNUM);
+    t.String=sprintf('ACQNUM: %d',ScriptData.ACQNUM);
     t.Units='character';
     needed_length=t.Extent(3);
     t.Position(3)=needed_length+0.001;
@@ -101,52 +101,52 @@ function SetupNavigationBar(handle)
     
 % function success = DetectAlignment(handle)
 %     % what is this?
-%     global myScriptData SLICEDISPLAY TS;
+%     global ScriptData SLICEDISPLAY TS;
 %     
-%     if ischar(myScriptData.ALIGNSTART),
-%         switch myScriptData.ALIGNMETHOD
+%     if ischar(ScriptData.ALIGNSTART),
+%         switch ScriptData.ALIGNMETHOD
 %             case 1,
 %                 % DO NOTHING
 %             case 2,
-%                 selframes = TS{myScriptData.CURRENTTS}.selframes;
-%                 if isfield(TS{myScriptData.CURRENTTS},'pacing'),
-%                     pacing = TS{myScriptData.CURRENTTS}.pacing;
+%                 selframes = TS{ScriptData.CURRENTTS}.selframes;
+%                 if isfield(TS{ScriptData.CURRENTTS},'pacing'),
+%                     pacing = TS{ScriptData.CURRENTTS}.pacing;
 %                     [dummy,index] = min(abs(pacing-selframes(1)));
-%                     myScriptData.ALIGNSTART = -pacing(index(1)) + selframes(1);
+%                     ScriptData.ALIGNSTART = -pacing(index(1)) + selframes(1);
 %                 end
 %             case 3,
 %                 DetectAlignmentRMS;
-%                 selframes = TS{myScriptData.CURRENTTS}.selframes;
+%                 selframes = TS{ScriptData.CURRENTTS}.selframes;
 %                 pacing = SLICEDISPLAY.RMSPEAKS;
 %                 if ~isempty(pacing)
 %                     [dummy,index] = min(abs(pacing-selframes(1)));
-%                     myScriptData.ALIGNSTART = -pacing(index(1)) + selframes(1);
+%                     ScriptData.ALIGNSTART = -pacing(index(1)) + selframes(1);
 %                 end
 %             case 4,
 %                 success = 1;
-%                 if ~isfield(TS{myScriptData.CURRENTTS},'templateframe'), success = 0;
-%                 elseif isempty(TS{myScriptData.CURRENTTS}.templateframe), success = 0; end
+%                 if ~isfield(TS{ScriptData.CURRENTTS},'templateframe'), success = 0;
+%                 elseif isempty(TS{ScriptData.CURRENTTS}.templateframe), success = 0; end
 %                 if success == 0,
 %                     errordlg('You need to specify a template for alignment','AUTOMATIC ALIGNMENT');
 %                    return;    
 %                 end
 %                 DetectAlignmentRMStemplate(2);
-%                 selframes = TS{myScriptData.CURRENTTS}.selframes;
+%                 selframes = TS{ScriptData.CURRENTTS}.selframes;
 %                 pacing = SLICEDISPLAY.RMSPEAKS;
 %                 if ~isempty(pacing),
 %                     [dummy,index] = min(abs(pacing-selframes(1)));
-%                     myScriptData.ALIGNSTART = -pacing(index(1)) + selframes(1);
+%                     ScriptData.ALIGNSTART = -pacing(index(1)) + selframes(1);
 %                end
 %         end
 %     end
 % 
-%     if ischar(myScriptData.ALIGNSIZE),
-%         switch myScriptData.ALIGNMETHOD
+%     if ischar(ScriptData.ALIGNSIZE),
+%         switch ScriptData.ALIGNMETHOD
 %             case 1,
 %                 % DO NOTHING
 %             otherwise
-%                 selframes = TS{myScriptData.CURRENTTS}.selframes;
-%                 myScriptData.ALIGNSIZE = selframes(2)-selframes(1);
+%                 selframes = TS{ScriptData.CURRENTTS}.selframes;
+%                 ScriptData.ALIGNSIZE = selframes(2)-selframes(1);
 %         end
 %     end
 % 
@@ -158,8 +158,8 @@ function SetupNavigationBar(handle)
 function handle = Init(tsindex)
 
     if nargin == 1
-        global myScriptData;
-        myScriptData.CURRENTTS = tsindex;
+        global ScriptData;
+        ScriptData.CURRENTTS = tsindex;
     end
     
     clear global SLICEDISPLAY;  % just in case.. 
@@ -214,33 +214,33 @@ function InitMouseFunctions(handle)
         
 function InitDisplayButtons(handle)
 
-    global myScriptData SLICEDISPLAY;
+    global ScriptData SLICEDISPLAY;
 
     button = findobj(allchild(handle),'tag','DISPLAYTYPE');
-    set(button,'string',{'Global RMS','Group RMS','Individual'},'value',myScriptData.DISPLAYTYPE);
+    set(button,'string',{'Global RMS','Group RMS','Individual'},'value',ScriptData.DISPLAYTYPE);
     
     button = findobj(allchild(handle),'tag','DISPLAYOFFSET');
-    set(button,'string',{'Offset ON','Offset OFF'},'value',myScriptData.DISPLAYOFFSET);
+    set(button,'string',{'Offset ON','Offset OFF'},'value',ScriptData.DISPLAYOFFSET);
     
     button = findobj(allchild(handle),'tag','DISPLAYLABEL');
-    set(button,'string',{'Label ON','Label OFF'},'value',myScriptData.DISPLAYLABEL);
+    set(button,'string',{'Label ON','Label OFF'},'value',ScriptData.DISPLAYLABEL);
     
     button = findobj(allchild(handle),'tag','DISPLAYPACING');
-    set(button,'string',{'Pacing ON','Pacing OFF'},'value',myScriptData.DISPLAYPACING);
+    set(button,'string',{'Pacing ON','Pacing OFF'},'value',ScriptData.DISPLAYPACING);
     
     button = findobj(allchild(handle),'tag','DISPLAYGRID');
-    set(button,'string',{'No grid','Coarse grid','Fine grid'},'value',myScriptData.DISPLAYGRID);
+    set(button,'string',{'No grid','Coarse grid','Fine grid'},'value',ScriptData.DISPLAYGRID);
     
     button = findobj(allchild(handle),'tag','DISPLAYSCALING');
-    set(button,'string',{'Local','Global','Group'},'value',myScriptData.DISPLAYSCALING);
+    set(button,'string',{'Local','Global','Group'},'value',ScriptData.DISPLAYSCALING);
 
     button = findobj(allchild(handle),'tag','DISPLAYGROUP');
-    group = myScriptData.GROUPNAME{myScriptData.CURRENTRUNGROUP};
-    myScriptData.DISPLAYGROUP = 1:length(group);
-    set(button,'string',group,'max',length(group),'value',myScriptData.DISPLAYGROUP);
+    group = ScriptData.GROUPNAME{ScriptData.CURRENTRUNGROUP};
+    ScriptData.DISPLAYGROUP = 1:length(group);
+    set(button,'string',group,'max',length(group),'value',ScriptData.DISPLAYGROUP);
 
     button = findobj(allchild(handle),'tag','KEEPBADLEADS');
-    set(button,'value',myScriptData.KEEPBADLEADS);
+    set(button,'value',ScriptData.KEEPBADLEADS);
 
     if ~isfield(SLICEDISPLAY,'XWIN'), SLICEDISPLAY.XWIN = []; end
     if ~isfield(SLICEDISPLAY,'YWIN'), SLICEDISPLAY.YWIN = []; end
@@ -258,17 +258,17 @@ function InitDisplayButtons(handle)
 function DisplayButton(handle)
     %callback to all the display buttons
 
-    global myScriptData;
+    global ScriptData;
     
     tag = get(handle,'tag');
     switch tag
         case {'DISPLAYTYPE','DISPLAYOFFSET','DISPLAYSCALING','DISPLAYPACING','DISPLAYGROUP'}
-            myScriptData = setfield(myScriptData,tag,get(handle,'value'));
+            ScriptData = setfield(ScriptData,tag,get(handle,'value'));
             parent = get(handle,'parent');
             SetupDisplay(parent);
             UpdateDisplay(parent);       
         case {'DISPLAYLABEL','DISPLAYGRID'}
-            myScriptData = setfield(myScriptData,tag,get(handle,'value'));
+            ScriptData = setfield(ScriptData,tag,get(handle,'value'));
             parent = get(handle,'parent');
             UpdateDisplay(parent); 
     end
@@ -277,29 +277,29 @@ function DisplayButton(handle)
     
 function InitAlignButtons(handle)
 
-    global myScriptData SLICEDISPLAY;
+    global ScriptData SLICEDISPLAY;
 
     button = findobj(allchild(handle),'tag','ALIGNSTART');
-    if isnumeric(myScriptData.ALIGNSTART), set(button,'string',num2str(myScriptData.ALIGNSTART)); else set(button,'string','detect'); end
+    if isnumeric(ScriptData.ALIGNSTART), set(button,'string',num2str(ScriptData.ALIGNSTART)); else set(button,'string','detect'); end
     
     button = findobj(allchild(handle),'tag','ALIGNSIZE');
-    if isnumeric(myScriptData.ALIGNSIZE), set(button,'string',num2str(myScriptData.ALIGNSIZE)); else set(button,'string','detect'); end
+    if isnumeric(ScriptData.ALIGNSIZE), set(button,'string',num2str(ScriptData.ALIGNSIZE)); else set(button,'string','detect'); end
     
     button = findobj(allchild(handle),'tag','ALIGNMETHOD');
-    set(button,'string',{'No alignment','Alignment on pacing lead','Alignment on RMS peak','Alignment on RMS correlation'},'value',myScriptData.ALIGNMETHOD);
+    set(button,'string',{'No alignment','Alignment on pacing lead','Alignment on RMS peak','Alignment on RMS correlation'},'value',ScriptData.ALIGNMETHOD);
    
     button = findobj(allchild(handle),'tag','ALIGNSIZEENABLE');
-    set(button,'value',myScriptData.ALIGNSIZEENABLE); 
+    set(button,'value',ScriptData.ALIGNSIZEENABLE); 
    
     button = findobj(allchild(handle),'tag','ALIGNSTARTENABLE');
-    set(button,'value',myScriptData.ALIGNSTARTENABLE);
+    set(button,'value',ScriptData.ALIGNSTARTENABLE);
     
     button = findobj(allchild(handle),'tag','ALIGNRMSTYPE');
-    types = myScriptData.GROUPNAME{myScriptData.CURRENTRUNGROUP}; types{end+1} = 'GLOBAL';
-    set(button,'value',myScriptData.ALIGNRMSTYPE,'string',types);
+    types = ScriptData.GROUPNAME{ScriptData.CURRENTRUNGROUP}; types{end+1} = 'GLOBAL';
+    set(button,'value',ScriptData.ALIGNRMSTYPE,'string',types);
     
     button = findobj(allchild(handle),'tag','ALIGNTHRESHOLD');
-    set(button,'string',num2str(myScriptData.ALIGNTHRESHOLD));
+    set(button,'string',num2str(ScriptData.ALIGNTHRESHOLD));
     
     SLICEDISPLAY.RMS = [];
     SLICEDISPLAY.THRESHOLD = 0;
@@ -313,49 +313,49 @@ function InitAlignButtons(handle)
     
 function InitAverageButtons(handle)
 
-    global myScriptData TS;
+    global ScriptData TS;
 
     button = findobj(allchild(handle),'tag','AVERAGEMAXN');
-    set(button,'string',num2str(myScriptData.AVERAGEMAXN)); 
+    set(button,'string',num2str(ScriptData.AVERAGEMAXN)); 
     
     button = findobj(allchild(handle),'tag','AVERAGEMAXRE');
-    set(button,'string',num2str(myScriptData.AVERAGEMAXRE)); 
+    set(button,'string',num2str(ScriptData.AVERAGEMAXRE)); 
     
     button = findobj(allchild(handle),'tag','AVERAGEMETHOD');
-    set(button,'string',{'No averaging','Averaging using matched filter RMS','Averaging using matched filter AVERAGE'},'value',myScriptData.AVERAGEMETHOD);
+    set(button,'string',{'No averaging','Averaging using matched filter RMS','Averaging using matched filter AVERAGE'},'value',ScriptData.AVERAGEMETHOD);
     
     button = findobj(allchild(handle),'tag','AVERAGERMSTYPE');
     types{1} = 'GLOBAL';
     types{2} = 'CHANNEL';
-    types(3:(length(myScriptData.GROUPNAME{myScriptData.CURRENTRUNGROUP})+2)) = myScriptData.GROUPNAME{myScriptData.CURRENTRUNGROUP};
-    set(button,'value',myScriptData.AVERAGERMSTYPE,'string',types);
+    types(3:(length(ScriptData.GROUPNAME{ScriptData.CURRENTRUNGROUP})+2)) = ScriptData.GROUPNAME{ScriptData.CURRENTRUNGROUP};
+    set(button,'value',ScriptData.AVERAGERMSTYPE,'string',types);
     
     button = findobj(allchild(handle),'tag','AVERAGECHANNEL');
-    set(button,'string',mynum2str(myScriptData.AVERAGECHANNEL));
+    set(button,'string',mynum2str(ScriptData.AVERAGECHANNEL));
     
-    TS{myScriptData.CURRENTTS}.averagemethod = myScriptData.AVERAGEMETHOD;
+    TS{ScriptData.CURRENTTS}.averagemethod = ScriptData.AVERAGEMETHOD;
     
     return    
     
     
 function AverageButton(handle)
 
-    global myScriptData TS;
+    global ScriptData TS;
     
     tag = get(handle,'tag');
     switch tag
         case {'AVERAGEMAXN','AVERAGEMAXRE'}
             value = str2num(get(handle,'string'));
-            myScriptData = setfield(myScriptData,tag,value);
+            ScriptData = setfield(ScriptData,tag,value);
         case {'AVERAGERMSTYPE'}
-            myScriptData = setfield(myScriptData,tag,get(handle,'value'));
+            ScriptData = setfield(ScriptData,tag,get(handle,'value'));
         case {'AVERAGEMETHOD'}
-            myScriptData = setfield(myScriptData,tag,get(handle,'value'));
-            TS{myScriptData.CURRENTTS}.averagemethod = myScriptData.AVERAGEMETHOD;
+            ScriptData = setfield(ScriptData,tag,get(handle,'value'));
+            TS{ScriptData.CURRENTTS}.averagemethod = ScriptData.AVERAGEMETHOD;
             UpdateDisplay(get(handle,'parent'));
         case {'AVERAGECHANNEL'}
-            myScriptData = setfield(myScriptData,tag,mystr2num(get(handle,'string')));
-            TS{myScriptData.CURRENTTS}.averagechannel = myScriptData.AVERAGECHANNEL;
+            ScriptData = setfield(ScriptData,tag,mystr2num(get(handle,'string')));
+            TS{ScriptData.CURRENTTS}.averagechannel = ScriptData.AVERAGECHANNEL;
     end
     return
 
@@ -410,66 +410,66 @@ function str = mynum2str(vec)
     
 function AlignButton(handle)
 
-    global myScriptData;
+    global ScriptData;
     
     tag = get(handle,'tag');
     switch tag
         case {'ALIGNSTART','ALIGNSIZE'}
             value = get(handle,'string');
             if strcmp(value,'detect') ~= 1, value = str2num(value); end
-            myScriptData = setfield(myScriptData,tag,value);
+            ScriptData = setfield(ScriptData,tag,value);
         case {'ALIGNMETHOD','ALIGNSTARTENABLE','ALIGNSIZEENABLE','ALIGNRMSTYPE'}
-            myScriptData = setfield(myScriptData,tag,get(handle,'value'));
+            ScriptData = setfield(ScriptData,tag,get(handle,'value'));
         case {'ALIGNTHRESHOLD'}
             value = str2num(get(handle,'string'));
-            myScriptData = setfield(myScriptData,tag,value);
+            ScriptData = setfield(ScriptData,tag,value);
     end
     return
     
 function AlignButtonDetect(handle)
     
-    global myScriptData;
+    global ScriptData;
     tag = get(handle,'tag');
     handle = get(handle,'parent');
     switch tag
         case 'ALIGNSTARTDETECT'
-            myScriptData.ALIGNSTART = 'detect';
+            ScriptData.ALIGNSTART = 'detect';
             set(findobj(allchild(handle),'tag','ALIGNSTART'),'string','detect');
         case 'ALIGNSIZEDETECT',
-            myScriptData.ALIGNSTART = 'detect';
+            ScriptData.ALIGNSTART = 'detect';
             set(findobj(allchild(handle),'tag','ALIGNSIZE'),'string','detect');    
     end
     return
     
 function DetectAverage(handle)
 
-    global TS myScriptData SLICEDISPLAY;
+    global TS ScriptData SLICEDISPLAY;
     
-    if myScriptData.AVERAGEMETHOD < 2, return; end
+    if ScriptData.AVERAGEMETHOD < 2, return; end
     
-    if ~isfield(TS{myScriptData.CURRENTTS},'averageframes')
+    if ~isfield(TS{ScriptData.CURRENTTS},'averageframes')
         errordlg('Select an averaging template first','DETECT AVERAGING'); return;
     end
-    if isempty(TS{myScriptData.CURRENTTS}.averageframes)
+    if isempty(TS{ScriptData.CURRENTTS}.averageframes)
         errordlg('Select an averaging template first','DETECT AVERAGING'); return;
     end
     
-    frame = TS{myScriptData.CURRENTTS}.averageframes;
-    rmstype = myScriptData.AVERAGERMSTYPE;
+    frame = TS{ScriptData.CURRENTTS}.averageframes;
+    rmstype = ScriptData.AVERAGERMSTYPE;
     
-    if (rmstype > 2) && ( rmstype <= length(myScriptData.GROUPLEADS{myScriptData.CURRENTRUNGROUP})),
-        ch = myScriptData.GROUPLEADS{myScriptData.CURRENTRUNGROUP}{rmstype-2};
+    if (rmstype > 2) && ( rmstype <= length(ScriptData.GROUPLEADS{ScriptData.CURRENTRUNGROUP})),
+        ch = ScriptData.GROUPLEADS{ScriptData.CURRENTRUNGROUP}{rmstype-2};
     elseif rmstype == 1
-        ch = []; for p = 1:length(myScriptData.GROUPLEADS{myScriptData.CURRENTRUNGROUP}), ch = [ch myScriptData.GROUPLEADS{myScriptData.CURRENTRUNGROUP}{p}]; end
+        ch = []; for p = 1:length(ScriptData.GROUPLEADS{ScriptData.CURRENTRUNGROUP}), ch = [ch ScriptData.GROUPLEADS{ScriptData.CURRENTRUNGROUP}{p}]; end
     elseif rmstype == 2
-        ch = myScriptData.AVERAGECHANNEL;
+        ch = ScriptData.AVERAGECHANNEL;
     end
     
-    if myScriptData.AVERAGEMETHOD == 2
-        rms = sqrt(mean(TS{myScriptData.CURRENTTS}.potvals(ch,:).^2,1));
+    if ScriptData.AVERAGEMETHOD == 2
+        rms = sqrt(mean(TS{ScriptData.CURRENTTS}.potvals(ch,:).^2,1));
         template = rms(frame(end):-1:frame(1));
     else
-        rms = mean(TS{myScriptData.CURRENTTS}.potvals(ch,:),1);
+        rms = mean(TS{ScriptData.CURRENTTS}.potvals(ch,:),1);
         template = rms(frame(end):-1:frame(1));
     end
     
@@ -479,32 +479,32 @@ function DetectAverage(handle)
     rms = (filter(e,1,rms.^2) - 2*filter(template,1,rms) + sum(template.^2) -  (rmsbar.^2)*length(template))/sum(template.^2);
     
     m = [];
-    for p = 1:floor(length(rms)/myScriptData.SAMPLEFREQ)
-        m = [m max(rms([1:myScriptData.SAMPLEFREQ]+(p-1)*myScriptData.SAMPLEFREQ))];
+    for p = 1:floor(length(rms)/ScriptData.SAMPLEFREQ)
+        m = [m max(rms([1:ScriptData.SAMPLEFREQ]+(p-1)*ScriptData.SAMPLEFREQ))];
     end
     if isempty(m), m = max(rms); end
     rmsmax = median(m);
         
-    apeaks = DPeaks(-rms,(-(myScriptData.AVERAGEMAXRE).^2)*rmsmax);
+    apeaks = DPeaks(-rms,(-(ScriptData.AVERAGEMAXRE).^2)*rmsmax);
     if isempty(apeaks), return; end
     
     vpeaks = rms(apeaks);
     [vpeaks,I] = sort(vpeaks);
     apeaks = apeaks(I);
 
-    if ~isfield(TS{myScriptData.CURRENTTS},'selframes')
+    if ~isfield(TS{ScriptData.CURRENTTS},'selframes')
         selframes = frame;
-    elseif isempty(TS{myScriptData.CURRENTTS}.selframes)
+    elseif isempty(TS{ScriptData.CURRENTTS}.selframes)
         selframes = frame;
     else
-        selframes = TS{myScriptData.CURRENTTS}.selframes;
+        selframes = TS{ScriptData.CURRENTTS}.selframes;
     end
 
     
     reltimeframe = selframes-apeaks(1);
-    index = find(((apeaks+reltimeframe(1)) >= 1)&((apeaks+reltimeframe(2))<=length(rms))&(vpeaks < myScriptData.AVERAGEMAXRE));
+    index = find(((apeaks+reltimeframe(1)) >= 1)&((apeaks+reltimeframe(2))<=length(rms))&(vpeaks < ScriptData.AVERAGEMAXRE));
     apeaks = apeaks(index); vpeaks = vpeaks(index);
-    if length(apeaks) > myScriptData.AVERAGEMAXN, apeaks = apeaks(1:myScriptData.AVERAGEMAXN); end
+    if length(apeaks) > ScriptData.AVERAGEMAXN, apeaks = apeaks(1:ScriptData.AVERAGEMAXN); end
 
     if vpeaks > 3
         vdif =  max(vpeaks(2:3)-vpeaks(1));
@@ -515,10 +515,10 @@ function DetectAverage(handle)
     astart = apeaks+reltimeframe(1);
     aend   = apeaks+reltimeframe(2);
     
-    TS{myScriptData.CURRENTTS}.averagestart = astart;
-    TS{myScriptData.CURRENTTS}.averageend = aend;
-    TS{myScriptData.CURRENTTS}.averagemethod = myScriptData.AVERAGEMETHOD;
-    TS{myScriptData.CURRENTTS}.averagechannel = myScriptData.AVERAGECHANNEL;
+    TS{ScriptData.CURRENTTS}.averagestart = astart;
+    TS{ScriptData.CURRENTTS}.averageend = aend;
+    TS{ScriptData.CURRENTTS}.averagemethod = ScriptData.AVERAGEMETHOD;
+    TS{ScriptData.CURRENTTS}.averagechannel = ScriptData.AVERAGECHANNEL;
 
     SetupDisplay(handle);
     UpdateDisplay(handle);
@@ -527,10 +527,10 @@ function DetectAverage(handle)
     
 function ResetAverage(handle)
 
-    global TS SLICEDISPLAY myScriptData;
+    global TS SLICEDISPLAY ScriptData;
     
-    if isfield(TS{myScriptData.CURRENTTS},'averagestart')
-        TS{myScriptData.CURRENTTS} = rmfield(TS{myScriptData.CURRENTTS},{'averagestart','averageend'});
+    if isfield(TS{ScriptData.CURRENTTS},'averagestart')
+        TS{ScriptData.CURRENTTS} = rmfield(TS{ScriptData.CURRENTTS},{'averagestart','averageend'});
     end
     UpdateDisplay(handle);
     
@@ -540,17 +540,17 @@ function SetupDisplay(handle)
 
     pointer = get(handle,'pointer');
     set(handle,'pointer','watch');
-    global TS myScriptData SLICEDISPLAY;
+    global TS ScriptData SLICEDISPLAY;
     
-    tsindex = myScriptData.CURRENTTS;
+    tsindex = ScriptData.CURRENTTS;
     
     numframes = size(TS{tsindex}.potvals,2);
-    SLICEDISPLAY.TIME = [1:numframes]/myScriptData.SAMPLEFREQ;
-    SLICEDISPLAY.XLIM = [1 numframes]/myScriptData.SAMPLEFREQ;
+    SLICEDISPLAY.TIME = [1:numframes]/ScriptData.SAMPLEFREQ;
+    SLICEDISPLAY.XLIM = [1 numframes]/ScriptData.SAMPLEFREQ;
     
     if isempty(SLICEDISPLAY.XWIN)
         
-        SLICEDISPLAY.XWIN = [median([0 SLICEDISPLAY.XLIM]) median([3000/myScriptData.SAMPLEFREQ SLICEDISPLAY.XLIM])];
+        SLICEDISPLAY.XWIN = [median([0 SLICEDISPLAY.XLIM]) median([3000/ScriptData.SAMPLEFREQ SLICEDISPLAY.XLIM])];
     else
         SLICEDISPLAY.XWIN = [median([SLICEDISPLAY.XWIN(1) SLICEDISPLAY.XLIM]) median([SLICEDISPLAY.XWIN(2) SLICEDISPLAY.XLIM])];
     end
@@ -568,18 +568,18 @@ function SetupDisplay(handle)
     end
     
     
-    groups = myScriptData.DISPLAYGROUP;
+    groups = ScriptData.DISPLAYGROUP;
     numgroups = length(groups);
     
     SLICEDISPLAY.NAME ={};
     SLICEDISPLAY.GROUPNAME = {};
     SLICEDISPLAY.GROUP = [];
     
-    switch myScriptData.DISPLAYTYPE
+    switch ScriptData.DISPLAYTYPE
         case 1
             ch  = []; 
             for p=groups
-                leads = myScriptData.GROUPLEADS{myScriptData.CURRENTRUNGROUP}{p};
+                leads = ScriptData.GROUPLEADS{ScriptData.CURRENTRUNGROUP}{p};
                 index = find(TS{tsindex}.leadinfo(leads)==0);
                 ch = [ch leads(index)]; 
             end 
@@ -594,11 +594,11 @@ function SetupDisplay(handle)
         case 2
             SLICEDISPLAY.SIGNAL = zeros(numgroups,numframes);
             for p=1:numgroups 
-                leads = myScriptData.GROUPLEADS{myScriptData.CURRENTRUNGROUP}{groups(p)};
+                leads = ScriptData.GROUPLEADS{ScriptData.CURRENTRUNGROUP}{groups(p)};
                 index = find(TS{tsindex}.leadinfo(leads)==0);
                 SLICEDISPLAY.SIGNAL(p,:) = sqrt(mean(TS{tsindex}.potvals(leads(index),:).^2)); 
                 SLICEDISPLAY.SIGNAL(p,:) = SLICEDISPLAY.SIGNAL(p,:)-min(SLICEDISPLAY.SIGNAL(p,:));
-                SLICEDISPLAY.NAME{p} = [myScriptData.GROUPNAME{myScriptData.CURRENTRUNGROUP}{groups(p)} ' RMS']; 
+                SLICEDISPLAY.NAME{p} = [ScriptData.GROUPNAME{ScriptData.CURRENTRUNGROUP}{groups(p)} ' RMS']; 
             end
             SLICEDISPLAY.GROUPNAME = SLICEDISPLAY.NAME;
             SLICEDISPLAY.GROUP = 1:numgroups;
@@ -610,19 +610,19 @@ function SetupDisplay(handle)
             SLICEDISPLAY.LEAD = [];
             ch  = []; 
             for p=groups
-                ch = [ch myScriptData.GROUPLEADS{myScriptData.CURRENTRUNGROUP}{p}]; 
-                SLICEDISPLAY.GROUP = [SLICEDISPLAY.GROUP p*ones(1,length(myScriptData.GROUPLEADS{myScriptData.CURRENTRUNGROUP}{p}))]; 
-                SLICEDISPLAY.LEAD = [SLICEDISPLAY.LEAD myScriptData.GROUPLEADS{myScriptData.CURRENTRUNGROUP}{p}];
-                for q=1:length(myScriptData.GROUPLEADS{myScriptData.CURRENTRUNGROUP}{p}), SLICEDISPLAY.NAME{end+1} = sprintf('%s # %d',myScriptData.GROUPNAME{myScriptData.CURRENTRUNGROUP}{p},q); end 
+                ch = [ch ScriptData.GROUPLEADS{ScriptData.CURRENTRUNGROUP}{p}]; 
+                SLICEDISPLAY.GROUP = [SLICEDISPLAY.GROUP p*ones(1,length(ScriptData.GROUPLEADS{ScriptData.CURRENTRUNGROUP}{p}))]; 
+                SLICEDISPLAY.LEAD = [SLICEDISPLAY.LEAD ScriptData.GROUPLEADS{ScriptData.CURRENTRUNGROUP}{p}];
+                for q=1:length(ScriptData.GROUPLEADS{ScriptData.CURRENTRUNGROUP}{p}), SLICEDISPLAY.NAME{end+1} = sprintf('%s # %d',ScriptData.GROUPNAME{ScriptData.CURRENTRUNGROUP}{p},q); end 
             end
             for p=1:length(groups)
-                SLICEDISPLAY.GROUPNAME{p} = [myScriptData.GROUPNAME{myScriptData.CURRENTRUNGROUP}{groups(p)}]; 
+                SLICEDISPLAY.GROUPNAME{p} = [ScriptData.GROUPNAME{ScriptData.CURRENTRUNGROUP}{groups(p)}]; 
             end 
             SLICEDISPLAY.SIGNAL = TS{tsindex}.potvals(ch,:);
             SLICEDISPLAY.LEADINFO = TS{tsindex}.leadinfo(ch);
     end
         
-    switch myScriptData.DISPLAYSCALING
+    switch ScriptData.DISPLAYSCALING
         case 1
             k = max(abs(SLICEDISPLAY.SIGNAL),[],2);
             [m,~] = size(SLICEDISPLAY.SIGNAL);
@@ -647,12 +647,12 @@ function SetupDisplay(handle)
             SLICEDISPLAY.SIGNAL = s*SLICEDISPLAY.SIGNAL;
     end
     
-    if myScriptData.DISPLAYTYPE == 3
+    if ScriptData.DISPLAYTYPE == 3
         SLICEDISPLAY.SIGNAL = 0.5*SLICEDISPLAY.SIGNAL+0.5;
     end
     
     numsignal = size(SLICEDISPLAY.SIGNAL,1);
-    switch myScriptData.DISPLAYOFFSET
+    switch ScriptData.DISPLAYOFFSET
         case 1
             for p=1:numsignal
                 SLICEDISPLAY.SIGNAL(p,:) = SLICEDISPLAY.SIGNAL(p,:)+(numsignal-p);
@@ -674,20 +674,20 @@ function SetupDisplay(handle)
     SLICEDISPLAY.ATIME = {};
     numframes = size(SLICEDISPLAY.SIGNAL,2);
     
-    if isfield(TS{myScriptData.CURRENTTS},'averagestart')
-        if myScriptData.AVERAGEMETHOD > 1
-            as = TS{myScriptData.CURRENTTS}.averagestart/myScriptData.SAMPLEFREQ; ae = TS{myScriptData.CURRENTTS}.averageend/myScriptData.SAMPLEFREQ;
-            startframe = max([floor(myScriptData.SAMPLEFREQ*as(1)) 1]);
-            endframe = min([ceil(myScriptData.SAMPLEFREQ*ae(1)) numframes]);
+    if isfield(TS{ScriptData.CURRENTTS},'averagestart')
+        if ScriptData.AVERAGEMETHOD > 1
+            as = TS{ScriptData.CURRENTTS}.averagestart/ScriptData.SAMPLEFREQ; ae = TS{ScriptData.CURRENTTS}.averageend/ScriptData.SAMPLEFREQ;
+            startframe = max([floor(ScriptData.SAMPLEFREQ*as(1)) 1]);
+            endframe = min([ceil(ScriptData.SAMPLEFREQ*ae(1)) numframes]);
             lenframe = min([(endframe-startframe)+1 numframes]);
             SLICEDISPLAY.ASIGNAL = zeros(size(SLICEDISPLAY.SIGNAL,1),lenframe);
             
             n = 0;
             for p=1:length(as)
-                startframe = max([floor(myScriptData.SAMPLEFREQ*as(p)) 1]);
-                endframe = min([ceil(myScriptData.SAMPLEFREQ*ae(p)) numframes]);
+                startframe = max([floor(ScriptData.SAMPLEFREQ*as(p)) 1]);
+                endframe = min([ceil(ScriptData.SAMPLEFREQ*ae(p)) numframes]);
                 if (endframe > numframes), continue; end
-                SLICEDISPLAY.ATIME{p} = as(p)+(1/myScriptData.SAMPLEFREQ)*[0:(lenframe-1)];
+                SLICEDISPLAY.ATIME{p} = as(p)+(1/ScriptData.SAMPLEFREQ)*[0:(lenframe-1)];
                 SLICEDISPLAY.ASIGNAL = SLICEDISPLAY.ASIGNAL+SLICEDISPLAY.SIGNAL(:,startframe+[0:(lenframe-1)]);
                 n = n+1;
             end
@@ -701,9 +701,9 @@ function SetupDisplay(handle)
     % PREPROCESS THE ALIGMENT RMS SIGNALS
     % IF A WINDOW IS SELECTED THIS WILL SPEED UP
     % THE ALIGNMENT AS NO RMS HAS TO BE COMPUTED
-    if (isnumeric(myScriptData.ALIGNSTART) && (myScriptData.ALIGNSTARTENABLE == 1))
-        if myScriptData.ALIGNMETHOD  > 1
-            switch myScriptData.ALIGNMETHOD
+    if (isnumeric(ScriptData.ALIGNSTART) && (ScriptData.ALIGNSTARTENABLE == 1))
+        if ScriptData.ALIGNMETHOD  > 1
+            switch ScriptData.ALIGNMETHOD
                 case 3
                     DetectAlignmentRMS;
                 case 4
@@ -765,7 +765,7 @@ function UpdateSlider(handle,~)
     
 function UpdateDisplay(handle)
 
-    global SLICEDISPLAY myScriptData TS;
+    global SLICEDISPLAY ScriptData TS;
     
     ax=findobj(allchild(handle),'tag','AXES');
     
@@ -783,12 +783,12 @@ function UpdateDisplay(handle)
     
     
     numframes = size(SLICEDISPLAY.SIGNAL,2);
-    startframe = max([floor(myScriptData.SAMPLEFREQ*xwin(1)) 1]);
-    endframe = min([ceil(myScriptData.SAMPLEFREQ*xwin(2)) numframes]);
+    startframe = max([floor(ScriptData.SAMPLEFREQ*xwin(1)) 1]);
+    endframe = min([ceil(ScriptData.SAMPLEFREQ*xwin(2)) numframes]);
 
     
     numchannels = size(SLICEDISPLAY.SIGNAL,1);
-    if myScriptData.DISPLAYOFFSET == 1
+    if ScriptData.DISPLAYOFFSET == 1
         chend = numchannels - max([floor(ywin(1)) 0]);
         chstart = numchannels - min([ceil(ywin(2)) numchannels])+1;
     else
@@ -799,8 +799,8 @@ function UpdateDisplay(handle)
     
     % DRAW THE GRID
     
-    if myScriptData.DISPLAYGRID > 1
-        if myScriptData.DISPLAYGRID > 2
+    if ScriptData.DISPLAYGRID > 1
+        if ScriptData.DISPLAYGRID > 2
             clines = 0.04*[floor(xwin(1)/0.04):ceil(xwin(2)/0.04)];
             X = [clines; clines]; Y = ywin'*ones(1,length(clines));
             line(X,Y,'color',[0.9 0.9 0.9],'hittest','off');
@@ -810,9 +810,9 @@ function UpdateDisplay(handle)
         line(X,Y,'color',[0.5 0.5 0.5],'hittest','off');
     end
 
-    if isfield(TS{myScriptData.CURRENTTS},'averagestart')
-        if myScriptData.AVERAGEMETHOD > 1
-            as = TS{myScriptData.CURRENTTS}.averagestart/myScriptData.SAMPLEFREQ; ae = TS{myScriptData.CURRENTTS}.averageend/myScriptData.SAMPLEFREQ;
+    if isfield(TS{ScriptData.CURRENTTS},'averagestart')
+        if ScriptData.AVERAGEMETHOD > 1
+            as = TS{ScriptData.CURRENTTS}.averagestart/ScriptData.SAMPLEFREQ; ae = TS{ScriptData.CURRENTTS}.averageend/ScriptData.SAMPLEFREQ;
             for p=1:length(as), patch('XData',[as(p) as(p) ae(p) ae(p) as(p)],'YData',[ywin(1) ywin(2) ywin(2) ywin(1) ywin(1)],'facecolor',[1 0.6 0.6]); end
             for p=1:length(as), patch('XData',[as(p) as(p) ae(p) ae(p) as(p)],'YData',[ywin(1) ywin(2) ywin(2) ywin(1) ywin(1)],'facecolor','none','edgecolor',[0 0 0],'linewidth',2); end
 
@@ -830,9 +830,9 @@ function UpdateDisplay(handle)
     end
             
     
-    if myScriptData.DISPLAYPACING == 1
+    if ScriptData.DISPLAYPACING == 1
         if  ~isempty(SLICEDISPLAY.PACING)
-            plines = SLICEDISPLAY.PACING/myScriptData.SAMPLEFREQ;
+            plines = SLICEDISPLAY.PACING/ScriptData.SAMPLEFREQ;
             plines = plines((plines >xwin(1)) & (plines < xwin(2)));
             X = [plines; plines]; Y = ywin'*ones(1,length(plines));
             line(X,Y,'color',[0.55 0 0.65],'hittest','off','linewidth',2);    
@@ -850,12 +850,12 @@ function UpdateDisplay(handle)
         end
         
         plot(ax,SLICEDISPLAY.TIME(k),SLICEDISPLAY.SIGNAL(p,k),'color',color,'hittest','off');
-        if (myScriptData.DISPLAYOFFSET == 1) && (myScriptData.DISPLAYLABEL == 1)&&(chend-chstart < 30) && (SLICEDISPLAY.YWIN(2) >= numchannels-p+1)
+        if (ScriptData.DISPLAYOFFSET == 1) && (ScriptData.DISPLAYLABEL == 1)&&(chend-chstart < 30) && (SLICEDISPLAY.YWIN(2) >= numchannels-p+1)
             text(ax,SLICEDISPLAY.XWIN(1),numchannels-p+1,SLICEDISPLAY.NAME{p},'color',color,'VerticalAlignment','top','hittest','off'); 
         end
     end
    
-    if (myScriptData.DISPLAYOFFSET == 2) && (myScriptData.DISPLAYLABEL ==1)
+    if (ScriptData.DISPLAYOFFSET == 2) && (ScriptData.DISPLAYLABEL ==1)
         for q=1:length(SLICEDISPLAY.GROUPNAME)
             color = SLICEDISPLAY.COLORLIST{q};
             text(ax,SLICEDISPLAY.XWIN(1),SLICEDISPLAY.YWIN(2)-(q*0.05*(SLICEDISPLAY.YWIN(2)-SLICEDISPLAY.YWIN(1))),SLICEDISPLAY.GROUPNAME{q},'color',color,'VerticalAlignment','top','hittest','off'); 
@@ -866,21 +866,21 @@ function UpdateDisplay(handle)
     set(SLICEDISPLAY.AXES,'YTick',[],'YLim',ywin,'XLim',xwin);
     
     xlen = (xlim(2)-xlim(1)-xwin(2)+xwin(1));
-    if xlen < (1/myScriptData.SAMPLEFREQ), xslider = 0.999; else xslider = xwin(1)/xlen; end
+    if xlen < (1/ScriptData.SAMPLEFREQ), xslider = 0.999; else xslider = xwin(1)/xlen; end
     xredlen = (xlim(2)-xlim(1)-xwin(2)+xwin(1));
-    if xredlen ~= 0, xfill = (xwin(2)-xwin(1))/xredlen; else xfill = myScriptData.SAMPLEFREQ; end
+    if xredlen ~= 0, xfill = (xwin(2)-xwin(1))/xredlen; else xfill = ScriptData.SAMPLEFREQ; end
     xinc = median([0.01 xfill 0.999]);
-    xfill = median([0.01 xfill myScriptData.SAMPLEFREQ]);
-    xslider = median([1/myScriptData.SAMPLEFREQ xslider 0.999]);
+    xfill = median([0.01 xfill ScriptData.SAMPLEFREQ]);
+    xslider = median([1/ScriptData.SAMPLEFREQ xslider 0.999]);
     set(SLICEDISPLAY.XSLIDER,'value',xslider,'sliderstep',[xinc xfill]);
 
     ylen = (ylim(2)-ylim(1)-ywin(2)+ywin(1));
-    if ylen < (1/myScriptData.SAMPLEFREQ), yslider = 0.999; else yslider = ywin(1)/ylen; end
+    if ylen < (1/ScriptData.SAMPLEFREQ), yslider = 0.999; else yslider = ywin(1)/ylen; end
     yredlen = (ylim(2)-ylim(1)-ywin(2)+ywin(1));
-    if yredlen ~= 0, yfill = (ywin(2)-ywin(1))/yredlen; else yfill =myScriptData.SAMPLEFREQ; end
+    if yredlen ~= 0, yfill = (ywin(2)-ywin(1))/yredlen; else yfill =ScriptData.SAMPLEFREQ; end
     yinc = median([0.0002 yfill 0.999]);
-    yfill = median([0.0002 yfill myScriptData.SAMPLEFREQ]);
-    yslider = median([(1/myScriptData.SAMPLEFREQ) yslider 0.999]);
+    yfill = median([0.0002 yfill ScriptData.SAMPLEFREQ]);
+    yslider = median([(1/ScriptData.SAMPLEFREQ) yslider 0.999]);
     set(SLICEDISPLAY.YSLIDER,'value',yslider,'sliderstep',[yinc yfill]);
 
     events.box = [];
@@ -895,16 +895,16 @@ function UpdateDisplay(handle)
     events.color = 'g'; SLICEDISPLAY.EVENTS{2} = events;
     events.color = 'r'; SLICEDISPLAY.EVENTS{3} = events;
     
-    if isfield(TS{myScriptData.CURRENTTS},'selframes')
-        events = SLICEDISPLAY.EVENTS{1}; events = AddEvent(events,(TS{myScriptData.CURRENTTS}.selframes/myScriptData.SAMPLEFREQ)); events.selected = 0; SLICEDISPLAY.EVENTS{1} = events;
+    if isfield(TS{ScriptData.CURRENTTS},'selframes')
+        events = SLICEDISPLAY.EVENTS{1}; events = AddEvent(events,(TS{ScriptData.CURRENTTS}.selframes/ScriptData.SAMPLEFREQ)); events.selected = 0; SLICEDISPLAY.EVENTS{1} = events;
     end   
     
-    if isfield(TS{myScriptData.CURRENTTS},'templateframes')
-        events = SLICEDISPLAY.EVENTS{2}; events = AddEvent(events,(TS{myScriptData.CURRENTTS}.templateframes/myScriptData.SAMPLEFREQ)); events.selected = 0; SLICEDISPLAY.EVENTS{1} = events;    
+    if isfield(TS{ScriptData.CURRENTTS},'templateframes')
+        events = SLICEDISPLAY.EVENTS{2}; events = AddEvent(events,(TS{ScriptData.CURRENTTS}.templateframes/ScriptData.SAMPLEFREQ)); events.selected = 0; SLICEDISPLAY.EVENTS{1} = events;    
     end   
     
-    if isfield(TS{myScriptData.CURRENTTS},'averageframes')
-        events = SLICEDISPLAY.EVENTS{3}; events = AddEvent(events,(TS{myScriptData.CURRENTTS}.averageframes/myScriptData.SAMPLEFREQ)); events.selected = 0; SLICEDISPLAY.EVENTS{3} = events;    
+    if isfield(TS{ScriptData.CURRENTTS},'averageframes')
+        events = SLICEDISPLAY.EVENTS{3}; events = AddEvent(events,(TS{ScriptData.CURRENTTS}.averageframes/ScriptData.SAMPLEFREQ)); events.selected = 0; SLICEDISPLAY.EVENTS{3} = events;    
     end  
     
     return
@@ -993,15 +993,15 @@ function ZoomUp(handle)
 
 function SetBadLead(handle,lead)
     
-    global SLICEDISPLAY myScriptData TS;
+    global SLICEDISPLAY ScriptData TS;
     
-    if (myScriptData.DISPLAYTYPE == 3)&&(myScriptData.DISPLAYOFFSET==1)
+    if (ScriptData.DISPLAYTYPE == 3)&&(ScriptData.DISPLAYOFFSET==1)
         m = size(SLICEDISPLAY.SIGNAL,1);
         n = median([1 ceil(m-lead) m]);
         state = SLICEDISPLAY.LEADINFO(n);
         state = bitset(state,1,xor(bitget(state,1),1));
         SLICEDISPLAY.LEADINFO(n) = state;
-        TS{myScriptData.CURRENTTS}.leadinfo(SLICEDISPLAY.LEAD(n)) = state;
+        TS{ScriptData.CURRENTTS}.leadinfo(SLICEDISPLAY.LEAD(n)) = state;
         UpdateDisplay(handle);
     end
     
@@ -1009,11 +1009,11 @@ function SetBadLead(handle,lead)
     
 function  DeactivateAverage(handle,t)
 
-    global SLICEDISPLAY myScriptData TS;
+    global SLICEDISPLAY ScriptData TS;
 
-    if isfield(TS{myScriptData.CURRENTTS},'averagestart')
-        as = TS{myScriptData.CURRENTTS}.averagestart/myScriptData.SAMPLEFREQ;  
-        ae = TS{myScriptData.CURRENTTS}.averageend/myScriptData.SAMPLEFREQ;  
+    if isfield(TS{ScriptData.CURRENTTS},'averagestart')
+        as = TS{ScriptData.CURRENTTS}.averagestart/ScriptData.SAMPLEFREQ;  
+        ae = TS{ScriptData.CURRENTTS}.averageend/ScriptData.SAMPLEFREQ;  
         
         keep = [];
         for p=1:length(as)
@@ -1022,8 +1022,8 @@ function  DeactivateAverage(handle,t)
                 keep = [keep p];
             end
         end
-        TS{myScriptData.CURRENTTS}.averagestart = TS{myScriptData.CURRENTTS}.averagestart(keep);
-        TS{myScriptData.CURRENTTS}.averageend = TS{myScriptData.CURRENTTS}.averageend(keep);
+        TS{ScriptData.CURRENTTS}.averagestart = TS{ScriptData.CURRENTTS}.averagestart(keep);
+        TS{ScriptData.CURRENTTS}.averageend = TS{ScriptData.CURRENTTS}.averageend(keep);
         SetupDisplay(handle);
         UpdateDisplay(handle);
     end
@@ -1101,7 +1101,7 @@ function ButtonUp(handle)
     
     
     
-    global SLICEDISPLAY TS myScriptData;
+    global SLICEDISPLAY TS ScriptData;
 
     events = SLICEDISPLAY.EVENTS{SLICEDISPLAY.SELEVENTS};  
     if events.selected > 0
@@ -1114,11 +1114,11 @@ function ButtonUp(handle)
         SLICEDISPLAY.EVENTS{SLICEDISPLAY.SELEVENTS} = events;
         switch  SLICEDISPLAY.SELEVENTS
             case 1
-                TS{myScriptData.CURRENTTS}.selframes = sort(round(events.timepos*myScriptData.SAMPLEFREQ)); 
+                TS{ScriptData.CURRENTTS}.selframes = sort(round(events.timepos*ScriptData.SAMPLEFREQ)); 
             case 2
-                TS{myScriptData.CURRENTTS}.templateframes = sort(round(events.timepos*myScriptData.SAMPLEFREQ));
+                TS{ScriptData.CURRENTTS}.templateframes = sort(round(events.timepos*ScriptData.SAMPLEFREQ));
             case 3
-                TS{myScriptData.CURRENTTS}.averageframes = sort(round(events.timepos*myScriptData.SAMPLEFREQ));
+                TS{ScriptData.CURRENTTS}.averageframes = sort(round(events.timepos*ScriptData.SAMPLEFREQ));
         end
     end
     
@@ -1165,39 +1165,39 @@ return
 
 function events = AlignEvents(events)
 % unimportant?! since I dont Align?
-    global SLICEDISPLAY myScriptData;
+    global SLICEDISPLAY ScriptData;
     if SLICEDISPLAY.SELEVENTS > 1, return; end
     
     events.timepos = sort(events.timepos);
     
-    if (isnumeric(myScriptData.ALIGNSTART) && (myScriptData.ALIGNSTARTENABLE == 1))
+    if (isnumeric(ScriptData.ALIGNSTART) && (ScriptData.ALIGNSTARTENABLE == 1))
     
-        if myScriptData.ALIGNMETHOD  > 1
-            switch myScriptData.ALIGNMETHOD
+        if ScriptData.ALIGNMETHOD  > 1
+            switch ScriptData.ALIGNMETHOD
                 case 2
-                    pacing = (SLICEDISPLAY.PACING/myScriptData.SAMPLEFREQ);
+                    pacing = (SLICEDISPLAY.PACING/ScriptData.SAMPLEFREQ);
                 case 3
                     DetectAlignmentRMS;
-                    pacing = (SLICEDISPLAY.RMSPEAKS/myScriptData.SAMPLEFREQ);
+                    pacing = (SLICEDISPLAY.RMSPEAKS/ScriptData.SAMPLEFREQ);
                 case 4
                     DetectAlignmentRMStemplate(1);
-                    pacing = (SLICEDISPLAY.RMSPEAKS/myScriptData.SAMPLEFREQ);
+                    pacing = (SLICEDISPLAY.RMSPEAKS/ScriptData.SAMPLEFREQ);
             end
-            start = events.timepos(1)-(myScriptData.ALIGNSTART/myScriptData.SAMPLEFREQ);
-            pacing = pacing(pacing-(myScriptData.ALIGNSTART/myScriptData.SAMPLEFREQ) >= SLICEDISPLAY.XLIM(1));
+            start = events.timepos(1)-(ScriptData.ALIGNSTART/ScriptData.SAMPLEFREQ);
+            pacing = pacing(pacing-(ScriptData.ALIGNSTART/ScriptData.SAMPLEFREQ) >= SLICEDISPLAY.XLIM(1));
             [~,index] = min(abs(pacing-start));
-            start = pacing(index(1))+(myScriptData.ALIGNSTART/myScriptData.SAMPLEFREQ);
+            start = pacing(index(1))+(ScriptData.ALIGNSTART/ScriptData.SAMPLEFREQ);
             events.timepos(1) = median([start SLICEDISPLAY.XLIM]);
         end
     end
     
-    if (isnumeric(myScriptData.ALIGNSIZE) && (myScriptData.ALIGNSIZEENABLE == 1))
+    if (isnumeric(ScriptData.ALIGNSIZE) && (ScriptData.ALIGNSIZEENABLE == 1))
     
-        switch myScriptData.ALIGNMETHOD
+        switch ScriptData.ALIGNMETHOD
             case 1
                 % DO NOTHING
             otherwise
-                events.timepos(2) = median([(events.timepos(1)+(myScriptData.ALIGNSIZE/myScriptData.SAMPLEFREQ)) SLICEDISPLAY.XLIM]);                
+                events.timepos(2) = median([(events.timepos(1)+(ScriptData.ALIGNSIZE/ScriptData.SAMPLEFREQ)) SLICEDISPLAY.XLIM]);                
         end
     end
     
@@ -1209,31 +1209,31 @@ function events = AlignEvents(events)
     
 function DetectAlignmentRMS
 
-    global SLICEDISPLAY myScriptData TS;
+    global SLICEDISPLAY ScriptData TS;
     
-    if (SLICEDISPLAY.RMSTYPE ~= myScriptData.ALIGNRMSTYPE)||(isempty(SLICEDISPLAY.RMS))
+    if (SLICEDISPLAY.RMSTYPE ~= ScriptData.ALIGNRMSTYPE)||(isempty(SLICEDISPLAY.RMS))
         SLICEDISPLAY.THRESHOLD = 0;
-        rmstype = myScriptData.ALIGNRMSTYPE;
-        if rmstype > length(myScriptData.GROUPLEADS{myScriptData.CURRENTRUNGROUP})
-            ch = []; for p = 1:length(myScriptData.GROUPLEADS{myScriptData.CURRENTRUNGROUP}), ch = [ch myScriptData.GROUPLEADS{myScriptData.CURRENTRUNGROUP}{p}]; end
+        rmstype = ScriptData.ALIGNRMSTYPE;
+        if rmstype > length(ScriptData.GROUPLEADS{ScriptData.CURRENTRUNGROUP})
+            ch = []; for p = 1:length(ScriptData.GROUPLEADS{ScriptData.CURRENTRUNGROUP}), ch = [ch ScriptData.GROUPLEADS{ScriptData.CURRENTRUNGROUP}{p}]; end
         else
-            ch = myScriptData.GROUPLEADS{myScriptData.CURRENTRUNGROUP}{rmstype};
+            ch = ScriptData.GROUPLEADS{ScriptData.CURRENTRUNGROUP}{rmstype};
         end
     
-        SLICEDISPLAY.RMS= sqrt(mean(TS{myScriptData.CURRENTTS}.potvals(ch,:).^2));
+        SLICEDISPLAY.RMS= sqrt(mean(TS{ScriptData.CURRENTTS}.potvals(ch,:).^2));
         SLICEDISPLAY.RMSTYPE = rmstype;
         
         m = [];
-        for p = 1:floor(length(SLICEDISPLAY.RMS)/myScriptData.SAMPLEFREQ)
-            m = [m max(SLICEDISPLAY.RMS([1:myScriptData.SAMPLEFREQ]+(p-1)*myScriptData.SAMPLEFREQ))];
+        for p = 1:floor(length(SLICEDISPLAY.RMS)/ScriptData.SAMPLEFREQ)
+            m = [m max(SLICEDISPLAY.RMS([1:ScriptData.SAMPLEFREQ]+(p-1)*ScriptData.SAMPLEFREQ))];
         end
         if isempty(m), m = max(SLICEDISPLAY.RMS); end
         
         SLICEDISPLAY.RMSMAX = median(m);
     end
     
-    if (SLICEDISPLAY.THRESHOLD ~= myScriptData.ALIGNTHRESHOLD)
-        SLICEDISPLAY.THRESHOLD = myScriptData.ALIGNTHRESHOLD;
+    if (SLICEDISPLAY.THRESHOLD ~= ScriptData.ALIGNTHRESHOLD)
+        SLICEDISPLAY.THRESHOLD = ScriptData.ALIGNTHRESHOLD;
         SLICEDISPLAY.RMSPEAKS = DPeaks(SLICEDISPLAY.RMS,SLICEDISPLAY.THRESHOLD*SLICEDISPLAY.RMSMAX);
     end
     return
@@ -1241,36 +1241,36 @@ function DetectAlignmentRMS
 
 function DetectAlignmentRMStemplate(mode)
 
-    global SLICEDISPLAY myScriptData TS;
+    global SLICEDISPLAY ScriptData TS;
     
-    if (SLICEDISPLAY.RMSTYPE ~= myScriptData.ALIGNRMSTYPE)||(mode == 2)||(isempty(SLICEDISPLAY.RMS))
+    if (SLICEDISPLAY.RMSTYPE ~= ScriptData.ALIGNRMSTYPE)||(mode == 2)||(isempty(SLICEDISPLAY.RMS))
         SLICEDISPLAY.THRESHOLD = 0;
-        rmstype = myScriptData.ALIGNRMSTYPE;
-        if rmstype > length(myScriptData.GROUPLEADS{myScriptData.CURRENTRUNGROUP})
-            ch = []; for p = 1:length(myScriptData.GROUPLEADS{myScriptData.CURRENTRUNGROUP}), ch = [ch myScriptData.GROUPLEADS{myScriptData.CURRENTRUNGROUP}{p}]; end
+        rmstype = ScriptData.ALIGNRMSTYPE;
+        if rmstype > length(ScriptData.GROUPLEADS{ScriptData.CURRENTRUNGROUP})
+            ch = []; for p = 1:length(ScriptData.GROUPLEADS{ScriptData.CURRENTRUNGROUP}), ch = [ch ScriptData.GROUPLEADS{ScriptData.CURRENTRUNGROUP}{p}]; end
         else
-            ch = myScriptData.GROUPLEADS{myScriptData.CURRENTRUNGROUP}{rmstype};
+            ch = ScriptData.GROUPLEADS{ScriptData.CURRENTRUNGROUP}{rmstype};
         end
     
-        SLICEDISPLAY.RMS= sqrt(mean(TS{myScriptData.CURRENTTS}.potvals(ch,:).^2));
+        SLICEDISPLAY.RMS= sqrt(mean(TS{ScriptData.CURRENTTS}.potvals(ch,:).^2));
         SLICEDISPLAY.RMSTYPE = rmstype;
         
         if mode == 2
-            template = TS{myScriptData.CURRENTTS}.templateframe;
+            template = TS{ScriptData.CURRENTTS}.templateframe;
             SLICEDISPLAY.TEMPLATE = SLICEDISPLAY.RMS(template(end):-1:template(1));
         end
         SLICEDISPLAY.RMS = -filter(ones(1,length(SLICEDISPLAY.TEMPLATE)),1,SLICEDISPLAY.RMS.^2) + 2*filter(SLICEDISPLAY.TEMPLATE,1,SLICEDISPLAY.RMS) - sum(SLICEDISPLAY.TEMPLATE.^2);
         SLICEDISPLAY.RMS = SLICEDISPLAY.RMS - min(SLICEDISPLAY.RMS);
         m = [];
-        for p = 1:floor(length(SLICEDISPLAY.RMS)/myScriptData.SAMPLEFREQ)
-            m = [m max(SLICEDISPLAY.RMS([1:myScriptData.SAMPLEFREQ]+(p-1)*myScriptData.SAMPLEFREQ))];
+        for p = 1:floor(length(SLICEDISPLAY.RMS)/ScriptData.SAMPLEFREQ)
+            m = [m max(SLICEDISPLAY.RMS([1:ScriptData.SAMPLEFREQ]+(p-1)*ScriptData.SAMPLEFREQ))];
         end
         if isempty(m), m = max(SLICEDISPLAY.RMS); end
         SLICEDISPLAY.RMSMAX = median(m);
     end
     
-    if (SLICEDISPLAY.THRESHOLD ~= myScriptData.ALIGNTHRESHOLD)
-        SLICEDISPLAY.THRESHOLD = myScriptData.ALIGNTHRESHOLD;
+    if (SLICEDISPLAY.THRESHOLD ~= ScriptData.ALIGNTHRESHOLD)
+        SLICEDISPLAY.THRESHOLD = ScriptData.ALIGNTHRESHOLD;
         SLICEDISPLAY.RMSPEAKS = DPeaks(SLICEDISPLAY.RMS,SLICEDISPLAY.THRESHOLD*SLICEDISPLAY.RMSMAX);
     end
     
@@ -1382,13 +1382,13 @@ function SetEvents(handle)
 
 function KeepBadleads(handle)
 
-    global myScriptData;
-    myScriptData.KEEPBADLEADS = get(handle,'value');
+    global ScriptData;
+    ScriptData.KEEPBADLEADS = get(handle,'value');
     return
     
 function KeyPress(handle)
 
-    global myScriptData SLICEDISPLAY TS;
+    global ScriptData SLICEDISPLAY TS;
 
     key = real(handle.CurrentCharacter);
     
@@ -1412,11 +1412,11 @@ function KeyPress(handle)
                     SLICEDISPLAY.EVENTS{SLICEDISPLAY.SELEVENTS} = events;
                     switch SLICEDISPLAY.SELEVENTS
                         case 1
-                            TS{myScriptData.CURRENTTS}.selframes = []; 
+                            TS{ScriptData.CURRENTTS}.selframes = []; 
                         case 2
-                            TS{myScriptData.CURRENTTS}.templateframes = [];
+                            TS{ScriptData.CURRENTTS}.templateframes = [];
                         case 3
-                            TS{myScriptData.CURRENTTS}.averageframes = [];
+                            TS{ScriptData.CURRENTTS}.averageframes = [];
                     end
                 end    
             end
@@ -1431,9 +1431,9 @@ function KeyPress(handle)
                     end
                     
                     if key(1)==28
-                        t=t-(1/myScriptData.SAMPLEFREQ);
+                        t=t-(1/ScriptData.SAMPLEFREQ);
                     else
-                        t=t+(1/myScriptData.SAMPLEFREQ);
+                        t=t+(1/ScriptData.SAMPLEFREQ);
                     end
                     t = median([SLICEDISPLAY.XLIM t]);
                 
@@ -1443,11 +1443,11 @@ function KeyPress(handle)
                     SLICEDISPLAY.EVENTS{SLICEDISPLAY.SELEVENTS} = events;
                     switch  SLICEDISPLAY.SELEVENTS
                         case 1
-                            TS{myScriptData.CURRENTTS}.selframes = sort(round(events.timepos*myScriptData.SAMPLEFREQ)); 
+                            TS{ScriptData.CURRENTTS}.selframes = sort(round(events.timepos*ScriptData.SAMPLEFREQ)); 
                         case 2
-                            TS{myScriptData.CURRENTTS}.templateframes = sort(round(events.timepos*myScriptData.SAMPLEFREQ));
+                            TS{ScriptData.CURRENTTS}.templateframes = sort(round(events.timepos*ScriptData.SAMPLEFREQ));
                         case 3
-                            TS{myScriptData.CURRENTTS}.averageframes = sort(round(events.timepos*myScriptData.SAMPLEFREQ));
+                            TS{ScriptData.CURRENTTS}.averageframes = sort(round(events.timepos*ScriptData.SAMPLEFREQ));
                     end
                 end
 

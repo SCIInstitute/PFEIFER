@@ -40,16 +40,16 @@ function Navigation(handle,mode)
     %callback function:   FidsDisplay('Navigation',gcbf,'next')
     %also callback to "apply" button!!
     
-    global myScriptData FIDSDISPLAY
+    global ScriptData FIDSDISPLAY
     
     switch mode
     case {'prev','next','stop','redo','back'}
-        myScriptData.NAVIGATION = mode;
+        ScriptData.NAVIGATION = mode;
         set(handle,'DeleteFcn','');  % normally, DeleteFcn is: FidsDisplay('Navigation',gcbf,'stop')  (why?!)
         delete(handle);
     case {'apply'}
         
-        if myScriptData.DO_AUTOFIDUCIALISING && FIDSDISPLAY.MODE == 1
+        if ScriptData.DO_AUTOFIDUCIALISING && FIDSDISPLAY.MODE == 1
             %%%% check if user has selected everyting needed for autofiducializing
             neededFidTypes = [2 3, 5];
             for type = FIDSDISPLAY.EVENTS{1}.type
@@ -62,7 +62,7 @@ function Navigation(handle,mode)
         end
         
         EventsToFids;
-        myScriptData.NAVIGATION = 'apply';
+        ScriptData.NAVIGATION = 'apply';
         set(handle,'DeleteFcn','');
         delete(handle);
         
@@ -75,8 +75,8 @@ end
 function SetupNavigationBar(handle)
     % sets up Filename, Filelabel etc in the top bar (right to navigation
     % bar)
-    global myScriptData TS;
-    tsindex = myScriptData.CURRENTTS;
+    global ScriptData TS;
+    tsindex = ScriptData.CURRENTTS;
     
     t = findobj(allchild(handle),'tag','NAVFILENAME');
     t.String=['FILENAME: ' TS{tsindex}.filename];
@@ -94,7 +94,7 @@ function SetupNavigationBar(handle)
     t.Units='normalize';
     
     t = findobj(allchild(handle),'tag','NAVACQNUM');
-    t.String=sprintf('ACQNUM: %d',myScriptData.ACQNUM);
+    t.String=sprintf('ACQNUM: %d',ScriptData.ACQNUM);
     t.Units='character';
     needed_length=t.Extent(3);
     t.Position(3)=needed_length+0.001;
@@ -118,12 +118,12 @@ end
 function handle = Init(tsindex,mode)
     %initialisation function, essentially the first function that is run,
     %It also opens the gui figure
-    global myScriptData;
+    global ScriptData;
     
     clear global FIDSDISPLAY;    %just in case
     
     if nargin > 0
-        myScriptData.CURRENTTS = tsindex;
+        ScriptData.CURRENTTS = tsindex;
     end
     if nargin < 2
         mode = 1;

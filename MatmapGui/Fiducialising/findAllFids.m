@@ -1,18 +1,18 @@
 function allFids = findAllFids(potvals,signal)
 % returns allFids = {fidsBeat1, fidsBeat2, .... , FidsLastBeat}
 % each fidsBeatN is a numFids - array - struct 'fids' with the fields: 'type' (the fiducial type) and  'value' (the values of the fid in global frame) 
-% in short: fidsBeatN is just like the 'fids' struct as it is saved in myProcessingData,
+% in short: fidsBeatN is just like the 'fids' struct as it is saved in ts,
 % but in the global frame!!
 % Fids are determined based on 'oriFids', die fids done by the user.
 
 
-%%%%% get paramters from myScriptData
-global myScriptData AUTOPROCESSING
-accuracy=myScriptData.ACCURACY;  % abort condition5
-fidsKernelLength=myScriptData.FIDSKERNELLENGTH;  % the kernel indices will be from fidsValue-fidsKernelLength  until fidsValue+fidsKernelLength
+%%%%% get paramters from ScriptData
+global ScriptData AUTOPROCESSING
+accuracy=ScriptData.ACCURACY;  % abort condition5
+fidsKernelLength=ScriptData.FIDSKERNELLENGTH;  % the kernel indices will be from fidsValue-fidsKernelLength  until fidsValue+fidsKernelLength
 kernel_shift=0;       % a "kernel shift", to shift the kernel by kernel_shift   % not used, just here as placeholder..
 % reminder: it is kernel_idx=fid_start-fidsKernelLength+kernel_shift:fid_start+fidsKernelLength+kernel_shift
-window_width=myScriptData.WINDOW_WIDTH;   % dont search complete beat, but only a window with width window_width,
+window_width=ScriptData.WINDOW_WIDTH;   % dont search complete beat, but only a window with width window_width,
 % ws=bs+loc_fidsValues(fidNumber)-window_width;  
 % we=bs+loc_fidsValues(fidNumber)+window_width;
 
@@ -151,7 +151,7 @@ function kernels = getNewKernels(lastFoundFids,potvals, lastFoundBeats)
 % - lastFoundFids: the subset of the last nBeats2avrg beats in allFids:    allFids(currentBeat-mBeats2avrg : currentBeat)
 % - lastFoundBeats:  the subset of .beats of the last nBeat2avrg:  beats(currentBeat-mBeats2avrg : currentBeat)
 % - potvals:  the complete potential values of the whole range of .beats
-global myScriptData AUTOPROCESSING
+global ScriptData AUTOPROCESSING
 
 
 %%%% set up some stuff

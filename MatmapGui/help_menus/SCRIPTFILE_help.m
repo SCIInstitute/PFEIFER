@@ -5,10 +5,10 @@
 % by the provided path in the 'Processing Script File' text bar.
 
 %%% explanation
-% * When you open matmap, it looks for a 'myScriptData.mat' file in the
+% * When you open matmap, it looks for a 'ScriptData.mat' file in the
 % current folder matmap was opened. If it finds one, this file is loaded and all
 % settings in that file are imported into matmap. From now on, all settings
-% are saved in that file (possibly overwriting old settings). If there is no myScriptData.mat file in the
+% are saved in that file (possibly overwriting old settings). If there is no ScriptData.mat file in the
 % current start folder, then matmap creates one and stores all settings in
 % that file.
 % * Whenever the path in the 'Processing Script File' text bar is changed

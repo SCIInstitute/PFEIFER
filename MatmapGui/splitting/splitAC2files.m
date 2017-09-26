@@ -2,14 +2,14 @@ function splitAC2files(handle)
 % callback to 'Split Files'
 %%%% get all necessary inputs. If you plan to use this function outside of matmap, this (and 'frames', see getFrames function) is all you need to change:
 
-global myScriptData
-inputdir=myScriptData.ACQDIR;
-outputdir=myScriptData.SPLITDIR;
-allInputFiles=myScriptData.ACQFILENAME; %cell array of all files that are converted into .mat files, not just the ones to be splitted
-calfile=myScriptData.CALIBRATIONFILE;  % path to .cal8 file
-DO_CALIBRATION=myScriptData.CALIBRATE_SPLIT;  % do you want to calibrate files as you convert them into .mat files?
-idx2beSplitted=myScriptData.FILES2SPLIT;  % indices of the files in allInputFiles, that will be splitted..
-intervalLength=myScriptData.SAMPLEFREQ*myScriptData.SPLITINTERVAL;
+global ScriptData
+inputdir=ScriptData.ACQDIR;
+outputdir=ScriptData.SPLITDIR;
+allInputFiles=ScriptData.ACQFILENAME; %cell array of all files that are converted into .mat files, not just the ones to be splitted
+calfile=ScriptData.CALIBRATIONFILE;  % path to .cal8 file
+DO_CALIBRATION=ScriptData.CALIBRATE_SPLIT;  % do you want to calibrate files as you convert them into .mat files?
+idx2beSplitted=ScriptData.FILES2SPLIT;  % indices of the files in allInputFiles, that will be splitted..
+intervalLength=ScriptData.SAMPLEFREQ*ScriptData.SPLITINTERVAL;
 
 %%%% start here, first check input:
 if isempty(outputdir)
@@ -18,7 +18,7 @@ if isempty(outputdir)
 elseif DO_CALIBRATION && isempty(calfile)
     errordlg('No calfile for calibration provided.')
     return
-elseif isempty(myScriptData.SPLITINTERVAL)
+elseif isempty(ScriptData.SPLITINTERVAL)
     errordlg('The length of a splitted file was not given.')
     return
 end

@@ -20,9 +20,9 @@ The following two GUI windows should populate:
 
 ![Processing Script Settings Window](DocumentationFigures/1.png)
 
-A: Location of the processing script file. If opening for the first time Matmap will create a new processing script "myScriptData" in the current working directory. This file will store all the settings set lower in the window. 
+A: Location of the processing script file. If opening for the first time Matmap will create a new processing script "ScriptData" in the current working directory. This file will store all the settings set lower in the window. 
 
-B: Location of the processing data file. This is the location of the myProcessingData file created upon initializing matmap i.e. "helper files"
+B: Location of the processing data file. This is the location of the ProcessingData file created upon initializing matmap i.e. "helper files"
 
 C: Input Directory. This is the location of the input directory, or the data you would like to input into Matmap
 

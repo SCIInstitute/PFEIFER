@@ -13,7 +13,7 @@ end
 function setUpDisplay(handle)
 % set up all objects of the  split display
 
-global myScriptData
+global ScriptData
 files2split=ScriptData.FILES2SPLIT;
 
 %%%% set up the listbox

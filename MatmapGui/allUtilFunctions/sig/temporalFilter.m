@@ -19,22 +19,22 @@ function temporalFilter(index)
 % -
 
 
-global myScriptData TS;
+global ScriptData TS;
 
 numchan = size(TS{index}.potvals,2);
 
-if ~isfield(myScriptData,'FILTER')
+if ~isfield(ScriptData,'FILTER')
     errordlg('No filter has been defined in the Settings menu');
     return;
 end
 
 
-if isfield(myScriptData.FILTERSETTINGS,'tf')
-    A = myScriptData.FILTERSETTINGS.tf.den;
-    B = myScriptData.FILTERSETTINGS.tf.num;
-elseif isfield(myScriptData.FILTERSETTINGS,'A') && isfield(myScriptData.FILTERSETTINGS,'B')
-    A = myScriptData.FILTERSETTINGS.A;
-    B = myScriptData.FILTERSETTINGS.B;
+if isfield(ScriptData.FILTERSETTINGS,'tf')
+    A = ScriptData.FILTERSETTINGS.tf.den;
+    B = ScriptData.FILTERSETTINGS.tf.num;
+elseif isfield(ScriptData.FILTERSETTINGS,'A') && isfield(ScriptData.FILTERSETTINGS,'B')
+    A = ScriptData.FILTERSETTINGS.A;
+    B = ScriptData.FILTERSETTINGS.B;
 else
     return;
 end

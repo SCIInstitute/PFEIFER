@@ -1,6 +1,7 @@
 function test
 
-x={'a', 2, 3};
+ms=load('matlab.mat');
 
-x(2)=[];
-x
+fn=fieldnames(ms)
+
+fn{1}

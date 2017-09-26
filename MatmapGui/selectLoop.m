@@ -13,10 +13,10 @@ end
 
 function setLoopOrderWindow(handle)
 % set the LoopOrdernWindow. Mainly: set the edit text window accordingly to
-% myScriptData.LOOPORDER
-global myScriptData
-myScriptData.LOOP_ORDER
-loopString=num2str(myScriptData.LOOP_ORDER);
+% ScriptData.LOOPORDER
+global ScriptData
+ScriptData.LOOP_ORDER
+loopString=num2str(ScriptData.LOOP_ORDER);
 
 obj=findobj(allchild(handle), 'Tag', 'LOOP_ORDER');
 
@@ -25,8 +25,8 @@ end
 
 
 function set_LOOP_ORDER(handle)
-%callback, sets myScriptData.LOOP_ORDER according to user input
-global myScriptData 
+%callback, sets ScriptData.LOOP_ORDER according to user input
+global ScriptData 
 str=get(handle,'String');
 try
     userInput = eval(['[' str ']']);
@@ -46,7 +46,7 @@ if any(userInput > 10)
  setLoopOrderWindow(handle.Parent)
  error('Number in loop order to big')
 end
-myScriptData.LOOP_ORDER=userInput;
+ScriptData.LOOP_ORDER=userInput;
 end
 
 

@@ -91,17 +91,17 @@ function setupDisplay(fig)
 pointer=fig.Pointer;
 fig.Pointer='watch';
 
-global TS myScriptData AUTOPROCESSING;
+global TS ScriptData AUTOPROCESSING;
 
-tsindex = myScriptData.unslicedDataIndex;
+tsindex = ScriptData.unslicedDataIndex;
 numframes = size(TS{tsindex}.potvals,2);
-AUTOPROCESSING.TIME = [1:numframes]*(1/myScriptData.SAMPLEFREQ);
+AUTOPROCESSING.TIME = [1:numframes]*(1/ScriptData.SAMPLEFREQ);
 
 
 %%%% set x and y axes limits in plot if this has not been done yet
 if ~isfield(AUTOPROCESSING,'XLIM') || ~isfield(AUTOPROCESSING,'YLIM')
-    AUTOPROCESSING.XLIM = [1 numframes]*(1/myScriptData.SAMPLEFREQ);
-    AUTOPROCESSING.XWIN = [median([0 AUTOPROCESSING.XLIM]) median([3000/myScriptData.SAMPLEFREQ AUTOPROCESSING.XLIM])];
+    AUTOPROCESSING.XLIM = [1 numframes]*(1/ScriptData.SAMPLEFREQ);
+    AUTOPROCESSING.XWIN = [median([0 AUTOPROCESSING.XLIM]) median([3000/ScriptData.SAMPLEFREQ AUTOPROCESSING.XLIM])];
 end
 
 AUTOPROCESSING.AXES = findobj(allchild(fig),'tag','AXES');
@@ -110,13 +110,13 @@ AUTOPROCESSING.YSLIDER = findobj(allchild(fig),'tag','SLIDERY');
 
 
 % if no groups to display are selected yet (because e.g. first call) -> select all groups to display for autoprocessing
-if ~isfield(myScriptData,'DISPLAYGROUPA')
-    myScriptData.DISPLAYGROUPA=1:length(myScriptData.GROUPNAME{myScriptData.CURRENTRUNGROUP});
+if ~isfield(ScriptData,'DISPLAYGROUPA')
+    ScriptData.DISPLAYGROUPA=1:length(ScriptData.GROUPNAME{ScriptData.CURRENTRUNGROUP});
 end
 
 
 
-groups = myScriptData.DISPLAYGROUPA;
+groups = ScriptData.DISPLAYGROUPA;
 numgroups = length(groups);
 
 AUTOPROCESSING.NAME ={};
@@ -125,15 +125,15 @@ AUTOPROCESSING.GROUP = [];
 AUTOPROCESSING.COLORLIST = {[1 0 0],[0 0.7 0],[0 0 1],[0.5 0 0],[0 0.3 0],[0 0 0.5],[1 0.3 0.3],[0.3 0.7 0.3],[0.3 0.3 1],[0.75 0 0],[0 0.45 0],[0 0 0.75]};
 
 %%%% select "show global RMS", if nothing else has been selected yet
-if ~isfield(myScriptData,'DISPLAYTYPEA')
-    myScriptData.DISPLAYTYPEA=1;
+if ~isfield(ScriptData,'DISPLAYTYPEA')
+    ScriptData.DISPLAYTYPEA=1;
 end
 %%%% set up signals for global RMS, GROUP RMS or individual RMS
-switch myScriptData.DISPLAYTYPEA
+switch ScriptData.DISPLAYTYPEA
     case 1   % show global RMS
         ch  = []; 
         for p=groups 
-            leads = myScriptData.GROUPLEADS{myScriptData.CURRENTRUNGROUP}{p};
+            leads = ScriptData.GROUPLEADS{ScriptData.CURRENTRUNGROUP}{p};
             index = TS{tsindex}.leadinfo(leads)==0;  % index of only the 'good' leads, filter out badleads
             ch = [ch leads(index)];   % ch is leads only of the leads of the groubs selected, not of all leads
         end
@@ -159,11 +159,11 @@ switch myScriptData.DISPLAYTYPEA
     case 2
         AUTOPROCESSING.SIGNAL = zeros(numgroups,numframes);
         for p=1:numgroups
-            leads = myScriptData.GROUPLEADS{myScriptData.CURRENTRUNGROUP}{groups(p)};
+            leads = ScriptData.GROUPLEADS{ScriptData.CURRENTRUNGROUP}{groups(p)};
             index = TS{tsindex}.leadinfo(leads)==0;
             AUTOPROCESSING.SIGNAL(p,:) = sqrt(mean(TS{tsindex}.potvals(leads(index),:).^2)); 
             AUTOPROCESSING.SIGNAL(p,:) = AUTOPROCESSING.SIGNAL(p,:)-min(AUTOPROCESSING.SIGNAL(p,:));
-            AUTOPROCESSING.NAME{p} = [myScriptData.GROUPNAME{myScriptData.CURRENTRUNGROUP}{groups(p)} ' RMS']; 
+            AUTOPROCESSING.NAME{p} = [ScriptData.GROUPNAME{ScriptData.CURRENTRUNGROUP}{groups(p)} ' RMS']; 
         end
         AUTOPROCESSING.GROUPNAME = AUTOPROCESSING.NAME;
         AUTOPROCESSING.GROUP = 1:numgroups;
@@ -183,7 +183,7 @@ switch myScriptData.DISPLAYTYPEA
         
         
         %%%% only for autoprocessing, make copy of GROUPLEADS, where the groupleads, that are not in leadsToAutoprocess, are filtered out. Only work with the copies here       
-        GROUPLEADS=myScriptData.GROUPLEADS{myScriptData.CURRENTRUNGROUP};   %the copy
+        GROUPLEADS=ScriptData.GROUPLEADS{ScriptData.CURRENTRUNGROUP};   %the copy
         for group=groups
             GROUPLEADS{group}=intersect(AUTOPROCESSING.leadsToAutoprocess, GROUPLEADS{group});
         end
@@ -205,7 +205,7 @@ switch myScriptData.DISPLAYTYPEA
             end 
         end
         for p=1:length(groups)
-            AUTOPROCESSING.GROUPNAME{p} = [myScriptData.GROUPNAME{myScriptData.CURRENTRUNGROUP}{groups(p)}]; 
+            AUTOPROCESSING.GROUPNAME{p} = [ScriptData.GROUPNAME{ScriptData.CURRENTRUNGROUP}{groups(p)}]; 
         end
         AUTOPROCESSING.SIGNAL = TS{tsindex}.potvals(ch,:);
         AUTOPROCESSING.LEADINFO = TS{tsindex}.leadinfo(ch);
@@ -217,11 +217,11 @@ end
 
 
 %%%% if no scaling has been selected yet, choose "local" as the default
-if ~isfield(myScriptData,'DISPLAYSCALINGA')
-    myScriptData.DISPLAYSCALINGA=1;
+if ~isfield(ScriptData,'DISPLAYSCALINGA')
+    ScriptData.DISPLAYSCALINGA=1;
 end
 %%%% modify signal accourding to chosen Displayscaling
-switch myScriptData.DISPLAYSCALINGA
+switch ScriptData.DISPLAYSCALINGA
     case 1
         k = max(abs(AUTOPROCESSING.SIGNAL),[],2);
         [m,~] = size(AUTOPROCESSING.SIGNAL);
@@ -248,7 +248,7 @@ end
 
 % if individuals are displayed, give signals an offset, so they dont touch
 % in plot
-if myScriptData.DISPLAYTYPEA == 3
+if ScriptData.DISPLAYTYPEA == 3
     AUTOPROCESSING.SIGNAL = 0.5*AUTOPROCESSING.SIGNAL+0.5;
 end
 
@@ -263,7 +263,7 @@ fig.Pointer=pointer;
 
 function UpdateDisplay
 %plots the FD.SIGNAL,  makes the plot..  also calls  DisplayFiducials
-global myScriptData AUTOPROCESSING;
+global ScriptData AUTOPROCESSING;
 ax=AUTOPROCESSING.AXES;
 axes(ax);
 cla(ax);
@@ -274,15 +274,15 @@ xlim = AUTOPROCESSING.XLIM;
 ylim = AUTOPROCESSING.YLIM;
 
 numframes = size(AUTOPROCESSING.SIGNAL,2);
-startframe = max([floor(myScriptData.SAMPLEFREQ*xwin(1)) 1]);
-endframe = min([ceil(myScriptData.SAMPLEFREQ*xwin(2)) numframes]);
+startframe = max([floor(ScriptData.SAMPLEFREQ*xwin(1)) 1]);
+endframe = min([ceil(ScriptData.SAMPLEFREQ*xwin(2)) numframes]);
 
 %%%% DRAW THE GRID
-if ~isfield(myScriptData,'DISPLAYGRIDA')
-    myScriptData.DISPLAYGRIDA=1;  % default is "no grid", if nothing else has been selected so far
+if ~isfield(ScriptData,'DISPLAYGRIDA')
+    ScriptData.DISPLAYGRIDA=1;  % default is "no grid", if nothing else has been selected so far
 end
-if myScriptData.DISPLAYGRIDA > 1
-    if myScriptData.DISPLAYGRIDA > 2
+if ScriptData.DISPLAYGRIDA > 1
+    if ScriptData.DISPLAYGRIDA > 2
         clines = 0.04*[floor(xwin(1)/0.04):ceil(xwin(2)/0.04)];
         X = [clines; clines]; Y = ywin'*ones(1,length(clines));
         line(ax,X,Y,'color',[0.9 0.9 0.9],'hittest','off');
@@ -299,18 +299,18 @@ numchannels = size(AUTOPROCESSING.SIGNAL,1);
 
 
 %%%% if no scaling has been selected yet, choose "local" as the default
-if ~isfield(myScriptData,'DISPLAYSCALINGA')
-    myScriptData.DISPLAYSCALINGA=1;
+if ~isfield(ScriptData,'DISPLAYSCALINGA')
+    ScriptData.DISPLAYSCALINGA=1;
 end
 
 
 %%%% if offset on/off has not been selected yet, choose 'on' as the default
-if ~isfield(myScriptData,'DISPLAYOFFSETA')
-    myScriptData.DISPLAYOFFSETA=1;
+if ~isfield(ScriptData,'DISPLAYOFFSETA')
+    ScriptData.DISPLAYOFFSETA=1;
 end
 
 %%%% set up some stuff for offset
-if myScriptData.DISPLAYOFFSETA == 1
+if ScriptData.DISPLAYOFFSETA == 1
     chend = numchannels - max([floor(ywin(1)) 0]);
     chstart = numchannels - min([ceil(ywin(2)) numchannels])+1;
 else
@@ -320,8 +320,8 @@ end
 
 
 %%%% if "show label" has not been selected yet for autoprocessing
-if ~isfield(myScriptData,'DISPLAYLABELA')
-    myScriptData.DISPLAYLABELA=1;
+if ~isfield(ScriptData,'DISPLAYLABELA')
+    ScriptData.DISPLAYLABELA=1;
 end
 
 
@@ -337,7 +337,7 @@ for p=chstart:chend
         end
     end
     plot(ax,AUTOPROCESSING.TIME(k),AUTOPROCESSING.SIGNAL(p,k),'color',color,'hittest','off');
-    if (myScriptData.DISPLAYLABELA == 1)&&(chend-chstart < 30) && (AUTOPROCESSING.YWIN(2) >= numchannels-p+1)
+    if (ScriptData.DISPLAYLABELA == 1)&&(chend-chstart < 30) && (AUTOPROCESSING.YWIN(2) >= numchannels-p+1)
         text(ax,AUTOPROCESSING.XWIN(1),numchannels-p+1,AUTOPROCESSING.NAME{p},'color',color,'VerticalAlignment','top','hittest','off'); 
     end
 end
@@ -345,18 +345,18 @@ set(AUTOPROCESSING.AXES,'YTick',[],'YLim',ywin,'XLim',xwin);
 
 %%%% do some slider stuff
 xlen = (xlim(2)-xlim(1)-xwin(2)+xwin(1));
-if xlen < (1/myScriptData.SAMPLEFREQ), xslider = 0.99999; else xslider = (xwin(1)-xlim(1))/xlen; end
-if xlen >= (1/myScriptData.SAMPLEFREQ), xfill = (xwin(2)-xwin(1))/xlen; else xfill = myScriptData.SAMPLEFREQ; end
-xinc = median([(1/myScriptData.SAMPLEFREQ) xfill/2 0.99999]);
-xfill = median([(1/myScriptData.SAMPLEFREQ) xfill myScriptData.SAMPLEFREQ]);
+if xlen < (1/ScriptData.SAMPLEFREQ), xslider = 0.99999; else xslider = (xwin(1)-xlim(1))/xlen; end
+if xlen >= (1/ScriptData.SAMPLEFREQ), xfill = (xwin(2)-xwin(1))/xlen; else xfill = ScriptData.SAMPLEFREQ; end
+xinc = median([(1/ScriptData.SAMPLEFREQ) xfill/2 0.99999]);
+xfill = median([(1/ScriptData.SAMPLEFREQ) xfill ScriptData.SAMPLEFREQ]);
 xslider = median([0 xslider 0.99999]);
 set(AUTOPROCESSING.XSLIDER,'value',xslider,'sliderstep',[xinc xfill]);
 
 ylen = (ylim(2)-ylim(1)-ywin(2)+ywin(1));
-if ylen < (1/myScriptData.SAMPLEFREQ), yslider = 0.99999; else yslider = ywin(1)/ylen; end
-if ylen >= (1/myScriptData.SAMPLEFREQ), yfill = (ywin(2)-ywin(1))/ylen; else yfill =myScriptData.SAMPLEFREQ; end
-yinc = median([(1/myScriptData.SAMPLEFREQ) yfill/2 0.99999]);
-yfill = median([(1/myScriptData.SAMPLEFREQ) yfill myScriptData.SAMPLEFREQ]);
+if ylen < (1/ScriptData.SAMPLEFREQ), yslider = 0.99999; else yslider = ywin(1)/ylen; end
+if ylen >= (1/ScriptData.SAMPLEFREQ), yfill = (ywin(2)-ywin(1))/ylen; else yfill =ScriptData.SAMPLEFREQ; end
+yinc = median([(1/ScriptData.SAMPLEFREQ) yfill/2 0.99999]);
+yfill = median([(1/ScriptData.SAMPLEFREQ) yfill ScriptData.SAMPLEFREQ]);
 yslider = median([0 yslider 0.99999]);
 set(AUTOPROCESSING.YSLIDER,'value',yslider,'sliderstep',[yinc yfill]);
 
@@ -370,8 +370,8 @@ end
 %%%% plot the beatNumber as text
 for beatNumber=1:length(AUTOPROCESSING.allFids)
     %first check if beat is within window
-    beatStart = AUTOPROCESSING.beats{beatNumber}(1)/myScriptData.SAMPLEFREQ;
-    beatEnd = AUTOPROCESSING.beats{beatNumber}(2)/myScriptData.SAMPLEFREQ;
+    beatStart = AUTOPROCESSING.beats{beatNumber}(1)/ScriptData.SAMPLEFREQ;
+    beatEnd = AUTOPROCESSING.beats{beatNumber}(2)/ScriptData.SAMPLEFREQ;
     distance = beatEnd - beatStart;
     if beatStart > AUTOPROCESSING.XWIN(2) || beatEnd < AUTOPROCESSING.XWIN(1)
         continue   % beat is not in window, so don't plot it.
@@ -396,13 +396,13 @@ function DisplayFiducials
 % this functions plotts the lines/patches when u select the fiducials
 % (the line u can move around with your mouse)
 
-global myScriptData AUTOPROCESSING;
+global ScriptData AUTOPROCESSING;
 ywin = AUTOPROCESSING.YWIN;
 for beatNumber=1:length(AUTOPROCESSING.EVENTS)   %for each beat
     
     %%%% first check if beat is within window, othterwise its not necessary to plot that beat  
-    beatStart = AUTOPROCESSING.beats{beatNumber}(1)/myScriptData.SAMPLEFREQ;
-    beatEnd = AUTOPROCESSING.beats{beatNumber}(2)/myScriptData.SAMPLEFREQ;
+    beatStart = AUTOPROCESSING.beats{beatNumber}(1)/ScriptData.SAMPLEFREQ;
+    beatEnd = AUTOPROCESSING.beats{beatNumber}(2)/ScriptData.SAMPLEFREQ;
     
     if beatStart > AUTOPROCESSING.XWIN(2) || beatEnd < AUTOPROCESSING.XWIN(1)
         continue   % beat is not in window, so don't plot it.
@@ -412,7 +412,7 @@ for beatNumber=1:length(AUTOPROCESSING.EVENTS)   %for each beat
     faultyBeatIndex = find(AUTOPROCESSING.faultyBeatIndeces == beatNumber); 
     if ~isempty(faultyBeatIndex)
         for faultyFidIndex = 1:length(AUTOPROCESSING.faultyBeatValues{faultyBeatIndex})
-            x_value = AUTOPROCESSING.faultyBeatValues{faultyBeatIndex}(faultyFidIndex)/myScriptData.SAMPLEFREQ;
+            x_value = AUTOPROCESSING.faultyBeatValues{faultyBeatIndex}(faultyFidIndex)/ScriptData.SAMPLEFREQ;
             lineObj = line('Parent',AUTOPROCESSING.AXES,'Xdata',[x_value x_value],'Ydata',ywin,'Color','r','hittest','off','LineWidth',3,'LineStyle','-');
             % save the handle
             AUTOPROCESSING.faultyBeatLineHandles{faultyBeatIndex}(faultyFidIndex) = lineObj;
@@ -439,7 +439,7 @@ for beatNumber=1:length(AUTOPROCESSING.EVENTS)   %for each beat
     end
     AUTOPROCESSING.EVENTS{beatNumber}{1} = events;           
 
-    if myScriptData.DISPLAYTYPEA == 1, continue; end
+    if ScriptData.DISPLAYTYPEA == 1, continue; end
 
     %%%% GROUP FIDUCIALS
 
@@ -474,7 +474,7 @@ for beatNumber=1:length(AUTOPROCESSING.EVENTS)   %for each beat
     end
     AUTOPROCESSING.EVENTS{beatNumber}{2} = events;   
 
-    if myScriptData.DISPLAYTYPEA == 2, continue; end
+    if ScriptData.DISPLAYTYPEA == 2, continue; end
 
     %%%% LOCAL FIDUCIALS
 
@@ -546,7 +546,7 @@ end
 
 function zoomIntoBeat(cbobj)
 % callback of a view of the faulty beats button
-global AUTOPROCESSING myScriptData
+global AUTOPROCESSING ScriptData
 
 
 %%%% return if there are no faulty beats to zoom into..
@@ -586,8 +586,8 @@ selBeatPopupObj.Value = faultyBeatIndex;
 
 %%%% set the plot window limits to zoom int beat2beInspected
 beat2beInspected = AUTOPROCESSING.faultyBeatIndeces(faultyBeatIndex);
-beatStart = AUTOPROCESSING.beats{beat2beInspected}(1)/myScriptData.SAMPLEFREQ;
-beatEnd = AUTOPROCESSING.beats{beat2beInspected}(2)/myScriptData.SAMPLEFREQ;
+beatStart = AUTOPROCESSING.beats{beat2beInspected}(1)/ScriptData.SAMPLEFREQ;
+beatEnd = AUTOPROCESSING.beats{beat2beInspected}(2)/ScriptData.SAMPLEFREQ;
 beatLenght = beatEnd-beatStart;
 AUTOPROCESSING.XWIN =[beatStart-0.2*beatLenght, beatEnd+0.2*beatLenght];
 
@@ -596,8 +596,8 @@ UpdateDisplay
 
 function goBack2Overview(~)
 % callback to Go Back to Overview push button
-global AUTOPROCESSING myScriptData
-AUTOPROCESSING.XWIN = [median([0 AUTOPROCESSING.XLIM]) median([3000/myScriptData.SAMPLEFREQ AUTOPROCESSING.XLIM])];
+global AUTOPROCESSING ScriptData
+AUTOPROCESSING.XWIN = [median([0 AUTOPROCESSING.XLIM]) median([3000/ScriptData.SAMPLEFREQ AUTOPROCESSING.XLIM])];
 UpdateDisplay
 
 
@@ -638,16 +638,16 @@ signal = full(s*signal);
 
 function Navigation(handle,mode)
 %callback to all navigation buttons (including apply)
-global myScriptData
+global ScriptData
 disp('navigating')
 switch mode
 case {'prev','next','stop'}
-    myScriptData.NAVIGATION = mode;
+    ScriptData.NAVIGATION = mode;
     set(handle,'DeleteFcn','');
     delete(handle);
 case {'apply'}
     %TODO.. what to do when applied is pressed...
-    myScriptData.NAVIGATION = 'apply';
+    ScriptData.NAVIGATION = 'apply';
     disp('applying')
     EventsToFids
     set(handle,'DeleteFcn','');
@@ -757,7 +757,7 @@ function ButtonDown(handle)
 %        - else: AddEvent
 % - if right click: events=AddEvent(events,t)
 % - update the .EVENTS
-global AUTOPROCESSING myScriptData
+global AUTOPROCESSING ScriptData
 
 seltype = get(gcbf,'SelectionType');   % double click, right click etc
 if strcmp(seltype,'alt'), return, end % if "right click", return
@@ -770,7 +770,7 @@ if (t>xwin(1))&&(t<xwin(2))&&(y>ywin(1))&&(y<ywin(2))     % if mouseclick within
     %%%% get the right event to modify
     AUTOPROCESSING.CurrentEventIdx=[];
     for beatNumber =1:length(AUTOPROCESSING.beats)
-        if t > AUTOPROCESSING.beats{beatNumber}(1)/myScriptData.SAMPLEFREQ && t < AUTOPROCESSING.beats{beatNumber}(2)/myScriptData.SAMPLEFREQ  % if mouseclick within beat
+        if t > AUTOPROCESSING.beats{beatNumber}(1)/ScriptData.SAMPLEFREQ && t < AUTOPROCESSING.beats{beatNumber}(2)/ScriptData.SAMPLEFREQ  % if mouseclick within beat
             AUTOPROCESSING.CurrentEventIdx = beatNumber; % remember that beat
             break
         end
@@ -785,7 +785,7 @@ if (t>xwin(1))&&(t<xwin(2))&&(y>ywin(1))&&(y<ywin(2))     % if mouseclick within
     %%%% check if there is a red line that might have to be removed in that beat
     if any(AUTOPROCESSING.faultyBeatIndeces == AUTOPROCESSING.CurrentEventIdx)
         %%%% so there is a red line.. see if it belongs to the fid that was selected. in that case remove it
-        y_val = events.value(events.sel3,events.sel, events.sel2)*myScriptData.SAMPLEFREQ; % y-value of selected fid
+        y_val = events.value(events.sel3,events.sel, events.sel2)*ScriptData.SAMPLEFREQ; % y-value of selected fid
         faultyBeatIndex = find(AUTOPROCESSING.faultyBeatIndeces == AUTOPROCESSING.CurrentEventIdx);   
         dif = abs(AUTOPROCESSING.faultyBeatValues{faultyBeatIndex} - y_val);
         faultyFidIndex = find(dif < 0.99 ); % find index where distance of red line to selected fid is cloes enough
@@ -833,7 +833,7 @@ function ButtonUp(handle)
 % - set sel=sel2=sel3=0
 % - do some Activation/Recovery stuff (TODO: remove this?)
 
-global AUTOPROCESSING  myScriptData;
+global AUTOPROCESSING  ScriptData;
 if isempty(AUTOPROCESSING.CurrentEventIdx), return, end % if nothing selected, return..   
 
 events = AUTOPROCESSING.EVENTS{AUTOPROCESSING.CurrentEventIdx}{AUTOPROCESSING.SELFIDS};        
@@ -858,8 +858,8 @@ if events.sel(1) > 0
 
 
 %     %%%% do activation/recovery if FIDSAUTOACT is on
-%     if (events.type(sel) == 2) && (myScriptData.FIDSAUTOACT == 1), DetectActivation(handle); end
-%     if (events.type(sel) == 3) && (myScriptData.FIDSAUTOREC == 1), DetectRecovery(handle); end
+%     if (events.type(sel) == 2) && (ScriptData.FIDSAUTOACT == 1), DetectActivation(handle); end
+%     if (events.type(sel) == 3) && (ScriptData.FIDSAUTOREC == 1), DetectRecovery(handle); end
 end
 
 
@@ -892,12 +892,12 @@ UpdateDisplay;
 
 function DisplayButton(cbobj)
 %callback function to all the buttons
-global myScriptData AUTOPROCESSING
+global ScriptData AUTOPROCESSING
 
 
 switch cbobj.Tag
     case {'DISPLAYTYPEA','DISPLAYOFFSETA','DISPLAYSCALINGA','DISPLAYGROUPA'}  % in case display needs to be updated.. any of buttons regarding display
-        myScriptData.(cbobj.Tag)=cbobj.Value;
+        ScriptData.(cbobj.Tag)=cbobj.Value;
         setupDisplay(cbobj.Parent)
         UpdateDisplay
     case {'TRESHOLD_VAR'}     % in case of str2double and AUTOPROCESSING needs update
@@ -909,7 +909,7 @@ switch cbobj.Tag
         AUTOPROCESSING.(cbobj.Tag)=newNumber;
         
     otherwise
-        myScriptData.(cbobj.Tag)=cbobj.Value;
+        ScriptData.(cbobj.Tag)=cbobj.Value;
         UpdateDisplay
 end
 
@@ -970,11 +970,11 @@ function InitFiducials(fig)
 % calls FidsToEvents
 
 
-global myScriptData TS AUTOPROCESSING;
+global ScriptData TS AUTOPROCESSING;
 
 
 % for all fiducial types
-events.dt = myScriptData.BASELINEWIDTH/myScriptData.SAMPLEFREQ;
+events.dt = ScriptData.BASELINEWIDTH/ScriptData.SAMPLEFREQ;
 events.value = [];
 events.type = [];
 events.handle = [];
@@ -1000,9 +1000,9 @@ events.sel3 = 0;
 
 events.maxn = 1;
 events.class = 1; AUTOPROCESSING.DEFAULT_EVENTS{1} = events;  % GLOBAL EVENTS
-events.maxn = length(myScriptData.GROUPLEADS{myScriptData.CURRENTRUNGROUP});
+events.maxn = length(ScriptData.GROUPLEADS{ScriptData.CURRENTRUNGROUP});
 events.class = 2; AUTOPROCESSING.DEFAULT_EVENTS{2} = events;  % GROUP EVENTS
-events.maxn = size(TS{myScriptData.CURRENTTS}.potvals,1);
+events.maxn = size(TS{ScriptData.CURRENTTS}.potvals,1);
 events.class = 3; AUTOPROCESSING.DEFAULT_EVENTS{3} = events;  % LOCAL EVENTS
 
 FidsToEvents;
@@ -1011,9 +1011,9 @@ FidsToEvents;
 function FidsToEvents
 %puts .allFids into .EVENTS
 
-global TS myScriptData AUTOPROCESSING;
+global TS ScriptData AUTOPROCESSING;
 
-samplefreq = myScriptData.SAMPLEFREQ;
+samplefreq = ScriptData.SAMPLEFREQ;
 isamplefreq = 1/samplefreq;
 
 for beatNumber=1:length(AUTOPROCESSING.allFids)  %for each beat
@@ -1046,7 +1046,7 @@ for beatNumber=1:length(AUTOPROCESSING.allFids)  %for each beat
             case 6
                 mtype = 5; start_value = fids(fidsIndex).value*isamplefreq; end_value = start_value;
             case 16
-                mtype = 6; start_value = fids(fidsIndex).value*isamplefreq; end_value = start_value+myScriptData.BASELINEWIDTH/samplefreq;
+                mtype = 6; start_value = fids(fidsIndex).value*isamplefreq; end_value = start_value+ScriptData.BASELINEWIDTH/samplefreq;
             case 10
                 mtype = 7; start_value = fids(fidsIndex).value*isamplefreq; end_value = start_value;
             case 13
@@ -1086,9 +1086,9 @@ end
 function EventsToFids
 % put the events back into allFids
 disp('E2F')
-global myScriptData AUTOPROCESSING
+global ScriptData AUTOPROCESSING
 
-samplefreq = myScriptData.SAMPLEFREQ;
+samplefreq = ScriptData.SAMPLEFREQ;
 isamplefreq = (1/samplefreq);
 
 for beatNumber=1:length(AUTOPROCESSING.allFids)  %for each beat
