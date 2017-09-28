@@ -17,8 +17,10 @@ initSomeStartBasics(autoProcFig)
 
 InitFiducials(autoProcFig)
 initDisplayButtons(autoProcFig)
+SetupNavigationBar(autoProcFig)
 setupDisplay(autoProcFig);
 UpdateDisplay;
+
 
 
 %%%%%%% functions %%%%%%%%%%%%%%%%%%%%%%
@@ -40,13 +42,52 @@ slidery=findobj(allchild(fig),'tag','SLIDERY');
 addlistener(sliderx,'ContinuousValueChange',@UpdateSlider);
 addlistener(slidery,'ContinuousValueChange',@UpdateSlider);
 
-
+AUTOPROCESSING.DISPLAYTYPEA = 1;
 
 %%%% init AUTOPROCESSING
 AUTOPROCESSING.CurrentEventIdx=[];
 AUTOPROCESSING.ZOOMBOX=[];
 
+function SetupNavigationBar(handle)
+% sets up Filename, Filelabel etc in the top bar (right to navigation
+% bar)
+global ScriptData TS;
+tsindex = ScriptData.CURRENTTS;
 
+t = findobj(allchild(handle),'tag','NAVFILENAME');
+t.String=['FILENAME: ' TS{tsindex}.filename];
+t.Units='character';
+needed_length=t.Extent(3);
+t.Position(3)=needed_length+0.001;
+t.Units='normalize';
+
+
+t = findobj(allchild(handle),'tag','NAVLABEL');
+t.String=['FILELABEL: ' TS{tsindex}.label];
+t.Units='character';
+needed_length=t.Extent(3);
+t.Position(3)=needed_length+0.001;
+t.Units='normalize';
+
+t = findobj(allchild(handle),'tag','NAVACQNUM');
+t.String=sprintf('ACQNUM: %d',ScriptData.ACQNUM);
+t.Units='character';
+needed_length=t.Extent(3);
+t.Position(3)=needed_length+0.001;
+t.Units='normalize';
+
+t = findobj(allchild(handle),'tag','NAVTIME');
+t.Units='character';
+needed_length=t.Extent(3);
+t.Position(3)=needed_length+0.001;
+t.Units='normalize';
+if isfield(TS{tsindex},'time')
+    t.String=['TIME: ' TS{tsindex}.time];
+    t.Units='character';
+    needed_length=t.Extent(3);
+    t.Position(3)=needed_length+0.001;
+    t.Units='normalize';
+end
 
 function initDisplayButtons(fig)
 % initialize everything in figure exept the plotting stuff.. 
@@ -147,15 +188,6 @@ switch ScriptData.DISPLAYTYPEA
         AUTOPROCESSING.NAME = {'Global RMS'};
         AUTOPROCESSING.GROUPNAME = {'Global RMS'};
 
-        
-        set(findobj(allchild(fig),'tag','FIDSGLOBAL'),'enable','on'); 
-        set(findobj(allchild(fig),'tag','FIDSLOCAL'),'enable','off');
-        if AUTOPROCESSING.SELFIDS > 1
-            AUTOPROCESSING.SELFIDS = 1;
-            set(findobj(allchild(fig),'tag','FIDSGLOBAL'),'value',1);
-            set(findobj(allchild(fig),'tag','FIDSLOCAL'),'value',0);
-        end
-
     case 2
         AUTOPROCESSING.SIGNAL = zeros(numgroups,numframes);
         for p=1:numgroups
@@ -170,14 +202,6 @@ switch ScriptData.DISPLAYTYPEA
         AUTOPROCESSING.LEAD = 0*AUTOPROCESSING.GROUP;
         AUTOPROCESSING.LEADGROUP = groups;
         AUTOPROCESSING.LEADINFO = zeros(numgroups,1);
-
-        set(findobj(allchild(fig),'tag','FIDSGLOBAL'),'enable','on');
-        set(findobj(allchild(fig),'tag','FIDSLOCAL'),'enable','off');
-        if AUTOPROCESSING.SELFIDS > 2
-            AUTOPROCESSING.SELFIDS = 1;
-            set(findobj(allchild(fig),'tag','FIDSGLOBAL'),'value',1);
-            set(findobj(allchild(fig),'tag','FIDSLOCAL'),'value',0);
-        end
 
     case 3   % indiv fids
         
@@ -209,10 +233,6 @@ switch ScriptData.DISPLAYTYPEA
         end
         AUTOPROCESSING.SIGNAL = TS{tsindex}.potvals(ch,:);
         AUTOPROCESSING.LEADINFO = TS{tsindex}.leadinfo(ch);
-
-        set(findobj(allchild(fig),'tag','FIDSGLOBAL'),'enable','on');
-        set(findobj(allchild(fig),'tag','FIDSGROUP'),'enable','on');
-        set(findobj(allchild(fig),'tag','FIDSLOCAL'),'enable','on');
 end
 
 
@@ -424,7 +444,7 @@ for beatNumber=1:length(AUTOPROCESSING.EVENTS)   %for each beat
      if ~isempty(events.handle), index = find(ishandle(events.handle(:)) & (events.handle(:) ~= 0)); delete(events.handle(index)); end   %delete any existing lines
     events.handle = [];
 
-    if AUTOPROCESSING.SELFIDS == 1, colorlist = events.colorlist; else colorlist = events.colorlistgray; end
+    if AUTOPROCESSING.DISPLAYTYPEA == 1, colorlist = events.colorlist; else colorlist = events.colorlistgray; end
 
     for p=1:size(events.value,2)   %   for p=[1: anzahl zu plottender linien]
         switch events.typelist(events.type(p))
@@ -446,7 +466,7 @@ for beatNumber=1:length(AUTOPROCESSING.EVENTS)   %for each beat
     events = AUTOPROCESSING.EVENTS{beatNumber}{2};
     if ~isempty(events.handle), index = find(ishandle(events.handle(:)) & (events.handle(:) ~= 0)); delete(events.handle(index)); end
     events.handle = [];
-    if AUTOPROCESSING.SELFIDS == 2, colorlist = events.colorlist; else colorlist = events.colorlistgray; end
+    if AUTOPROCESSING.DISPLAYTYPEA == 2, colorlist = events.colorlist; else colorlist = events.colorlistgray; end
 
     numchannels = size(AUTOPROCESSING.SIGNAL,1);
     chend = numchannels - max([floor(ywin(1)) 0]);
@@ -488,7 +508,7 @@ for beatNumber=1:length(AUTOPROCESSING.EVENTS)   %for each beat
     events.handle = [];
 
 
-    if AUTOPROCESSING.SELFIDS == 3, colorlist = events.colorlist; else colorlist = events.colorlistgray; end
+    if AUTOPROCESSING.DISPLAYTYPEA == 3, colorlist = events.colorlist; else colorlist = events.colorlistgray; end
 
 
     %%%% index is eg [3 4 5 8 9 10], if those are the leads (in global frame) currently
@@ -607,18 +627,15 @@ UpdateDisplay
 function Navigation(handle,mode)
 %callback to all navigation buttons (including apply)
 global ScriptData
-disp('navigating')
 switch mode
 case {'prev','next','stop'}
     ScriptData.NAVIGATION = mode;
-    set(handle,'DeleteFcn','');
+    handle.DeleteFcn = '';
     delete(handle);
 case {'apply'}
-    %TODO.. what to do when applied is pressed...
     ScriptData.NAVIGATION = 'apply';
-    disp('applying')
     EventsToFids
-    set(handle,'DeleteFcn','');
+    handle.DeleteFcn = '';
     delete(handle);
 otherwise
     error('unknown navigation command');
@@ -644,8 +661,8 @@ UpdateSlider(yslider)
 
 function Zoom(handle)
 global AUTOPROCESSING;
-value = get(handle,'value');
-parent = get(handle,'parent');
+value = handle.Parent;
+parent = handle.Parent;
 switch value
     case 0
         set(parent,'WindowButtonDownFcn','plotAutoProcFids(''ButtonDown'',gcbf)',...
@@ -667,9 +684,9 @@ end
 function ZoomDown(handle)
 
 global AUTOPROCESSING    
-seltype = get(gcbf,'SelectionType');
+seltype = handle.SelectionType;
 if ~strcmp(seltype,'alt')
-    pos = get(AUTOPROCESSING.AXES,'CurrentPoint');
+    pos = AUTOPROCESSING.AXES.CurrentPoint;
     P1 = pos(1,1:2); P2 = P1;
     AUTOPROCESSING.P1 = P1;
     AUTOPROCESSING.P2 = P2;
@@ -690,7 +707,7 @@ end
 function ZoomMotion(handle)
 global AUTOPROCESSING    
 if ishandle(AUTOPROCESSING.ZOOMBOX)
-    point = get(AUTOPROCESSING.AXES,'CurrentPoint');
+    point = AUTOPROCESSING.AXES.CurrentPoint;
     P2(1) = median([AUTOPROCESSING.XLIM point(1,1)]); P2(2) = median([AUTOPROCESSING.YLIM point(1,2)]);
     AUTOPROCESSING.P2 = P2;
     P1 = AUTOPROCESSING.P1;
@@ -703,7 +720,7 @@ end
 function ZoomUp(handle)  
 global AUTOPROCESSING;    
 if ishandle(AUTOPROCESSING.ZOOMBOX)
-    point = get(AUTOPROCESSING.AXES,'CurrentPoint');
+    point = AUTOPROCESSING.AXES.CurrentPoint;
     P2(1) = median([AUTOPROCESSING.XLIM point(1,1)]); P2(2) = median([AUTOPROCESSING.YLIM point(1,2)]);
     AUTOPROCESSING.P2 = P2; P1 = AUTOPROCESSING.P1;
     if (P1(1) ~= P2(1)) && (P1(2) ~= P2(2))
@@ -727,9 +744,9 @@ function ButtonDown(handle)
 % - update the .EVENTS
 global AUTOPROCESSING ScriptData
 
-seltype = get(gcbf,'SelectionType');   % double click, right click etc
+seltype = handle.SelectionType;   % double click, right click etc
 if strcmp(seltype,'alt'), return, end % if "right click", return
-point = get(AUTOPROCESSING.AXES,'CurrentPoint');
+point = AUTOPROCESSING.AXES.CurrentPoint;
 t = point(1,1); y = point(1,2);
 
 xwin = AUTOPROCESSING.XWIN;
@@ -747,7 +764,7 @@ if (t>xwin(1))&&(t<xwin(2))&&(y>ywin(1))&&(y<ywin(2))     % if mouseclick within
     if isempty(AUTOPROCESSING.CurrentEventIdx), return, end % if click not within a beat, return..
     
     %%%% get event of beat, mark the closest fid in it, then update it and save it
-    events = AUTOPROCESSING.EVENTS{AUTOPROCESSING.CurrentEventIdx}{AUTOPROCESSING.SELFIDS}; %local, group, or global fids of the beat where click occured
+    events = AUTOPROCESSING.EVENTS{AUTOPROCESSING.CurrentEventIdx}{AUTOPROCESSING.DISPLAYTYPEA}; %local, group, or global fids of the beat where click occured
     events = FindClosestEvent(events,t,y);       % update sel, sel1, sel2
     
     %%%% check if there is a red line that might have to be removed in that beat
@@ -776,7 +793,7 @@ if (t>xwin(1))&&(t<xwin(2))&&(y>ywin(1))&&(y<ywin(2))     % if mouseclick within
     
     %%%% set closest event and save it
     events = SetClosestEvent(events,t,y);
-    AUTOPROCESSING.EVENTS{AUTOPROCESSING.CurrentEventIdx}{AUTOPROCESSING.SELFIDS} = events;   % save the event after it has been modified
+    AUTOPROCESSING.EVENTS{AUTOPROCESSING.CurrentEventIdx}{AUTOPROCESSING.DISPLAYTYPEA} = events;   % save the event after it has been modified
 end
 
 
@@ -787,12 +804,12 @@ global AUTOPROCESSING
 if ~isfield(AUTOPROCESSING,'CurrentEventIdx'), return, end
 if isempty(AUTOPROCESSING.CurrentEventIdx), return, end  % if nothing selected currently, return
 
-events = AUTOPROCESSING.EVENTS{AUTOPROCESSING.CurrentEventIdx}{AUTOPROCESSING.SELFIDS};  
+events = AUTOPROCESSING.EVENTS{AUTOPROCESSING.CurrentEventIdx}{AUTOPROCESSING.DISPLAYTYPEA};  
 if events.sel(1) > 0
-    point = get(AUTOPROCESSING.AXES,'CurrentPoint');
+    point = AUTOPROCESSING.AXES.CurrentPoint;
     t = median([AUTOPROCESSING.XLIM point(1,1)]);
     y = median([AUTOPROCESSING.YLIM point(1,2)]);
-    AUTOPROCESSING.EVENTS{AUTOPROCESSING.CurrentEventIdx}{AUTOPROCESSING.SELFIDS} = SetClosestEvent(events,t,y);
+    AUTOPROCESSING.EVENTS{AUTOPROCESSING.CurrentEventIdx}{AUTOPROCESSING.DISPLAYTYPEA} = SetClosestEvent(events,t,y);
 end
 
 function ButtonUp(handle)
@@ -804,9 +821,9 @@ function ButtonUp(handle)
 global AUTOPROCESSING  ScriptData;
 if isempty(AUTOPROCESSING.CurrentEventIdx), return, end % if nothing selected, return..   
 
-events = AUTOPROCESSING.EVENTS{AUTOPROCESSING.CurrentEventIdx}{AUTOPROCESSING.SELFIDS};        
+events = AUTOPROCESSING.EVENTS{AUTOPROCESSING.CurrentEventIdx}{AUTOPROCESSING.DISPLAYTYPEA};        
 if events.sel(1) > 0
-    point = get(AUTOPROCESSING.AXES,'CurrentPoint');
+    point = AUTOPROCESSING.AXES.CurrentPoint;
     t = median([AUTOPROCESSING.XLIM point(1,1)]);
     y = median([AUTOPROCESSING.YLIM point(1,2)]);
     events = SetClosestEvent(events,t,y); 
@@ -819,7 +836,7 @@ if events.sel(1) > 0
     
     
     %%%% save the modified event
-    AUTOPROCESSING.EVENTS{AUTOPROCESSING.CurrentEventIdx}{AUTOPROCESSING.SELFIDS} = events;
+    AUTOPROCESSING.EVENTS{AUTOPROCESSING.CurrentEventIdx}{AUTOPROCESSING.DISPLAYTYPEA} = events;
     
     %%%% deselect event (beat)
     AUTOPROCESSING.CurrentEventIdx=[];
@@ -835,8 +852,8 @@ end
 function UpdateSlider(handle,~)
 %callback to slider
 global AUTOPROCESSING
-tag = get(handle,'tag');
-value = get(handle,'value');
+tag = handle.Tag;
+value = handle.Parent;
 switch tag
     case 'SLIDERX'
         xwin = AUTOPROCESSING.XWIN;
@@ -881,26 +898,6 @@ switch cbobj.Tag
         UpdateDisplay
 end
 
-
-function SetFids(handle)
-%callback function to the two buttons ('Global Fids', 'local Fids')
-
-global AUTOPROCESSING;
-window = get(handle,'parent');
-tag = get(handle,'tag');
-switch tag
-    case 'FIDSGLOBAL'
-        AUTOPROCESSING.SELFIDS = 1;
-        set(findobj(allchild(window),'tag','FIDSGLOBAL'),'value',1);
-        set(findobj(allchild(window),'tag','FIDSLOCAL'),'value',0);          
-    case 'FIDSLOCAL'
-        AUTOPROCESSING.SELFIDS = 3;
-        set(findobj(allchild(window),'tag','FIDSGLOBAL'),'value',0);
-        set(findobj(allchild(window),'tag','FIDSLOCAL'),'value',1);
-end
-DisplayFiducials;
-
-
 function KeyPress(fig)
 global AUTOPROCESSING
 key = real(fig.CurrentCharacter);
@@ -921,22 +918,12 @@ end
 
 
 %%%%%%% util functions %%%%%%%%%%%%%%%%%%%%%%%
-%TODO I think I dont need this
-function fids=removeUnnecFids(fids,wantedFids)
-toBeRemoved=[];
-for p=1:length(fids)
-    if ~ismember(fids(p).type, wantedFids)
-        toBeRemoved=[toBeRemoved p];
-    end
-end
-fids(toBeRemoved)=[];
 
 
 function InitFiducials(fig)
 % sets up .EVENTS
 % sets up DefaultEvent
 % calls FidsToEvents
-
 
 global ScriptData TS AUTOPROCESSING;
 
@@ -957,9 +944,8 @@ events.num = [1 2 3 4 5 7 8 9 10 11];
 AUTOPROCESSING.fidslist = {'P-wave','QRS-complex','T-wave','QRS-peak','T-peak','Activation','Recovery','Reference','X-Peak','X-Wave'};     
 
 AUTOPROCESSING.NUMTYPES = length(AUTOPROCESSING.fidslist);
-AUTOPROCESSING.SELFIDS = 1;
-set(findobj(allchild(fig),'tag','FIDSGLOBAL'),'value',1);
-set(findobj(allchild(fig),'tag','FIDSLOCAL'),'value',0);
+
+
 
 
 events.sel = 0;
@@ -1053,7 +1039,6 @@ end
 
 function EventsToFids
 % put the events back into allFids
-disp('E2F')
 global ScriptData AUTOPROCESSING
 
 samplefreq = ScriptData.SAMPLEFREQ;

@@ -45,25 +45,27 @@ function Navigation(handle,mode)
     switch mode
     case {'prev','next','stop','redo','back'}
         ScriptData.NAVIGATION = mode;
-        set(handle,'DeleteFcn','');  % normally, DeleteFcn is: FidsDisplay('Navigation',gcbf,'stop')  (why?!)
+        handle.DeleteFcn = '';  % normally, DeleteFcn is: FidsDisplay('Navigation',gcbf,'stop')  (why?!)
         delete(handle);
     case {'apply'}
-        
         if ScriptData.DO_AUTOFIDUCIALISING && FIDSDISPLAY.MODE == 1
             %%%% check if user has selected everyting needed for autofiducializing
             neededFidTypes = [2 3, 5];
-            for type = FIDSDISPLAY.EVENTS{1}.type
-                neededFidTypes(type == neededFidTypes) = [];  % remove the types that were that by user (and therefore are not needed anymore)
-            end
-            if ~isempty(neededFidTypes)  % if user did not select all neededFidTypes
-                errordlg('QRS-Wave, T-Wave and T-Peak needed for autofiducialising!')
-                error('Not all necesarry fiducials were selected to do autofiducialising')
+            for neededType = neededFidTypes
+                indeces = find(FIDSDISPLAY.EVENTS{1}.type==neededType);
+                if length(indeces) < 1
+                    errordlg('QRS-Wave, T-Wave and T-Peak needed for autofiducialising!')
+                    return
+                elseif length(indeces) > 1
+                    errordlg('At least one fiducial was selected more than once.. Delete the dublicates!')
+                    return
+                end
             end
         end
         
         EventsToFids;
         ScriptData.NAVIGATION = 'apply';
-        set(handle,'DeleteFcn','');
+        handle.DeleteFcn = '';
         delete(handle);
         
     otherwise
@@ -160,8 +162,8 @@ function SetFids(handle)
 
     global FIDSDISPLAY;
 
-    window = get(handle,'parent');
-    tag = get(handle,'tag');
+    window = handle.Parent;
+    tag = handle.Tag;
     switch tag
         case 'FIDSGLOBAL'
             FIDSDISPLAY.SELFIDS = 1;
@@ -189,7 +191,7 @@ function SelFidsType(handle)
     %sets NEWFIDSTYPE to number of selected fid-type (eg T-Wave) in listbox
      
     global FIDSDISPLAY;
-    FIDSDISPLAY.NEWFIDSTYPE = FIDSDISPLAY.EVENTS{1}.num(get(handle,'value'));
+    FIDSDISPLAY.NEWFIDSTYPE = FIDSDISPLAY.EVENTS{1}.num(handle.Value);
 end
     
 function InitFiducials(handle,mode)
@@ -268,18 +270,18 @@ function FidsButton(handle)
 
     global ScriptData
     
-    tag = get(handle,'tag');
+    tag = handle.Tag;
     switch tag
         case {'FIDSLOOPFIDS','FIDSAUTOREC','FIDSAUTOACT'}
-            ScriptData= setfield(ScriptData,tag,get(handle,'value'));
+            ScriptData.(tag) = handle.Value;
         case {'ACTNEG','RECNEG'}
-            ScriptData = setfield(ScriptData,tag,get(handle,'value')-1);
-            parent = get(handle,'parent');
+            ScriptData.(tag) = handle.Value-1;
+            parent = handle.Parent;
             UpdateDisplay(parent);        
             
         case {'ACTWIN','ACTDEG','RECWIN','RECDEG'}
-            ScriptData = setfield(ScriptData,tag,str2num(get(handle,'string')));
-            parent = get(handle,'parent');
+            ScriptData.(tag) = str2double(handle.String);
+            parent = handle.Parent;
             UpdateDisplay(parent);             
             
     end
@@ -442,10 +444,7 @@ function InitDisplayButtons(handle)
     
     button = findobj(allchild(handle),'tag','DISPLAYLABELF');
     set(button,'string',{'Label ON','Label OFF'},'value',ScriptData.DISPLAYLABELF);
-    
-    button = findobj(allchild(handle),'tag','DISPLAYPACINGF');
-    set(button,'string',{'Pacing ON','Pacing OFF'},'value',ScriptData.DISPLAYPACINGF);
-    
+
     button = findobj(allchild(handle),'tag','DISPLAYGRIDF');
     set(button,'string',{'No grid','Coarse grid','Fine grid'},'value',ScriptData.DISPLAYGRIDF);
     
@@ -497,29 +496,29 @@ function DisplayButton(handle)
     % callback to  links oben, to all 5 "mini dropdown-menues")
     global ScriptData;
     
-    tag = get(handle,'tag');
+    tag = handle.Tag;
     switch tag
-        case {'DISPLAYTYPEF','DISPLAYOFFSET','DISPLAYSCALINGF','DISPLAYPACINGF','DISPLAYGROUPF'}
-            ScriptData = setfield(ScriptData,tag,get(handle,'value'));
-            parent = get(handle,'parent');
+        case {'DISPLAYTYPEF','DISPLAYOFFSET','DISPLAYSCALINGF','DISPLAYGROUPF'} % in case display needs to be reinitialised
+            ScriptData.(tag) = handle.Value;
+            parent = handle.Parent;
             SetupDisplay(parent);
             UpdateDisplay(parent);       
  
-        case {'DISPLAYLABELF','DISPLAYGRIDF'}
-            ScriptData = setfield(ScriptData,tag,get(handle,'value'));
-            parent = get(handle,'parent');
+        case {'DISPLAYLABELF','DISPLAYGRIDF'}  % display needs only updating. no recomputing of signal
+            ScriptData.(tag) = handle.Value;
+            parent = handle.Parent;
             UpdateDisplay(parent); 
       
     end
 end
- 
+
 function SetupDisplay(handle)
 %      no plotting, but everything else with axes, particualrely:
 %         - sets up some start values for xlim, ylim, sets up axes and slider handles
 %         - makes the FD.SIGNAL values,   (RMS and scaling of potvals)
 
-    pointer = get(handle,'pointer');
-    set(handle,'pointer','watch');
+    pointer = handle.Pointer;
+    handle.Pointer = 'watch';
     global TS ScriptData FIDSDISPLAY;
     
     tsindex = ScriptData.CURRENTTS;
@@ -538,13 +537,7 @@ function SetupDisplay(handle)
     FIDSDISPLAY.XSLIDER = findobj(allchild(handle),'tag','SLIDERX');
     FIDSDISPLAY.YSLIDER = findobj(allchild(handle),'tag','SLIDERY');
     
-    if isfield(TS{tsindex},'pacing')
-        FIDSDISPLAY.PACING = TS{tsindex}.pacing;
-    else
-        FIDSDISPLAY.PACING = []; 
-    end
-    
-    
+
     groups = ScriptData.DISPLAYGROUPF;
     numgroups = length(groups);
     
@@ -671,7 +664,7 @@ function SetupDisplay(handle)
     FIDSDISPLAY.YLIM = [0 numsignal];
     FIDSDISPLAY.YWIN = [max([0 numsignal-6]) numsignal];
     
-    set(handle,'pointer',pointer);
+    handle.Pointer = pointer;
     
 end
 
@@ -679,8 +672,8 @@ function UpdateSlider(handle,~)
 
     global FIDSDISPLAY;
 
-    tag = get(handle,'tag');
-    value = get(handle,'value');
+    tag = handle.Tag;
+    value = handle.Value;
     switch tag
         case 'SLIDERX'
             xwin = FIDSDISPLAY.XWIN;
@@ -700,7 +693,7 @@ function UpdateSlider(handle,~)
             FIDSDISPLAY.YWIN = ywin;     
     end
     
-    parent = get(handle,'parent');
+    parent = handle.Parent;
     UpdateDisplay(parent);
 end
     
@@ -733,15 +726,6 @@ function UpdateDisplay(handle)
         clines = 0.2*[floor(xwin(1)/0.2):ceil(xwin(2)/0.2)];
         X = [clines; clines]; Y = ywin'*ones(1,length(clines));
         line(ax,X,Y,'color',[0.5 0.5 0.5],'hittest','off');
-    end
-
-    if ScriptData.DISPLAYPACINGF == 1
-        if  ~isempty(FIDSDISPLAY.PACING)
-            plines = FIDSDISPLAY.PACING/ScriptData.SAMPLEFREQ;
-            plines = plines((plines >xwin(1)) & (plines < xwin(2)));
-            X = [plines; plines]; Y = ywin'*ones(1,length(plines));
-            line(ax,X,Y,'color',[0.55 0 0.65],'hittest','off','linewidth',2);    
-        end
     end
     
     numchannels = size(FIDSDISPLAY.SIGNAL,1);
@@ -803,8 +787,8 @@ function Zoom(handle)
 
     global FIDSDISPLAY;
 
-    value = get(handle,'value');
-    parent = get(handle,'parent');
+    value = handle.Value;
+    parent = handle.Parent;
     switch value
         case 0
             set(parent,'WindowButtonDownFcn','fidsDisplay(''ButtonDown'',gcbf)',...
@@ -828,9 +812,9 @@ function ZoomDown(handle)
 
     global FIDSDISPLAY;
     
-    seltype = get(gcbf,'SelectionType');
+    seltype = handle.SelectionType;
     if ~strcmp(seltype,'alt')
-        pos = get(FIDSDISPLAY.AXES,'CurrentPoint');
+        pos = FIDSDISPLAY.AXES.CurrentPoint;
         P1 = pos(1,1:2); P2 = P1;
         FIDSDISPLAY.P1 = P1;
         FIDSDISPLAY.P2 = P2;
@@ -851,7 +835,7 @@ end
 function ZoomMotion(handle)
     global FIDSDISPLAY;
     if ishandle(FIDSDISPLAY.ZOOMBOX)
-	    point = get(FIDSDISPLAY.AXES,'CurrentPoint');
+	    point = FIDSDISPLAY.AXES.CurrentPoint;
         P2(1) = median([FIDSDISPLAY.XLIM point(1,1)]); P2(2) = median([FIDSDISPLAY.YLIM point(1,2)]);
         FIDSDISPLAY.P2 = P2;
         P1 = FIDSDISPLAY.P1;
@@ -865,7 +849,7 @@ function ZoomUp(handle)
    
     global FIDSDISPLAY;
     if ishandle(FIDSDISPLAY.ZOOMBOX)
-        point = get(FIDSDISPLAY.AXES,'CurrentPoint');
+        point = FIDSDISPLAY.AXES.CurrentPoint;
         P2(1) = median([FIDSDISPLAY.XLIM point(1,1)]); P2(2) = median([FIDSDISPLAY.YLIM point(1,2)]);
         FIDSDISPLAY.P2 = P2; P1 = FIDSDISPLAY.P1;
         if (P1(1) ~= P2(1)) && (P1(2) ~= P2(2))
@@ -891,9 +875,9 @@ function ButtonDown(handle)
    % - update the .EVENTS
     global FIDSDISPLAY;
     
-    seltype = get(gcbf,'SelectionType');   % double click, right click etc
+    seltype = handle.SelectionType;   % double click, right click etc
     events = FIDSDISPLAY.EVENTS{FIDSDISPLAY.SELFIDS}; %local, group, or global fids
-    point = get(FIDSDISPLAY.AXES,'CurrentPoint');
+    point = FIDSDISPLAY.AXES.CurrentPoint;
     t = point(1,1); y = point(1,2);
     
     xwin = FIDSDISPLAY.XWIN;
@@ -919,7 +903,7 @@ function ButtonMotion(handle)
     global FIDSDISPLAY;
     events = FIDSDISPLAY.EVENTS{FIDSDISPLAY.SELFIDS};  
 	if events.sel(1) > 0
-        point = get(FIDSDISPLAY.AXES,'CurrentPoint');
+        point = FIDSDISPLAY.AXES.CurrentPoint;
         t = median([FIDSDISPLAY.XLIM point(1,1)]);
         y = median([FIDSDISPLAY.YLIM point(1,2)]);
         FIDSDISPLAY.EVENTS{FIDSDISPLAY.SELFIDS} = SetClosestEvent(events,t,y);
@@ -936,7 +920,7 @@ function ButtonUp(handle)
     global FIDSDISPLAY  ScriptData;
     events = FIDSDISPLAY.EVENTS{FIDSDISPLAY.SELFIDS};  
     if events.sel(1) > 0
- 	    point = get(FIDSDISPLAY.AXES,'CurrentPoint');
+ 	    point = FIDSDISPLAY.AXES.CurrentPoint;
 	    t = median([FIDSDISPLAY.XLIM point(1,1)]);
         y = median([FIDSDISPLAY.YLIM point(1,2)]);
         events = SetClosestEvent(events,t,y); 
@@ -1052,7 +1036,7 @@ function events = SetClosestEvent(events,t,~)
                         events.value(w,s,s2) = t;
                         t1 = events.value(w,s,1);
                         t2 = events.value(w,s,2);
-                        if (events.handle(w,s) > 0)&&(ishandle(events.handle(w,s))), set(events.handle(w,s),'XData',[t1 t1 t2 t2]); end
+                        if (events.handle(w,s) > 0) && (ishandle(events.handle(w,s))), set(events.handle(w,s),'XData',[t1 t1 t2 t2]); end
                     end
                     %drawnow;  
                 case 3
@@ -1176,7 +1160,7 @@ function events = AddEvent(events,t,~)
                     events.handle(1,s) = line('parent',events.axes,'Xdata',[v v],'Ydata',ywin,'Color',events.colorlist{events.type(s)},'hittest','off','linewidth',events.linewidth{events.type(s)},'linestyle',events.linestyle{events.type(s)});
                 case {2,3} % interval fiducial/ fixed intereval fiducial
                     v = events.value(1,s,1);
-                    v2 = events.value(1,s,2); %TODO: shouldnt v2=v1+baseline for case 3? when addet first time
+                    v2 = events.value(1,s,2); 
                     events.handle(1,s) = patch('parent',events.axes,'Xdata',[v v v2 v2],'Ydata',[ywin ywin([2 1])],'FaceColor',events.colorlist{events.type(s)},'hittest','off','FaceAlpha', 0.4,'linewidth',events.linewidth{events.type(s)},'linestyle',events.linestyle{events.type(s)});
             end
         case 2
@@ -1271,7 +1255,7 @@ function KeyPress(handle)
 %callback for KeyPress
     global ScriptData FIDSDISPLAY;
 
-    key = real(get(handle,'CurrentCharacter'));
+    key = real(handle.CurrentCharacter);
     
     if isempty(key), return; end
     if ~isnumeric(key), return; end
@@ -1282,9 +1266,9 @@ function KeyPress(handle)
             %delete current event
 	        
             obj = findobj(allchild(handle),'tag','DISPLAYZOOM');
-            value = get(obj,'value');
+            value = obj.Value;
             if value == 0 
-                point = get(FIDSDISPLAY.AXES,'CurrentPoint');
+                point = FIDSDISPLAY.AXES.CurrentPoint;
                 xwin = FIDSDISPLAY.XWIN;
                 ywin = FIDSDISPLAY.YWIN;
                 t = point(1,1); y = point(1,2);
@@ -1349,8 +1333,8 @@ function DetectRecovery(handle)
 
 %%%% some initialisation, setting the mouse pointer..
 global TS ScriptData FIDSDISPLAY; 
-pointer = get(handle,'pointer');
-set(handle,'pointer','watch');    
+pointer = handle.Pointer;
+handle.Pointer = 'watch';    
 tsindex = ScriptData.CURRENTTS;
 numchannels = size(TS{tsindex}.potvals,1);
 
@@ -1405,7 +1389,7 @@ FIDSDISPLAY.EVENTS{3}.value(:,ind,2) = rec;
 FIDSDISPLAY.EVENTS{3}.type(ind) = 8;
 DisplayFiducials;
 
-set(handle,'pointer',pointer);
+handle.Pointer = pointer;
 
 end
     
@@ -1417,8 +1401,8 @@ function DetectActivation(handle)
    
    %%%% load globals and set mouse arrow to waiting
     global TS ScriptData FIDSDISPLAY;
-    pointer = get(handle,'pointer');
-    set(handle,'pointer','watch');
+    pointer = handle.Pointer;
+    handle.Pointer = 'watch';
     
     
     %%%% get current tsIndex,  set qstart=qend=zeros(numchannel,1),
@@ -1494,7 +1478,7 @@ function DetectActivation(handle)
     FIDSDISPLAY.EVENTS{3}.type(ind) = 7;
     DisplayFiducials;
     
-    set(handle,'pointer',pointer);
+    handle.Pointer = pointer;
     
 end
     
@@ -1503,14 +1487,14 @@ function scrollFcn(handle, eventData)
     diff=(-1)*eventData.VerticalScrollCount*0.05;
     
     xslider=findobj(allchild(handle),'tag','SLIDERY');
-    value=get(xslider,'value');
+    value=xslider.Value;
     
     value=value+diff;
     
     if value > 1, value=1; end
     if value < 0, value=0; end
     
-    set(xslider,'value',value)
+    xslider.Value = value;
     
     UpdateSlider(xslider)
 end
@@ -1689,8 +1673,6 @@ function FidsToEvents
             qind = [qind q]; qval = [qval mean(fids(q).value)*isamplefreq];
         elseif fids(q).type == 7
             tind = [tind q]; tval = [tval mean(fids(q).value)*isamplefreq];
-        elseif fids(q).type == 21  %Delta F.. remove? TODO
-            Find = [Find q]; Fval = [Fval mean(fids(q).value)*isamplefreq];
         elseif fids(q).type==27  % X-Wave
             xind = [xind q]; xval = [xval mean(fids(q).value)*isamplefreq];    
         end

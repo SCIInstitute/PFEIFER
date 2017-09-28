@@ -20,21 +20,9 @@ function sigTemporalFilter(index)
 
 global ScriptData TS;
 
-if ~isfield(ScriptData,'FILTER')
-    errordlg('No filter has been defined in the Settings menu');
-    return;
-end
+A = ScriptData.FILTERSETTINGS.A;
+B = ScriptData.FILTERSETTINGS.B;
 
-
-if isfield(ScriptData.FILTERSETTINGS,'tf')
-    A = ScriptData.FILTERSETTINGS.tf.den;
-    B = ScriptData.FILTERSETTINGS.tf.num;
-elseif isfield(ScriptData.FILTERSETTINGS,'A') && isfield(ScriptData.FILTERSETTINGS,'B')
-    A = ScriptData.FILTERSETTINGS.A;
-    B = ScriptData.FILTERSETTINGS.B;
-else
-    return;
-end
 
 h = waitbar(0,'Filtering signal please wait...');
 
@@ -44,6 +32,10 @@ D = filter(B,A,D);
 D(  1: (max(length(A),length(B))-1)   , :) = ones( max(length(A),length(B))-1  ,1 )  *  D( max(length(A),length(B)) ,:);
 TS{index}.potvals = D'; 
 
+
+
+%%%% add addAudit label
+tsAddAudit(index,'|used a temporal filter on the data');
 
 if isgraphics(h), close(h); end
 

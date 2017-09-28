@@ -243,7 +243,7 @@ global FILEIMPORT
 %%%% check output directory
 if isempty(FILEIMPORT.OUTPUTDIR)
     errordlg('No output directory provided.')
-    error('no output directory')
+    return
 end
 
 
@@ -255,7 +255,7 @@ FILEIMPORT.SELECTED_FILES = listbox_obj.Value;
 %%%% check if files are selected
 if isempty(FILEIMPORT.FILENAMES) || isempty(FILEIMPORT.SELECTED_FILES)
     errordlg('No files selected to convert!')
-    error('no files selected')
+    return
 end
 
 
@@ -281,7 +281,8 @@ for fileNumber=FILEIMPORT.SELECTED_FILES
             variable=file_data.(variableName);    
         catch
             msg=sprintf('The variable ''%s'' in the file ''%s'' could not be loaded. Aborting..', variableName,filename);
-            cast_error(msg)
+            errordlg(msg)
+            return
         end
 
         %%%% get the potvals in variable 
@@ -290,7 +291,8 @@ for fileNumber=FILEIMPORT.SELECTED_FILES
                 potvals=variable.(FILEIMPORT.FIELDNAME);
             catch
                 msg = sprintf('The field ''%s'' in the variable ''%s'' in file ''%s'' does not exist. Aborting...',FILEIMPORT.FIELDNAME,variableName,filename);
-                cast_error(msg)
+                errordlg(msg)
+                return
             end
         else
             potvals=variable;
@@ -301,14 +303,16 @@ for fileNumber=FILEIMPORT.SELECTED_FILES
             eval(str2beEvaluated);
         catch
             msg = sprintf('The pattern provided to retrieve the potential values doesnt work for file ''%s''.', filename);
-            cast_error(msg)
+            errordlg(msg)
+            return
         end
     end
 
     %%%% check the potvals
     if ~isnumeric(potvals)
         msg = sprintf('The potential values in the variable ''%s'' in file ''%s'' are not a matrix. Aborting...',variableName,filename);
-        cast_error(msg)
+        errordlg(msg)
+        return
     end
     
     
@@ -336,13 +340,6 @@ for fileNumber=FILEIMPORT.SELECTED_FILES
    waitbar(count/nSelectedFiles,h);
 end
 if isgraphics(h), delete(h), end
-
-    
-function cast_error(msg)
-errordlg(msg)
-error('something went wrong. Check error dialog.')
-
-
 
 
 

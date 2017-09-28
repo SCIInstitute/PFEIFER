@@ -1,10 +1,7 @@
-function autoProcessSignal()
+function success = autoProcessSignal()
 % do all the autoprocessing.  Use the fiducials in the fiducialed beat to find all other beats of 
 % that run and fiducialise those beats, too. Handle & save the autoprocessed beats just like the 
 % beat done by the user.
-
-
-
 
 %set up globals
 clear global AUTOPROCESSING  % just in case, so previous stuff doesnt mess anything up
@@ -37,8 +34,8 @@ signal = preprocessPotvals(TS{unslicedDataIndex}.potvals(leadsOfAllGroups,:));  
 
 
 %%%% find allFids based on oriFids and signal
-AUTOPROCESSING.allFids=findAllFids(TS{unslicedDataIndex}.potvals(AUTOPROCESSING.leadsToAutoprocess,:),signal);
-
+[AUTOPROCESSING.allFids, success]=findAllFids(TS{unslicedDataIndex}.potvals(AUTOPROCESSING.leadsToAutoprocess,:),signal);
+if ~success, return, end
 %%%% find AUTOPROCESSING.faultyBeatsIndeces and AUTOPROCESSING.faultyBeatInfo
 getFaultyBeats;
 
@@ -46,22 +43,24 @@ getFaultyBeats;
 %%%% plot the found fids, let the user check them and make corrections
 if ScriptData.AUTOFID_USER_INTERACTION
     autoProcFig=plotAutoProcFids;
-    %do not proceed to processing until user is done
-    waitfor(autoProcFig);
+    waitfor(autoProcFig);  %do not proceed to processing until user is done
+    save(ScriptData.SCRIPTFILE,'ScriptData')  % save settings.. in case user made a change in autofiducialising window
 end
 
 % return, if user pressed 'Stop','Prev', or 'next'
 if ismember(ScriptData.NAVIGATION,{'prev','next','stop'})
+    success = 0;
     return
 end
 
 
 %%%%% main loop: process each beat.
 for beatNumber=2:length(AUTOPROCESSING.beats)    % skip the first beat, as this is the user fiducialized one
-    processBeat(beatNumber)
+    success = processBeat(beatNumber);
+    if ~success, return, end
 end
 
-    
+success = 1;
 end
 
 
@@ -160,7 +159,8 @@ end
     
 
 
-function processBeat(beatNumber)
+function success = processBeat(beatNumber)
+success = 0;
 
 global TS ScriptData AUTOPROCESSING
 
@@ -242,15 +242,15 @@ cd(olddir);
 %%%% do integral maps and save them  
 if ScriptData.DO_INTEGRALMAPS == 1
     if ScriptData.DO_DETECT == 0
-        msg=sprintf('Need fiducials (at least QRS wave or T wave) to do integral maps for %s.', filename);
+        msg=sprintf('Need fiducials (at least QRS wave or T wave) to do integral maps for %s. Aborting..', filename);
         errordlg(msg)
-        error('Need fiducials to do integral maps');
+        return
     end
     mapindices = fidsIntAll(grIndices);
     if length(splitgroup)~=length(mapindices)
-        msg=sprintf('Fiducials (QRS wave or T wave) necessary to do integral maps. However, for %s there are no fiducials for all groups.',filename);
+        msg=sprintf('Fiducials (QRS wave or T wave) necessary to do integral maps. However, for %s there are no fiducials for all groups. Aborting...',filename);
         errordlg(msg)
-        error('No fiducials for integralmaps.')
+        return
     end
 
     olddir = cd(ScriptData.MATODIR); 
@@ -267,7 +267,8 @@ end
 
 if ScriptData.DO_ACTIVATIONMAPS == 1
     if ScriptData.DO_DETECT == 0 % 'Detect fiducials must be selected'
-        error('Need fiducials to do activation maps');
+        errordlg('Fiducials needed to do Activationsmaps! Select the ''Do Fiducials'' button to do Activationmaps. Aborting...')
+        return
     end
 
     %%%% make new ts at TS(mapindices). That new ts is like the old
@@ -285,9 +286,10 @@ if ScriptData.DO_ACTIVATIONMAPS == 1
     tsClear(mapindices);
 end
 
-   %%%%% save everything and clear TS
-%    saveSettings();          TODO
-    tsClear(grIndices);
+%%%%% clear TS
+tsClear(grIndices);
+
+success = 1;
 
 end
     
@@ -305,7 +307,7 @@ act = ones(numchannels,1)*(1/ScriptData.SAMPLEFREQ);
 
 
 %%%% qstart/end=QRS-Komplex-start/end-timeframe as saved in the fids
-qstart_indeces=find([TS{newBeatIdx}.fids.type]==2);  % TODO: if no qrs exists?qend_idx=[TS{newBeatIdx}.fids.type]==4;
+qstart_indeces=find([TS{newBeatIdx}.fids.type]==2);
 qend_indeces=find([TS{newBeatIdx}.fids.type]==4);
 for qstart_idx=qstart_indeces % loop trought to find global qrs
     if length(TS{newBeatIdx}.fids(qstart_idx).value) == 1
@@ -366,7 +368,7 @@ tend = zeros(numchannels,1);
 rec = ones(numchannels)*(1/ScriptData.SAMPLEFREQ);  
 
 %%%% get tstart/end as saved in the fids
-tstart_indeces=find([TS{newBeatIdx}.fids.type]==5);  % TODO: if no qrs exists?qend_idx=[TS{newBeatIdx}.fids.type]==4;
+tstart_indeces=find([TS{newBeatIdx}.fids.type]==5); 
 tend_indeces=find([TS{newBeatIdx}.fids.type]==7);
 for tstart_idx=tstart_indeces % loop trought to find global t wave
     if length(TS{newBeatIdx}.fids(tstart_idx).value) == 1
@@ -413,7 +415,7 @@ end
 sigdrange = max(sig)-min(sig);  
 if (sigdrange <= 1.75*ndrange)
     x = length(sig);
-    return;   % TODO: this shouldn just return, but issue an error msg..
+    return;
 end
 
 %make sure win is uneven
