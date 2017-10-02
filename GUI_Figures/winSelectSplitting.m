@@ -22,7 +22,7 @@ function varargout = winSelectSplitting(varargin)
 
 % Edit the above text to modify the response to help winSelectSplitting
 
-% Last Modified by GUIDE v2.5 06-Jul-2017 14:47:09
+% Last Modified by GUIDE v2.5 29-Sep-2017 11:45:25
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -118,7 +118,7 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-function pushbutton5_Callback(hObject, eventdata, handles)
+function SELECTALL_Callback(hObject, eventdata, handles)
 
 
 function pushbutton6_Callback(hObject, eventdata, handles)

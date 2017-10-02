@@ -61,7 +61,7 @@ global ScriptData
 %%%% first check input
 switch handle.Tag
     case 'SPLITDIR'
-        if ~exist(ScriptData.SPLITDIR,'dir')
+        if ~exist(handle.String,'dir')
             errordlg('Specified folder doesn''t exist.')
             setUpDisplay(handle.Parent);
             return

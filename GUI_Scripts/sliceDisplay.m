@@ -359,7 +359,7 @@ function UpdateSlider(handle,~)
     global SLICEDISPLAY;
 
     tag = handle.Tag;
-    value = handle.Parent;
+    value = handle.Value;
     switch tag
         case 'SLIDERX'
             xwin = SLICEDISPLAY.XWIN;

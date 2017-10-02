@@ -527,7 +527,7 @@ end
 
 
 
-function setScriptData(handle, mode)
+function setScriptData(hObject, mode)
 % callback function to almost all buttons
 
 % notes on how it works:
@@ -535,13 +535,13 @@ function setScriptData(handle, mode)
 % the tag of each each grafic object is also the fieldname of the
 % corresponding fiel in ScriptData.  To further differentiate how each
 % object is being dealt, the objecttype=ScriptData.TYPE.(tag) is used.
-
+% inputs: - hObject: the obj that calls setScriptData
+%         - mode: either left out or a string 'input', if called by input directory editText bar
 
 
 global ScriptData ProcessingData;
-tag = handle.Tag; 
-success = 0;
-success = checkNewInput(handle, tag);
+tag = hObject.Tag; 
+success = checkNewInput(hObject, tag);
 if ~success, return, end
 
 if isfield(ScriptData.TYPE,tag)
@@ -551,15 +551,15 @@ else
 end
 switch objtype
     case {'file','string'}
-        ScriptData.(tag)= handle.String;
+        ScriptData.(tag)= hObject.String;
     case {'double','vector','integer'}
-        ScriptData.(tag)=mystr2num(handle.String);
+        ScriptData.(tag)=mystr2num(hObject.String);
     case 'bool'
-        ScriptData.(tag)=handle.Value;
+        ScriptData.(tag)=hObject.Value;
     case 'select'
-        ScriptData.(tag)=handle.Value;
+        ScriptData.(tag)=hObject.Value;
     case 'selectR'
-        value=handle.Value;
+        value=hObject.Value;
         ScriptData.(tag)=value;           
         if length(ScriptData.RUNGROUPNAMES) < value  %if NEW RUNGROUP is selected, make all group cells longer
             fn=fieldnames(ScriptData.TYPE);
@@ -574,9 +574,9 @@ switch objtype
             ScriptData.GROUPSELECT=0;
          end          
     case 'listbox'
-        ScriptData.ACQFILES = ScriptData.ACQFILENUMBER(handle.Value);
+        ScriptData.ACQFILES = ScriptData.ACQFILENUMBER(hObject.Value);
     case {'listboxedit'}
-        ScriptData.(tag)=mystr2num(handle.String);
+        ScriptData.(tag)=mystr2num(hObject.String);
     case {'groupfile','groupstring','groupdouble','groupvector','groupbool'}      %if any of the groupstuff is changed
         group = ScriptData.GROUPSELECT;      %integer, which group is selected in dropdown
         if (group > 0)
@@ -587,11 +587,11 @@ switch objtype
             end
             switch objtype(6:end)     %change individual entry of cellarray according to user input.
                 case {'file','string'}
-                    cellarray{group} = handle.String;
+                    cellarray{group} = hObject.String;
                 case {'double','vector'}
-                    cellarray{group} = mystr2num(handle.String);
+                    cellarray{group} = mystr2num(hObject.String);
                 case {'bool'}
-                    cellarray{group} = handle.Value;
+                    cellarray{group} = hObject.Value;
             end
             ScriptData.(tag){ScriptData.RUNGROUPSELECT}=cellarray;
         end
@@ -602,11 +602,11 @@ switch objtype
 
             switch objtype(9:end)     %change individual entry of cellarray according to user input. 
                 case {'file','string'}
-                    cellarray{rungroup} = handle.String;
+                    cellarray{rungroup} = hObject.String;
                 case {'double','vector'}
-                    cellarray{rungroup} = mystr2num(handle.String);
+                    cellarray{rungroup} = mystr2num(hObject.String);
                 case {'bool'}
-                    cellarray{rungroup} = handle.Value;
+                    cellarray{rungroup} = hObject.Value;
             end
             ScriptData.(tag)=cellarray;
         end
@@ -623,7 +623,7 @@ if strcmp(tag,'RUNGROUPFILES')
             ScriptData.RUNGROUPFILES{t}=ScriptData.RUNGROUPFILES{t}(ScriptData.RUNGROUPFILES{t}~=rgFileID);
         end
     end
-    updateACQFiles(handle);
+    updateACQFiles(hObject);
 end
 
 
@@ -636,7 +636,7 @@ updateFigure(findobj(allchild(0),'tag','PROCESSINGSCRIPTSETTINGS'));
 updateFigure(findobj(allchild(0),'tag','PROCESSINGSCRIPTMENU')); 
 
 if strcmp(tag,'ACQDIR')
-    updateACQFiles(handle);
+    updateACQFiles(hObject);
 end
         
 end
@@ -653,7 +653,9 @@ pathString = handle.String;
 %%%% check if path exists, if not: set back to old path
 if ~exist(pathString,'file')
     handle.String = ScriptData.SCRIPTFILE;
-    errordlg('Specified path does not exist.')
+    global h
+    disp('h global') 
+    h = errordlg('Specified path does not exist.')
     return
 end
 
@@ -915,7 +917,7 @@ updateFigure(handle)
 
 end
 
-function runScript(handle)
+function runScript(~)
 %callback to 'apply' button, this starts the whole processing process!
 
 %this function
@@ -924,15 +926,13 @@ function runScript(handle)
 %     been selected
 %   - loads ProcessingData
 %   - calls PreLoopScript, which:
-%       - find a individual label for each file (for MPD) (havent really
-%       figuret that out yet
 %       - checks if mapfile etc exist (I do that already earlier?!)
 %       - generates a CALIBRATION file, if none is supplied but
 %       Do_Calibration is on
 %       - sets up SCRIPT.GBADLEADS,  SCRIPT.MAXLEAD and mpd.LIBADLEADS
 %       mpd.LI, ALIGNSTART, ALIGNSIZE
 %   - starts the MAIN LOOP: for each file:  Process file
-%   - at very end when everything is processed: update figure and groups
+%   - at very end when everything is processed: update figure 
 %       
     global ScriptData
 
@@ -988,8 +988,6 @@ function runScript(handle)
             errordlg(msg);
             return
         end
-        
-        success = 0;
         success = ProcessACQFile(ScriptData.ACQFILENAME{acqfiles(p)},ScriptData.ACQDIR);
         if ~success, return, end
         
@@ -1288,7 +1286,11 @@ if ScriptData.DO_SLICE_USER == 1  %if 'user interaction' button is pressed
     waitfor(handle);
 
     switch ScriptData.NAVIGATION  % if any of these was clicked in sliceDisplay
-        case {'prev','next','stop','back'}, cd(olddir); tsClear(index); return; 
+        case {'prev','next','stop','back'}
+            cd(olddir);
+            tsClear(index);
+            success = 1;
+            return; 
     end
 end
 
@@ -1369,7 +1371,11 @@ if (ScriptData.DO_BASELINE == 1)
         waitfor(handle);
 
         switch ScriptData.NAVIGATION
-            case {'prev','next','stop','redo','back'}, cd(olddir); tsClear(index); return; 
+            case {'prev','next','stop','redo','back'}
+                cd(olddir);
+                tsClear(index);
+                success = 1;
+                return; 
         end     
     end
     %%%% and save user selections in ProcessingData    
@@ -1430,7 +1436,7 @@ if ScriptData.DO_DETECT == 1
 
         waitfor(handle);
         switch ScriptData.NAVIGATION
-            case {'prev','next','stop','redo','back'}, cd(olddir); tsClear(index); return; 
+            case {'prev','next','stop','redo','back'}, cd(olddir); tsClear(index); success = 1; return; 
         end     
     end    
     % save the user selections (stored in ts) in ProcessingData
@@ -1439,6 +1445,7 @@ end
 
 %%%% now we have a fiducialed beat - use it as template to autoprocess the rest of the data in TS{unslicedDataIndex}
 if ScriptData.DO_AUTOFIDUCIALISING
+    ScriptData.CURRENTTS = index;
     success = autoProcessSignal;
     if ~success, return, end
 end
@@ -1461,17 +1468,16 @@ end
 % splitgroup is now eg [1 3] if there are 3 groups but the 2 should
 % not be processed
 channels=ScriptData.GROUPLEADS{ScriptData.CURRENTRUNGROUP}(splitgroup);
-indices = tsSplitTS(index, channels);    
-tsDeal(indices,'filename',ioUpdateFilename('.mat',inputfilename,ScriptData.GROUPEXTENSION{ScriptData.CURRENTRUNGROUP}(splitgroup))); 
+splittedTSindices = tsSplitTS(index, channels);    
+tsDeal(splittedTSindices,'filename',ioUpdateFilename('.mat',inputfilename,ScriptData.GROUPEXTENSION{ScriptData.CURRENTRUNGROUP}(splitgroup))); 
 tsClear(index);        
-index = indices;
 
 
 
 %%%% save the new ts structures using ioWriteTS
 olddir = cd(ScriptData.MATODIR);
-tsDeal(index,'filename',ioUpdateFilename('.mat',inputfilename,ScriptData.GROUPEXTENSION{ScriptData.CURRENTRUNGROUP}(splitgroup)));
-ioWriteTS(index,'noprompt','oworiginal');
+tsDeal(splittedTSindices,'filename',ioUpdateFilename('.mat',inputfilename,ScriptData.GROUPEXTENSION{ScriptData.CURRENTRUNGROUP}(splitgroup)));
+ioWriteTS(splittedTSindices,'noprompt','oworiginal');
 cd(olddir);
 
 
@@ -1482,7 +1488,7 @@ if ScriptData.DO_INTEGRALMAPS == 1
         errordlg(msg)
         return
     end
-    mapindices = fidsIntAll(index);
+    mapindices = fidsIntAll(splittedTSindices);
     if length(splitgroup)~=length(mapindices)
         msg=sprintf('Fiducials (QRS wave or T wave) necessary to do integral maps. However, for %s there are no fiducials for all groups. Aborting...',inputfilename);
         errordlg(msg)
@@ -1511,7 +1517,7 @@ if ScriptData.DO_ACTIVATIONMAPS == 1
 
     %%%% make new ts at TS(mapindices). That new ts is like the old
     %%%% one, but has ts.potvals=[act rec act-rec]
-    mapindices = sigActRecMap(index);   
+    mapindices = sigActRecMap(splittedTSindices);   
 
 
     %%%%  save the 'new act/rec' ts as eg 'Run0009-gr1-ari.mat
@@ -1527,7 +1533,7 @@ end
 %%%%% save everything and clear TS
 saveProcessingData;
 saveSettings;
-tsClear(index);
+tsClear(splittedTSindices);
 if ScriptData.DO_AUTOFIDUCIALISING
     tsClear(ScriptData.unslicedDataIndex);
     ScriptData.unslicedDataIndex=[];
@@ -1666,7 +1672,6 @@ necFields = {'CALIBRATIONFILE','','file', ...
                 'DISPLAYGROUP',1,'vector',...
                 'DISPLAYGROUPF',1,'vector',...
                 'DISPLAYSCALE',1,'integer',...
-                'CURRENTTS',1,'integer',...
                 'FIDSLOOPFIDS',1,'integer',...
                 'FIDSAUTOACT',1,'integer',...
                 'FIDSAUTOREC',1,'integer',...
