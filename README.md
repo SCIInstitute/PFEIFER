@@ -1,18 +1,18 @@
-# Matmap3
+# PFEIFER
 
 ![Matmap](DocumentationFigures/Matmap_logo.png)
 
-# Matmap Documentation
+# PFEIFER Documentation
 
-## Matmap overview
+## PFEIFER overview
 
-Matmap is a signal processing tool specifically designed to process experimentally recorded  electrocardiography  data.  Matmap is designed to enable user guided processing on multi-channel data with several recording instances.  There are many available tools including baseline correction, cardiac signal feature selection, ativation and recovery time calculation, and many others.
+PFEIFER is a signal processing tool specifically designed to process experimentally recorded  electrocardiography  data.  PFEIFER is designed to enable user guided processing on multi-channel data with several recording instances.  There are many available tools including baseline correction, cardiac signal feature selection, ativation and recovery time calculation, and many others.
 
-## General Matmap Workflow
+## General PFEIFER Workflow
 
-### Starting Matmap
+### Starting PFEIFER
 
-Once you have downloaded the source code from the GitHub repository you can immediately open Matlab and begin using the testing functionality. To start Matmap, add the Matmap directory and subfolders to your Malab Path and type "matmap" in the Matlab command line.
+Once you have downloaded the source code from the GitHub repository you can immediately open Matlab and begin using the testing functionality. To start PFEIFER, add the PFEIFER directory and subfolders to your Malab Path and type "matmap" in the Matlab command line.
 
 The following two GUI windows should populate: 
 
@@ -20,13 +20,13 @@ The following two GUI windows should populate:
 
 ![Processing Script Settings Window](DocumentationFigures/1.png)
 
-A: Location of the processing script file. If opening for the first time Matmap will create a new processing script "ScriptData" in the current working directory. This file will store all the settings set lower in the window. 
+A: Location of the processing script file. If opening for the first time PFEIFER will create a new processing script "ScriptData" in the current working directory. This file will store all the settings set lower in the window. 
 
 B: Location of the processing data file. This is the location of the ProcessingData file created upon initializing matmap i.e. "helper files"
 
-C: Input Directory. This is the location of the input directory, or the data you would like to input into Matmap
+C: Input Directory. This is the location of the input directory, or the data you would like to input into PFEIFER
 
-D: MATLAB output Directory: This is the location of the output data as created by the Matmap program (Matmap creates a series of .mat files following completion of the processing of input data) 
+D: MATLAB output Directory: This is the location of the output data as created by the PFEIFER program (PFEIFER creates a series of .mat files following completion of the processing of input data) 
 
 E: Baseline width: Width of the average used during isoelectric beat selection in order to perform baseline correction. 
 
@@ -48,11 +48,11 @@ M: GroupName: Modifying or creating a group name for a specific set of channels
 
 N: Lead Numbers: The lead numbers that correspond to the group name created above. 
 
-O: Filename Extension: The extension name applied to the output files Matmap creates for the specific groups. 
+O: Filename Extension: The extension name applied to the output files PFEIFER creates for the specific groups. 
 
 P: Bad Leads: The channels that correspond to leads with poor signal quality. These numbers will be taken out of RMS calculation 
 
-Q: File Extensions: The file types that Matmap will attempt to open
+Q: File Extensions: The file types that PFEIFER will attempt to open
 
 R: Group Name: Dropdown for selecting each individual group for editing M, N, O, and P. 
 
@@ -84,7 +84,7 @@ K: Create Integral or Activation/Recovery Maps: Integrates between the fiducials
 L:  Do Autofiducializing: Runs Autofiducializing algorithm to propagate automatically place fiducial points based on initial user input.  
 M:  User Interaction (Autofiducializing): Allows user to interact with fiducializing selection from autofiducializing. 
 Q: File Menu: Allows the user to select files from experiment to be analyzed 
-R: Run Script: Runs the main Matmap script
+R: Run Script: Runs the main PFEIFER script
 S: Preprocess Files: Allows the user to section original experiment files into smaller sections and save them as .mat files. 
 File Converter: Converting non-acq type files into a matmap readable file format. 
 
