@@ -3,4 +3,5 @@
 *.asv
 .DS_Store
 *.m~
+*test*
 
