@@ -1,6 +1,6 @@
 # PFEIFER
 
-![Matmap](DocumentationFigures/Matmap_logo.png)
+![Matmap](DOC/Figures/pfeifer_logo.png)
 
 # PFEIFER Documentation
 
@@ -18,7 +18,7 @@ The following two GUI windows should populate:
 
 ### Processing Script Settings Window
 
-![Processing Script Settings Window](DocumentationFigures/1.png)
+![Processing Script Settings Window](DOC/Figures/1.png)
 
 A: Location of the processing script file. If opening for the first time PFEIFER will create a new processing script "ScriptData" in the current working directory. This file will store all the settings set lower in the window. 
 
@@ -68,7 +68,7 @@ W: Mapping File: This is the location of the .mapping file that describes which 
 
 ### Processing Script Menu Window
 
-![Processing Script Menu Window](DocumentationFigures/2.png)
+![Processing Script Menu Window](DOC/Figures/2.png)
 
 A: Calibrate signal: Apply information from the premade calibration file to the imported dataset
 B: Blank Bad Leads: Apply a zero value to leads marked as "bad leads" assigned. 
@@ -90,7 +90,7 @@ File Converter: Converting non-acq type files into a matmap readable file format
 
 ### Slice/Averaging Window
 
-![Slice/Averaging Window](DocumentationFigures/3.png)
+![Slice/Averaging Window](DOC/Figures/3.png)
 
 A: File Navigation: Navigates between beats in order shown in the processing script menu
 B: Signal Viewer Window: Displays signal for file selected.
@@ -102,7 +102,7 @@ F: Keep Bad Lead Settings: In Progress
 ### Baseline Correction Window
 
 
-![Baseline Correction Window](DocumentationFigures/4.png)
+![Baseline Correction Window](DOC/Figures/4.png)
 
 A: Signal Viewer Window: Displays signal for file selected.
 B: Fiducial Selector: Allows user to modify baseline selected if not satisfactory in the slice averaging window. Both bounds should be set to zero 
@@ -111,7 +111,7 @@ C: Display Window Settings:  Allows user to modify visualization of data by grou
 ### Fiducial Selection Window
 
 
-![Fiducial Selection Window](DocumentationFigures/5.png)
+![Fiducial Selection Window](DOC/Figures/5.png)
 
 
 A: Signal Viewer Window: Displays signal for file selected.
@@ -122,7 +122,7 @@ D: Auto-detection: Standard detection of activation and recovery times
 
 ### AutoFiducializing Window
 
-![AutoFiducializing Window](DocumentationFigures/6.png)
+![AutoFiducializing Window](DOC/Figures/6.png)
 
 A: Faulty Beats: Options to view faulty leads as detected during the autofiducializing process. 
 B: Critical Variance: Defining the "critical variance" that will be used to select faulty leads during the autofiducializing process. 
