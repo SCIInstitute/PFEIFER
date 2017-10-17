@@ -10,6 +10,11 @@ function resize(handle,~)
 % - set figure.Units = 'characters'
 % - set the 'Units' property of all children to 'normalized'
 
+% - the first Object with textproperties in figure is used to determine fontsize.
+%  => use its innerPosition property to control FontSize.  A heigth of 0.026145 results in FontSize = 13;
+
+% inner Position height: 0.026145067698259195
+
 
 
 objects=allchild(handle);  
@@ -22,6 +27,7 @@ for p=1:length(objects)
         obj.Units='pixel';
         avail_widht=obj.Position(3);
         avail_height=obj.Position(4);
+        
         
         %%%% try increasingly smaller fontsizes and check if they are small enough
         for temp_fontsize=[13:-1:5]  % for each fontsize
@@ -38,6 +44,7 @@ for p=1:length(objects)
         break;
     end
 end
+
 
 %now change the fontsize of all objects to newFontsize
 for p=1:length(objects)

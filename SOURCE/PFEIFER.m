@@ -396,11 +396,15 @@ function CloseFcn(~)
 global ScriptData ProcessingData FIDSDISPLAY SLICEDISPLAY TS
 
 %%%% save setting
-if ~isempty(ScriptData.SCRIPTFILE)
- saveSettings
- disp('Saved SETTINGS before closing PFEIFER')
-else
- disp('PFEIFER closed without saving SETTINGs')
+try
+    if ~isempty(ScriptData.SCRIPTFILE)
+     saveSettings
+     disp('Saved SETTINGS before closing PFEIFER')
+    else
+     disp('PFEIFER closed without saving SETTINGs')
+    end
+catch
+    %do nothing
 end
 
 %%%% delete all gui figures
@@ -469,6 +473,7 @@ function Browse(handle,ext,mode)
             updateFigure(findobj(allchild(0),'tag','PROCESSINGSCRIPTSETTINGS'));
             updateFigure(findobj(allchild(0),'tag','PROCESSINGSCRIPTMENU')); 
             getInputFiles
+            return
         case 'DATAFILE'
             success = loadProcessingData(newFileString);
             if success
@@ -1873,7 +1878,7 @@ function defaultsettings=getDefaultSettings
                     'DO_ACTIVATIONMAPS',1,'bool',...
                     'DO_FILTER',0,'bool',...
                     'DO_DETECT',0,'bool',...
-                    'USE_MAPPINGFILE',0,'bool',...
+                    'USE_MAPPINGFILE',1,'bool',...
                     'SAMPLEFREQ', 1000, 'double',...
                     'NAVIGATION','apply','string',...
                     'DISPLAYTYPE',1,'integer',...

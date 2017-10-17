@@ -1,4 +1,4 @@
-function [allFids success] = findAllFids(potvals,signal)
+function [allFidsGlFr success] = findAllFids(potvals,signal)
 % returns allFids = {fidsBeat1, fidsBeat2, .... , FidsLastBeat}
 % each fidsBeatN is a numFids - array - struct 'fids' with the fields: 'type' (the fiducial type) and  'value' (the values of the fid in global frame) 
 % in short: fidsBeatN is just like the 'fids' struct as it is saved in ts,
@@ -6,7 +6,7 @@ function [allFids success] = findAllFids(potvals,signal)
 % Fids are determined based on 'oriFids', die fids done by the user.
 
 success = 0;
-allFids = 'dummyValue'; % to make sure this function has a value to return, even if function returns earlier as planned due to error
+allFidsGlFr = 'dummyValue'; % to make sure this function has a value to return, even if function returns earlier as planned due to error
 %%%%% get paramters from ScriptData
 global ScriptData AUTOPROCESSING
 accuracy=ScriptData.ACCURACY;  % abort condition5
@@ -111,9 +111,9 @@ nBeats=length(AUTOPROCESSING.beats);
 
 
 %%%% initialice/preallocate allFids
-clear allFids % clear the dummy value from above
+clear allFidsGlFr % clear the dummy value from above
 defaultFid(nFids).type=[];
-[allFids{1:nBeats}]=deal(defaultFid);
+[allFidsGlFr{1:nBeats}]=deal(defaultFid);
 
 
 %%%%%%%%%%%%% fill AllFids with values %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -121,32 +121,43 @@ defaultFid(nFids).type=[];
 h=waitbar(0/nBeats,'Autofiducialicing Beats..');
 for beatNumber=1:nBeats %for each beat
     bs=AUTOPROCESSING.beats{beatNumber}(1);  % start of beat
-
+    be=AUTOPROCESSING.beats{beatNumber}(2);  % end of beat
+    
     for fidNumber=1:nFids
 
         
         %%%% set up windows
         ws=bs+locFrFidsValues(fidNumber)-window_width;  % dont search complete beat, only around fid
         we=bs+locFrFidsValues(fidNumber)+window_width;
+        
+        
+        
         windows=potvals(:,ws:we);
         
         %%%% find fids
         [globFid, indivFids, variance] = findFid(windows,kernels(:,:,fidNumber));
+        
+
 
         %put them in global frame
         indivFids=indivFids+fidsKernelLength-kernel_shift+bs-1+locFrFidsValues(fidNumber)-window_width;  % now  newIndivFids is in "complete potvals" frame.
         globFid=globFid+fidsKernelLength-kernel_shift+bs-1+locFrFidsValues(fidNumber)-window_width;      % put it into "complete potvals" frame
 
+        
+        %%%% if globFids are outside of beat, correct that
+        globFid(globFid > be) =  be;
+        globFid(globFid < bs) =  bs;
+        
 
         %%%% put the found newIndivFids in allFids
-        allFids{beatNumber}(fidNumber).type=fidsTypes(fidNumber);
-        allFids{beatNumber}(fidNumber).value=indivFids;
-        allFids{beatNumber}(fidNumber).variance=variance;
+        allFidsGlFr{beatNumber}(fidNumber).type=fidsTypes(fidNumber);
+        allFidsGlFr{beatNumber}(fidNumber).value=indivFids;
+        allFidsGlFr{beatNumber}(fidNumber).variance=variance;
 
 
         %%%% add the global fid to allFids
-        allFids{beatNumber}(nFids+fidNumber).type=fidsTypes(fidNumber);
-        allFids{beatNumber}(nFids+fidNumber).value=globFid; 
+        allFidsGlFr{beatNumber}(nFids+fidNumber).type=fidsTypes(fidNumber);
+        allFidsGlFr{beatNumber}(nFids+fidNumber).value=globFid; 
     end
     if isgraphics(h), waitbar(beatNumber/nBeats,h), end
 end

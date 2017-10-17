@@ -35,6 +35,8 @@ signal = preprocessPotvals(TS{unslicedDataIndex}.potvals(leadsOfAllGroups,:));  
 
 %%%% find allFids based on oriFids and signal
 [AUTOPROCESSING.allFids, success]=findAllFids(TS{unslicedDataIndex}.potvals(AUTOPROCESSING.leadsToAutoprocess,:),signal);
+
+
 if ~success, return, end
 %%%% find AUTOPROCESSING.faultyBeatsIndeces and AUTOPROCESSING.faultyBeatInfo
 getFaultyBeats;
@@ -177,6 +179,7 @@ TS{newBeatIdx}.selframes=[beatframes(1),beatframes(end)];
 %%%% put the new fids in the "local beat frame" and save them in newBeatIdx
 fids=AUTOPROCESSING.allFids{beatNumber};
 reference=beatframes(1);
+
 for fidNumber=1:length(fids)
     fids(fidNumber).value=fids(fidNumber).value-reference+1;  % fids now in local frame
 end
@@ -191,8 +194,6 @@ if ScriptData.DO_BLANKBADLEADS == 1
     tsSetBlank(newBeatIdx,badleads);
     tsAddAudit(newBeatIdx,'|Blanked out bad leads');
 end
-
-
 
 %%%%  baseline correction
 if ScriptData.DO_BASELINE
@@ -368,21 +369,20 @@ tend = zeros(numchannels,1);
 rec = ones(numchannels)*(1/ScriptData.SAMPLEFREQ);  
 
 %%%% get tstart/end as saved in the fids
-tstart_indeces=find([TS{newBeatIdx}.fids.type]==5); 
-tend_indeces=find([TS{newBeatIdx}.fids.type]==7);
-for tstart_idx=tstart_indeces % loop trought to find global t wave
-    if length(TS{newBeatIdx}.fids(tstart_idx).value) == 1
-        tstart = TS{newBeatIdx}.fids(tstart_idx).value * ones(numchannels,1);
+tStartIndeces=find([TS{newBeatIdx}.fids.type]==5); 
+tEndIndeces=find([TS{newBeatIdx}.fids.type]==7);
+for tStartIdx=tStartIndeces % loop trought to find global t wave
+    if length(TS{newBeatIdx}.fids(tStartIdx).value) == 1
+        tstart = TS{newBeatIdx}.fids(tStartIdx).value * ones(numchannels,1);
         break
     end
 end
-for tend_idx=tend_indeces % loop trought to find global t wave
-    if length(TS{newBeatIdx}.fids(tend_idx).value) == 1
-        tend = TS{newBeatIdx}.fids(tend_idx).value * ones(numchannels,1);
+for tEndIdx=tEndIndeces % loop trought to find global t wave
+    if length(TS{newBeatIdx}.fids(tEndIdx).value) == 1
+        tend = TS{newBeatIdx}.fids(tEndIdx).value * ones(numchannels,1);
         break
     end
 end
-
 
 
 %%%% sort values
@@ -396,7 +396,17 @@ neg = ScriptData.RECNEG;
 
 %%%% get the recovery values for each lead
 for leadNumber=1:numchannels
-    rec(leadNumber) = ARdetect(TS{newBeatIdx}.potvals(leadNumber,ts(leadNumber):te(leadNumber)),win,deg,neg)/ScriptData.SAMPLEFREQ + ts(leadNumber);
+    try
+        rec(leadNumber) = ARdetect(TS{newBeatIdx}.potvals(leadNumber,ts(leadNumber):te(leadNumber)),win,deg,neg)/ScriptData.SAMPLEFREQ + ts(leadNumber);
+    catch
+        x = ts(leadNumber)
+        
+        xx = te(leadNumber)
+        
+        idx = newBeatIdx
+        
+        error('end it here')
+    end
 end
 
 %%%% put the recovery values in fids
