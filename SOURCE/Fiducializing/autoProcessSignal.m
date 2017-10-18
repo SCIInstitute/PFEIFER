@@ -57,10 +57,18 @@ end
 
 
 %%%%% main loop: process each beat.
+
+a=tic;
 for beatNumber=2:length(AUTOPROCESSING.beats)    % skip the first beat, as this is the user fiducialized one
+    b=tic;
+    disp('-------------')
     success = processBeat(beatNumber);
+    t2=toc(b);
+    fprintf('%f seconds to processBeat',t2)
     if ~success, return, end
 end
+t1=toc(a);
+fprintf('%f seconds for main loop trough all beats\n',t1)
 
 success = 1;
 end
@@ -234,10 +242,15 @@ tsDeal(grIndices,'filename',ioUpdateFilename('.mat',filename,ScriptData.GROUPEXT
 tsClear(newBeatIdx);
 
 
-%%%% save the new ts structures using ioWriteTS
-olddir = cd(ScriptData.MATODIR);
-ioWriteTS(grIndices,'noprompt','oworiginal');
-cd(olddir);
+%%%% save the new ts structures
+for grIdx=grIndices
+    ts=TS{grIdx};
+    fullFilename=fullfile(ScriptData.MATODIR, ts.filename);
+    fprintf('Saving file: %s\n',ts.filename)
+    save(fullFilename,'ts','-v6')
+end
+
+
 
 
 %%%% do integral maps and save them  
@@ -254,14 +267,24 @@ if ScriptData.DO_INTEGRALMAPS == 1
         return
     end
 
-    olddir = cd(ScriptData.MATODIR); 
+
     fnames=ioUpdateFilename('.mat',filename,ScriptData.GROUPEXTENSION{ScriptData.CURRENTRUNGROUP}(splitgroup),'-itg');
 
     tsDeal(mapindices,'filename',fnames); 
     tsSet(mapindices,'newfileext','');
-    ioWriteTS(mapindices,'noprompt','oworiginal');
-    cd(olddir);
+    
+    %%%% save integral maps and clear them
+    for mapIdx=mapindices
+        ts=TS{mapIdx};
+        fullFilename=fullfile(ScriptData.MATODIR, ts.filename);
+        fprintf('Saving file: %s\n',ts.filename)
+        save(fullFilename,'ts','-v6')
+    end
     tsClear(mapindices);
+    
+    
+    
+    
 end
        
 %%%%% Do activation maps   
@@ -275,15 +298,16 @@ if ScriptData.DO_ACTIVATIONMAPS == 1
     %%%% make new ts at TS(mapindices). That new ts is like the old
     %%%% one, but has ts.potvals=[act rec act-rec]
     mapindices = sigActRecMap(grIndices);   
-
-
-    %%%%  save the 'new act/rec' ts as eg 'Run0009-gr1-ari.mat
-    % AND clearTS{mapindex}!
-    olddir = cd(ScriptData.MATODIR);
     tsDeal(mapindices,'filename',ioUpdateFilename('.mat',filename,ScriptData.GROUPEXTENSION{ScriptData.CURRENTRUNGROUP}(splitgroup),'-ari')); 
     tsSet(mapindices,'newfileext','');
-    ioWriteTS(mapindices,'noprompt','oworiginal');
-    cd(olddir);
+
+    %%%%  save the 'new act/rec' ts as eg 'Run0009-gr1-ari.mat  and clearTS{mapindex}
+    for mapIdx=mapindices
+        ts=TS{mapIdx};
+        fullFilename=fullfile(ScriptData.MATODIR, ts.filename);
+        fprintf('Saving file: %s\n',ts.filename)
+        save(fullFilename,'ts','-v6')
+    end
     tsClear(mapindices);
 end
 

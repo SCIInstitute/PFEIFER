@@ -852,17 +852,7 @@ function removeGroup(handle)
        fn = fieldnames(ScriptData.TYPE);
        for p=1:length(fn)
            if strncmp(fn{p},'GROUP',5) && ~strcmp('GROUPSELECT',fn{p})
-               aaa =fn{p}
-               try
-                   disp('remove this')
-                   ScriptData.(fn{p}){ScriptData.RUNGROUPSELECT}(groupIdx)=[];
-               catch
-                   disp('error log -------')
-                   tag = fn{p}
-                   rgIdx = ScriptData.RUNGROUPSELECT
-                   groupIdx
-                   error('end it here')
-               end
+               ScriptData.(fn{p}){ScriptData.RUNGROUPSELECT}(groupIdx)=[];
            end
        end
        ScriptData.GROUPSELECT =length(ScriptData.GROUPNAME{ScriptData.RUNGROUPSELECT});
@@ -1006,7 +996,13 @@ function runScript(~)
             errordlg(msg);
             return
         end
+        tic
         success = ProcessACQFile(ScriptData.ACQFILENAME{acqfiles(p)},ScriptData.ACQDIR);
+        t=toc;
+        fprintf('%f seconds to ProcessACQFile\n',t)
+        
+        
+        
         if ~success, return, end
         
         switch ScriptData.NAVIGATION
@@ -1146,14 +1142,8 @@ ScriptData.GBADLEADS={};
 for rungroupIdx=1:length(ScriptData.RUNGROUPNAMES)
    badleads=[];
    for p=1:length(ScriptData.GROUPBADLEADS{rungroupIdx})      
-       try
         reference=ScriptData.GROUPLEADS{rungroupIdx}{p}(1)-1;    
-        disp('remove this')
-       catch
-           rungroupIdx
-           groupIdx=p
-           error('end it here')
-       end
+
         addBadleads = ScriptData.GROUPBADLEADS{rungroupIdx}{p} + reference;
 
         %%%% check if user input for badleads is correct
@@ -1488,7 +1478,10 @@ end
 %%%% now we have a fiducialed beat - use it as template to autoprocess the rest of the data in TS{unslicedDataIndex}
 if ScriptData.DO_AUTOFIDUCIALISING
     ScriptData.CURRENTTS = index;
+    tic
     success = autoProcessSignal;
+    t=toc;
+    fprintf('%f seconds to autoProcessSignal\n',t)
     if ~success, return, end
 end
     
@@ -1516,11 +1509,17 @@ tsClear(index);
 
 
 
-%%%% save the new ts structures using ioWriteTS
-olddir = cd(ScriptData.MATODIR);
+%%%% save the new ts structures
+
 tsDeal(splittedTSindices,'filename',ioUpdateFilename('.mat',inputfilename,ScriptData.GROUPEXTENSION{ScriptData.CURRENTRUNGROUP}(splitgroup)));
-ioWriteTS(splittedTSindices,'noprompt','oworiginal');
-cd(olddir);
+
+%%%% save integral maps  and clear them
+for splitIdx=splittedTSindices
+    ts=TS{splitIdx};
+    fullFilename=fullfile(ScriptData.MATODIR, ts.filename);
+    fprintf('Saving file: %s\n',ts.filename)
+    save(fullFilename,'ts','-v6')
+end    
 
 
 %%%% do integral maps and save them  
@@ -1536,18 +1535,19 @@ if ScriptData.DO_INTEGRALMAPS == 1
         errordlg(msg)
         return
     end
-
-    olddir = cd(ScriptData.MATODIR); 
     fnames=ioUpdateFilename('.mat',inputfilename,ScriptData.GROUPEXTENSION{ScriptData.CURRENTRUNGROUP}(splitgroup),'-itg');
-
     tsDeal(mapindices,'filename',fnames); 
     tsSet(mapindices,'newfileext','');
-    ioWriteTS(mapindices,'noprompt','oworiginal');
-    cd(olddir);
-
+    
+    %%%% save integral maps  and clear them
+    for mapIdx=mapindices
+        ts=TS{mapIdx};
+        fullFilename=fullfile(ScriptData.MATODIR, ts.filename);
+        fprintf('Saving file: %s\n',ts.filename)
+        save(fullFilename,'ts','-v6')
+    end    
     tsClear(mapindices);
 end
-    
     
  %%%%% Do activation maps   
     
@@ -1560,16 +1560,17 @@ if ScriptData.DO_ACTIVATIONMAPS == 1
     %%%% make new ts at TS(mapindices). That new ts is like the old
     %%%% one, but has ts.potvals=[act rec act-rec]
     mapindices = sigActRecMap(splittedTSindices);   
-
-
-    %%%%  save the 'new act/rec' ts as eg 'Run0009-gr1-ari.mat
-    % AND clearTS{mapindex}!
-    olddir = cd(ScriptData.MATODIR);
     tsDeal(mapindices,'filename',ioUpdateFilename('.mat',inputfilename,ScriptData.GROUPEXTENSION{ScriptData.CURRENTRUNGROUP}(splitgroup),'-ari')); 
     tsSet(mapindices,'newfileext','');
-    ioWriteTS(mapindices,'noprompt','oworiginal');
-    cd(olddir);
-    tsClear(mapindices);      
+    
+    %%%% save integral maps  and clear them
+    for mapIdx=mapindices
+        ts=TS{mapIdx};
+        fullFilename=fullfile(ScriptData.MATODIR, ts.filename);
+        fprintf('Saving file: %s\n',ts.filename)
+        save(fullFilename,'ts','-v6')
+    end    
+    tsClear(mapindices);
 end
 
 %%%%% save everything and clear TS

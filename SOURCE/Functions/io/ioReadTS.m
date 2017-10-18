@@ -123,7 +123,10 @@ if ~isempty(files.mat)
                     if ~isfield(TS{index},'numleads') TS{index}.numleads = size(TS{index}.potvals,1); end
                     if ~isfield(TS{index},'numframes') TS{index}.numframes = size(TS{index}.potvals,2); end
                     if ~isfield(TS{index},'leadinfo') TS{index}.leadinfo = zeros(size(TS{index}.potvals,1),1); end
-                    if ~isfield(TS{index},'unit') TS{index}.unit = ''; end
+                    if ~isfield(TS{index},'unit') TS{index}.unit = 'mV'; end
+                    if ~isfield(TS{index},'expid') TS{index}.expid = ''; end
+                    if ~isfield(TS{index},'text') TS{index}.text = ''; end
+                    if ~isfield(TS{index},'samplefrequency') TS{index}.samplefrequency = 1000; end
                     if ~isfield(TS{index},'audit') TS{index}.audit = ''; end
                     TSindices = [TSindices index]; 
                 end
@@ -140,7 +143,10 @@ if ~isempty(files.mat)
                             if ~isfield(TS{index},'numleads') TS{index}.numleads = size(TS{index}.potvals,1); end
                             if ~isfield(TS{index},'numframes') TS{index}.numframes = size(TS{index}.potvals,2); end
                             if ~isfield(TS{index},'leadinfo') TS{index}.leadinfo = zeros(size(TS{index}.potvals,1),1); end
-                            if ~isfield(TS{index},'unit') TS{index}.unit = ''; end
+                            if ~isfield(TS{index},'unit') TS{index}.unit = 'mV'; end
+                            if ~isfield(TS{index},'expid') TS{index}.expid = ''; end
+                            if ~isfield(TS{index},'text') TS{index}.text = ''; end       
+                            if ~isfield(TS{index},'samplefrequency') TS{index}.samplefrequency = 1000; end
                             if ~isfield(TS{index},'audit') TS{index}.audit = ''; end
                             TSindices = [TSindices index]; 
                         end
@@ -149,6 +155,42 @@ if ~isempty(files.mat)
             end
         end
     end
+end
+
+if (isempty(files.tsdf)) && (~isempty(files.tsdfc))
+    % Load a complete TSDFC file into memory
+    % Use ioReadTSDFC to read the complete set into memory   
+
+    % This function adds the complete TSDFC listing to the files.tsdf directory
+    % and then continues in the next function, loading them all
+    
+    files.tsdf = ioiReadTSDFCFiles(files.tsdfc);
+    
+    % This should be sufficient to force the next function to read all the files
+end
+    
+if (~isempty(files.tsdf))
+   % Load a series of TSDF files into memory
+     
+   for p = 1:length(files.tsdf)
+     
+      % This function first scans the TSDF-file to see whether more than one file is stored in this file
+      % subsequently it creates empty spaces in the TS structure and starts loading the TSDF files into
+      % these empty slots
+   
+      tsdffile = files.tsdf{p};
+      if options.skiptsdffile
+          index = tsNew(1);						% create an empty array
+          tsSet(index,'filename',tsdffile);				% just put in the filenames
+      else
+          index = ioiReadTSDF(tsdffile,options);  			% store the TS entries
+      end
+            
+      ioiReadFids(index,tsdffile,files.tsdfc,files.fids,options); 	% add the fiducials	
+      fidsUpdateFids(index,options);					% check range/number of channels in fiducials
+      
+      TSindices = [TSindices index]; 					% add them to the output vector 
+   end
 end
 
 if (~isempty(files.acq))
