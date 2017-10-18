@@ -1,35 +1,35 @@
-function varargout = winAutoProcessing(varargin)
-% WINAUTOPROCESSING M-file for winAutoProcessing.fig
-%      WINAUTOPROCESSING, by itself, creates a new WINAUTOPROCESSING or raises the existing
+function varargout = BeatIsolator(varargin)
+% BEATISOLATOR M-file for BeatIsolator.fig
+%      BEATISOLATOR, by itself, creates a new BEATISOLATOR or raises the existing
 %      singleton*.
 %
-%      H = WINAUTOPROCESSING returns the handle to a new WINAUTOPROCESSING or the handle to
+%      H = BEATISOLATOR returns the handle to a new BEATISOLATOR or the handle to
 %      the existing singleton*.
 %
-%      WINAUTOPROCESSING('CALLBACK',hObject,eventData,handles,...) calls the local
-%      function named CALLBACK in WINAUTOPROCESSING.M with the given input arguments.
+%      BEATISOLATOR('CALLBACK',hObject,eventData,handles,...) calls the local
+%      function named CALLBACK in BEATISOLATOR.M with the given input arguments.
 %
-%      WINAUTOPROCESSING('Property','Value',...) creates a new WINAUTOPROCESSING or raises the
+%      BEATISOLATOR('Property','Value',...) creates a new BEATISOLATOR or raises the
 %      existing singleton*.  Starting from the left, property value pairs are
 %      applied to the GUI before winSliceDisplay_OpeningFunction gets called.  An
 %      unrecognized property name or invalid value makes property application
-%      stop.  All inputs are passed to winAutoProcessing_OpeningFcn via varargin.
+%      stop.  All inputs are passed to BeatIsolator_OpeningFcn via varargin.
 %
 %      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
 %      instance to run (singleton)".
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
 
-% Edit the above text to modify the response to help winAutoProcessing
+% Edit the above text to modify the response to help BeatIsolator
 
-% Last Modified by GUIDE v2.5 26-Jul-2017 12:17:25
+% Last Modified by GUIDE v2.5 17-Oct-2017 13:50:28
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
                    'gui_Singleton',  gui_Singleton, ...
-                   'gui_OpeningFcn', @winAutoProcessing_OpeningFcn, ...
-                   'gui_OutputFcn',  @winAutoProcessing_OutputFcn, ...
+                   'gui_OpeningFcn', @BeatIsolator_OpeningFcn, ...
+                   'gui_OutputFcn',  @BeatIsolator_OutputFcn, ...
                    'gui_LayoutFcn',  [] , ...
                    'gui_Callback',   []);
 if nargin & isstr(varargin{1})
@@ -44,26 +44,26 @@ end
 % End initialization code - DO NOT EDIT
 
 
-% --- Executes just before winAutoProcessing is made visible.
-function winAutoProcessing_OpeningFcn(hObject, eventdata, handles, varargin)
+% --- Executes just before BeatIsolator is made visible.
+function BeatIsolator_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-% varargin   command line arguments to winAutoProcessing (see VARARGIN)
+% varargin   command line arguments to BeatIsolator (see VARARGIN)
 
-% Choose default command line output for winAutoProcessing
+% Choose default command line output for BeatIsolator
 handles.output = hObject;
 
 % Update handles structure
 guidata(hObject, handles);
 
-% UIWAIT makes winAutoProcessing wait for user response (see UIRESUME)
+% UIWAIT makes BeatIsolator wait for user response (see UIRESUME)
 % uiwait(handles.SLICEDISPLAY);
 
 
 % --- Outputs from this function are returned to the command line.
-function varargout = winAutoProcessing_OutputFcn(hObject, eventdata, handles)
+function varargout = BeatIsolator_OutputFcn(hObject, eventdata, handles)
 % varargout  cell array for returning output args (see VARARGOUT);
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB

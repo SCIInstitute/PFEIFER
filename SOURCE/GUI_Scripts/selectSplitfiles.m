@@ -4,7 +4,7 @@ if nargin > 0 && ischar(varargin{1})    % if callback is called
     return
 end
 
-handle=winSelectSplitting;
+handle=FileSplitting;
 setUpDisplay(handle)
 
 end

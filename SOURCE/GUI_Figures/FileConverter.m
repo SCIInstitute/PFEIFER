@@ -1,18 +1,18 @@
-function varargout = winFileImporter(varargin)
-%WINFILEIMPORTER MATLAB code file for winFileImporter.fig
-%      WINFILEIMPORTER, by itself, creates a new WINFILEIMPORTER or raises the existing
+function varargout = FileConverter(varargin)
+%FILECONVERTER MATLAB code file for FileConverter.fig
+%      FILECONVERTER, by itself, creates a new FILECONVERTER or raises the existing
 %      singleton*.
 %
-%      H = WINFILEIMPORTER returns the handle to a new WINFILEIMPORTER or the handle to
+%      H = FILECONVERTER returns the handle to a new FILECONVERTER or the handle to
 %      the existing singleton*.
 %
-%      WINFILEIMPORTER('Property','Value',...) creates a new WINFILEIMPORTER using the
+%      FILECONVERTER('Property','Value',...) creates a new FILECONVERTER using the
 %      given property value pairs. Unrecognized properties are passed via
-%      varargin to winFileImporter_OpeningFcn.  This calling syntax produces a
+%      varargin to FileConverter_OpeningFcn.  This calling syntax produces a
 %      warning when there is an existing singleton*.
 %
-%      WINFILEIMPORTER('CALLBACK') and WINFILEIMPORTER('CALLBACK',hObject,...) call the
-%      local function named CALLBACK in WINFILEIMPORTER.M with the given input
+%      FILECONVERTER('CALLBACK') and FILECONVERTER('CALLBACK',hObject,...) call the
+%      local function named CALLBACK in FILECONVERTER.M with the given input
 %      arguments.
 %
 %      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
@@ -20,16 +20,16 @@ function varargout = winFileImporter(varargin)
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
 
-% Edit the above text to modify the response to help winFileImporter
+% Edit the above text to modify the response to help FileConverter
 
-% Last Modified by GUIDE v2.5 29-Aug-2017 19:23:06
+% Last Modified by GUIDE v2.5 17-Oct-2017 13:45:07
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
                    'gui_Singleton',  gui_Singleton, ...
-                   'gui_OpeningFcn', @winFileImporter_OpeningFcn, ...
-                   'gui_OutputFcn',  @winFileImporter_OutputFcn, ...
+                   'gui_OpeningFcn', @FileConverter_OpeningFcn, ...
+                   'gui_OutputFcn',  @FileConverter_OutputFcn, ...
                    'gui_LayoutFcn',  [], ...
                    'gui_Callback',   []);
 if nargin && ischar(varargin{1})
@@ -44,19 +44,19 @@ end
 % End initialization code - DO NOT EDIT
 
 
-function winFileImporter_OpeningFcn(hObject, eventdata, handles, varargin)
+function FileConverter_OpeningFcn(hObject, eventdata, handles, varargin)
 
-% Choose default command line output for winFileImporter
+% Choose default command line output for FileConverter
 handles.output = hObject;
 
 % Update handles structure
 guidata(hObject, handles);
 
-% UIWAIT makes winFileImporter wait for user response (see UIRESUME)
+% UIWAIT makes FileConverter wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
 
 
-function varargout = winFileImporter_OutputFcn(hObject, eventdata, handles)
+function varargout = FileConverter_OutputFcn(hObject, eventdata, handles)
 
 % Get default command line output from handles structure
 varargout{1} = handles.output;

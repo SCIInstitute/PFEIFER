@@ -2,9 +2,9 @@ function PFEIFER(varargin)
     %this is the first function to be called from the command line
 %         - Init ScriptData
 %         - Init ProcessingData
-%         - Open the mainMenu.fig ("the main menu")
+%         - Open the workbench.fig ("the main menu")
 %         - Open the Settings.fig ("settings menu")
-%         - Update mainMenu.fig and Settings.fig with data from ScriptData
+%         - Update workbench.fig and Settings.fig with data from ScriptData
 %         - Update/setup File list, (callback for "choose input directory)
 %         - this script also contains all the callbacks of the main menu
 %         and settings menu.  
@@ -23,11 +23,11 @@ initProcessingData();
 
 
 %%%% open the main menu and the settings window and update them with data
-main_handle=mainMenu();            % open the figure
+main_handle=workbench();            % open the figure
 updateFigure(main_handle);      % and update it 
 setHelpMenus(main_handle)      % and set help buttons
 
-setting_handle=SettingsDisplay();    %Open the settings Display
+setting_handle=DataOrganisation();    %Open the settings Display
 updateFigure(setting_handle);     % and update it
 setHelpMenus(setting_handle);      % initialise help menus that pop up when you righ click on button
 updateACQFiles      % get ACQ Files from input directory to display
@@ -367,7 +367,7 @@ for p = 1:nFiles
 
     ts.time=myStrTrim(ts.time);   % use of myStrTrim for the same reason as above..     
 
-    ScriptData.ACQLISTBOX{p} = sprintf('%04d %28s %10s %10s %20s',ScriptData.ACQFILENUMBER(p),ts.filename,rungroup, ts.time,ts.label);
+    ScriptData.ACQLISTBOX{p} = sprintf('%04d %20s %10s %10s %20s',ScriptData.ACQFILENUMBER(p),ts.filename,rungroup, ts.time,ts.label);
 
     ScriptData.ACQFILENAME{p} = ts.filename;
     ScriptData.ACQINFO{p} = ts.label;
@@ -847,12 +847,22 @@ function removeGroup(handle)
 %callback function to 'Remove this Group' button
 
     global ScriptData;
-    group = ScriptData.GROUPSELECT;
-    if group > 0
+    groupIdx = ScriptData.GROUPSELECT;
+    if groupIdx > 0
        fn = fieldnames(ScriptData.TYPE);
        for p=1:length(fn)
            if strncmp(fn{p},'GROUP',5) && ~strcmp('GROUPSELECT',fn{p})
-               ScriptData.(fn{p}){ScriptData.RUNGROUPSELECT}(group)=[];
+               aaa =fn{p}
+               try
+                   disp('remove this')
+                   ScriptData.(fn{p}){ScriptData.RUNGROUPSELECT}(groupIdx)=[];
+               catch
+                   disp('error log -------')
+                   tag = fn{p}
+                   rgIdx = ScriptData.RUNGROUPSELECT
+                   groupIdx
+                   error('end it here')
+               end
            end
        end
        ScriptData.GROUPSELECT =length(ScriptData.GROUPNAME{ScriptData.RUNGROUPSELECT});
@@ -918,7 +928,7 @@ end
 
 function openSettings(~)
 %callback to 'Settings Windwow'
-handle=SettingsDisplay;
+handle=DataOrganisation;
 updateFigure(handle)
 
 
@@ -1067,6 +1077,20 @@ end
 
 
 
+%%%% check if at leat one lead is provided for each group
+for RGIdx=1:length(ScriptData.RUNGROUPNAMES)
+    for grIdx=1:length(ScriptData.GROUPNAME{RGIdx})
+        if isempty(ScriptData.GROUPLEADS{RGIdx}{grIdx})
+            success=0;
+            errordlg('Not all groups in all Rungroups have their Lead Numbers specified.')
+            return
+        end
+    end
+end
+
+
+
+
 if ~isempty(index)
     %%%%%%  generate a calibration file if neccessary %%%%%%%%%%%%%%%
     if ScriptData.DO_CALIBRATE == 1  % if 'calibrate Signall' button is on
@@ -1121,8 +1145,15 @@ end
 ScriptData.GBADLEADS={};
 for rungroupIdx=1:length(ScriptData.RUNGROUPNAMES)
    badleads=[];
-   for p=1:length(ScriptData.GROUPBADLEADS{rungroupIdx})           
+   for p=1:length(ScriptData.GROUPBADLEADS{rungroupIdx})      
+       try
         reference=ScriptData.GROUPLEADS{rungroupIdx}{p}(1)-1;    
+        disp('remove this')
+       catch
+           rungroupIdx
+           groupIdx=p
+           error('end it here')
+       end
         addBadleads = ScriptData.GROUPBADLEADS{rungroupIdx}{p} + reference;
 
         %%%% check if user input for badleads is correct
@@ -1135,10 +1166,10 @@ for rungroupIdx=1:length(ScriptData.RUNGROUPNAMES)
 
 
         %%%% read in badleadsfile, if there is one
-        if ~isempty(ScriptData.GROUPBADLEADSFILE{rungroupIdx}{rungroupIdx}) 
-            bfile = load(ScriptData.GROUPBADLEADSFILE{rungroupIdx}{p},'-ASCII');
-            badleads = union(bfile(:)',badleads);
-        end
+%         if ~isempty(ScriptData.GROUPBADLEADSFILE{rungroupIdx}{rungroupIdx}) 
+%             bfile = load(ScriptData.GROUPBADLEADSFILE{rungroupIdx}{p},'-ASCII');
+%             badleads = union(bfile(:)',badleads);
+%         end
 
         %%%% change format of addBadleads.. just in case. this can probably be ignored..
         if size(addBadleads,2) > 1
@@ -1646,9 +1677,6 @@ necFields = {'CALIBRATIONFILE','','file', ...
                 'GROUPNAME','GROUP','groupstring',... 
                 'GROUPLEADS',[],'groupvector',...
                 'GROUPEXTENSION','-ext','groupstring',...
-                'GROUPGEOM','','groupfile',...
-                'GROUPCHANNELS','','groupfile',...
-                'GROUPBADLEADSFILE','','groupfile',...
                 'GROUPBADLEADS',[],'groupvector',...
                 'GROUPDONOTPROCESS',0,'groupbool',...
                 'GROUPSELECT',0,'select',...
@@ -1856,9 +1884,6 @@ function defaultsettings=getDefaultSettings
                     'GROUPNAME','GROUP','groupstring',... 
                     'GROUPLEADS',[],'groupvector',...
                     'GROUPEXTENSION','-ext','groupstring',...
-                    'GROUPGEOM','','groupfile',...
-                    'GROUPCHANNELS','','groupfile',...
-                    'GROUPBADLEADSFILE','','groupfile',...
                     'GROUPBADLEADS',[],'groupvector',...
                     'GROUPDONOTPROCESS',0,'groupbool',...
                     'GROUPSELECT',0,'select',...

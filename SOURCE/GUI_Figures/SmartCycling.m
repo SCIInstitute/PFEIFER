@@ -1,35 +1,35 @@
-function varargout = winSelectLoopOrder(varargin)
-% WINSELECTLOOPORDER MATLAB code for winSelectLoopOrder.fig
-%      WINSELECTLOOPORDER, by itself, creates a new WINSELECTLOOPORDER or raises the existing
+function varargout = SmartCycling(varargin)
+% SMARTCYCLING MATLAB code for SmartCycling.fig
+%      SMARTCYCLING, by itself, creates a new SMARTCYCLING or raises the existing
 %      singleton*.
 %
-%      H = WINSELECTLOOPORDER returns the handle to a new WINSELECTLOOPORDER or the handle to
+%      H = SMARTCYCLING returns the handle to a new SMARTCYCLING or the handle to
 %      the existing singleton*.
 %
-%      WINSELECTLOOPORDER('CALLBACK',hObject,eventData,handles,...) calls the local
-%      function named CALLBACK in WINSELECTLOOPORDER.M with the given input arguments.
+%      SMARTCYCLING('CALLBACK',hObject,eventData,handles,...) calls the local
+%      function named CALLBACK in SMARTCYCLING.M with the given input arguments.
 %
-%      WINSELECTLOOPORDER('Property','Value',...) creates a new WINSELECTLOOPORDER or raises the
+%      SMARTCYCLING('Property','Value',...) creates a new SMARTCYCLING or raises the
 %      existing singleton*.  Starting from the left, property value pairs are
-%      applied to the GUI before winSelectLoopOrder_OpeningFcn gets called.  An
+%      applied to the GUI before SmartCycling_OpeningFcn gets called.  An
 %      unrecognized property name or invalid value makes property application
-%      stop.  All inputs are passed to winSelectLoopOrder_OpeningFcn via varargin.
+%      stop.  All inputs are passed to SmartCycling_OpeningFcn via varargin.
 %
 %      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
 %      instance to run (singleton)".
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
 
-% Edit the above text to modify the response to help winSelectLoopOrder
+% Edit the above text to modify the response to help SmartCycling
 
-% Last Modified by GUIDE v2.5 12-Jun-2017 15:54:27
+% Last Modified by GUIDE v2.5 17-Oct-2017 13:46:40
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
                    'gui_Singleton',  gui_Singleton, ...
-                   'gui_OpeningFcn', @winSelectLoopOrder_OpeningFcn, ...
-                   'gui_OutputFcn',  @winSelectLoopOrder_OutputFcn, ...
+                   'gui_OpeningFcn', @SmartCycling_OpeningFcn, ...
+                   'gui_OutputFcn',  @SmartCycling_OutputFcn, ...
                    'gui_LayoutFcn',  [] , ...
                    'gui_Callback',   []);
 if nargin && ischar(varargin{1})
@@ -44,26 +44,26 @@ end
 % End initialization code - DO NOT EDIT
 
 
-% --- Executes just before winSelectLoopOrder is made visible.
-function winSelectLoopOrder_OpeningFcn(hObject, eventdata, handles, varargin)
+% --- Executes just before SmartCycling is made visible.
+function SmartCycling_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-% varargin   command line arguments to winSelectLoopOrder (see VARARGIN)
+% varargin   command line arguments to SmartCycling (see VARARGIN)
 
-% Choose default command line output for winSelectLoopOrder
+% Choose default command line output for SmartCycling
 handles.output = hObject;
 
 % Update handles structure
 guidata(hObject, handles);
 
-% UIWAIT makes winSelectLoopOrder wait for user response (see UIRESUME)
+% UIWAIT makes SmartCycling wait for user response (see UIRESUME)
 % uiwait(handles.loopOrderWindow);
 
 
 % --- Outputs from this function are returned to the command line.
-function varargout = winSelectLoopOrder_OutputFcn(hObject, eventdata, handles) 
+function varargout = SmartCycling_OutputFcn(hObject, eventdata, handles) 
 % varargout  cell array for returning output args (see VARARGOUT);
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB

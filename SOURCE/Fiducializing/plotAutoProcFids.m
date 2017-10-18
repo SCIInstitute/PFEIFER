@@ -2,17 +2,17 @@ function autoProcFig = plotAutoProcFids(varargin)
 %this function opens the 4th window and deals with everything related to it
 
 
-if nargin > 1 % if callback of winAutoProcessing is to be executed
+if nargin > 1 % if callback of AutoFiducializer is to be executed
     feval(varargin{1},varargin{2:end});  % execute callback
 else
  %   setUpAllForTesting
-   autoProcFig = Init; % else initialize and open winAutoProcessing.fig
+   autoProcFig = Init; % else initialize and open AutoFiducializer.fig
 end
 
 
 function autoProcFig = Init
 
-autoProcFig=winAutoProcessing;
+autoProcFig=AutoFiducializer;
 initSomeStartBasics(autoProcFig)
 
 InitFiducials(autoProcFig)

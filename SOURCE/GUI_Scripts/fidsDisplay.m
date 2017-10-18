@@ -131,7 +131,7 @@ function handle = Init(tsindex,mode)
         mode = 1;
     end
 
-    handle = winFidsDisplay;
+    handle = fiducializer;
     InitFiducials(handle,mode);
     InitDisplayButtons(handle);  
     InitMouseFunctions(handle);   %sets callback functions for user interface (eg 'ButtonUpFcn'

@@ -107,7 +107,7 @@ end
 
 clear global SLICEDISPLAY;  % just in case.. 
 
-handle = winSliceDisplay;
+handle = BeatIsolator;
 InitDisplayButtons(handle);
 InitMouseFunctions(handle);
 

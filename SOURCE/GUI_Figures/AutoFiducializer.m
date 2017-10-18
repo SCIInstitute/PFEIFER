@@ -1,35 +1,35 @@
-function varargout = winSliceDisplay(varargin)
-% WINSLICEDISPLAY M-file for winSliceDisplay.fig
-%      WINSLICEDISPLAY, by itself, creates a new WINSLICEDISPLAY or raises the existing
+function varargout = AutoFiducializer(varargin)
+% AUTOFIDUCIALIZER M-file for AutoFiducializer.fig
+%      AUTOFIDUCIALIZER, by itself, creates a new AUTOFIDUCIALIZER or raises the existing
 %      singleton*.
 %
-%      H = WINSLICEDISPLAY returns the handle to a new WINSLICEDISPLAY or the handle to
+%      H = AUTOFIDUCIALIZER returns the handle to a new AUTOFIDUCIALIZER or the handle to
 %      the existing singleton*.
 %
-%      WINSLICEDISPLAY('CALLBACK',hObject,eventData,handles,...) calls the local
-%      function named CALLBACK in WINSLICEDISPLAY.M with the given input arguments.
+%      AUTOFIDUCIALIZER('CALLBACK',hObject,eventData,handles,...) calls the local
+%      function named CALLBACK in AUTOFIDUCIALIZER.M with the given input arguments.
 %
-%      WINSLICEDISPLAY('Property','Value',...) creates a new WINSLICEDISPLAY or raises the
+%      AUTOFIDUCIALIZER('Property','Value',...) creates a new AUTOFIDUCIALIZER or raises the
 %      existing singleton*.  Starting from the left, property value pairs are
 %      applied to the GUI before winSliceDisplay_OpeningFunction gets called.  An
 %      unrecognized property name or invalid value makes property application
-%      stop.  All inputs are passed to winSliceDisplay_OpeningFcn via varargin.
+%      stop.  All inputs are passed to AutoFiducializer_OpeningFcn via varargin.
 %
 %      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
 %      instance to run (singleton)".
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
 
-% Edit the above text to modify the response to help winSliceDisplay
+% Edit the above text to modify the response to help AutoFiducializer
 
-% Last Modified by GUIDE v2.5 27-Sep-2017 10:48:01
+% Last Modified by GUIDE v2.5 17-Oct-2017 13:39:12
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
                    'gui_Singleton',  gui_Singleton, ...
-                   'gui_OpeningFcn', @winSliceDisplay_OpeningFcn, ...
-                   'gui_OutputFcn',  @winSliceDisplay_OutputFcn, ...
+                   'gui_OpeningFcn', @AutoFiducializer_OpeningFcn, ...
+                   'gui_OutputFcn',  @AutoFiducializer_OutputFcn, ...
                    'gui_LayoutFcn',  [] , ...
                    'gui_Callback',   []);
 if nargin & isstr(varargin{1})
@@ -44,26 +44,26 @@ end
 % End initialization code - DO NOT EDIT
 
 
-% --- Executes just before winSliceDisplay is made visible.
-function winSliceDisplay_OpeningFcn(hObject, eventdata, handles, varargin)
+% --- Executes just before AutoFiducializer is made visible.
+function AutoFiducializer_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-% varargin   command line arguments to winSliceDisplay (see VARARGIN)
+% varargin   command line arguments to AutoFiducializer (see VARARGIN)
 
-% Choose default command line output for winSliceDisplay
+% Choose default command line output for AutoFiducializer
 handles.output = hObject;
 
 % Update handles structure
 guidata(hObject, handles);
 
-% UIWAIT makes winSliceDisplay wait for user response (see UIRESUME)
+% UIWAIT makes AutoFiducializer wait for user response (see UIRESUME)
 % uiwait(handles.SLICEDISPLAY);
 
 
 % --- Outputs from this function are returned to the command line.
-function varargout = winSliceDisplay_OutputFcn(hObject, eventdata, handles)
+function varargout = AutoFiducializer_OutputFcn(hObject, eventdata, handles)
 % varargout  cell array for returning output args (see VARARGOUT);
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB

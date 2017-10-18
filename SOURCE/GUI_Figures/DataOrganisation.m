@@ -1,35 +1,35 @@
-function varargout = SettingsDisplay(varargin)
-% SETTINGSDISPLAY M-file for SettingsDisplay.fig
-%      SETTINGSDISPLAY, by itself, creates a new SETTINGSDISPLAY or raises the existing
+function varargout = DataOrganisation(varargin)
+% DATAORGANISATION M-file for DataOrganisation.fig
+%      DATAORGANISATION, by itself, creates a new DATAORGANISATION or raises the existing
 %      singleton*.
 %
-%      H = SETTINGSDISPLAY returns the handle to a new SETTINGSDISPLAY or the handle to
+%      H = DATAORGANISATION returns the handle to a new DATAORGANISATION or the handle to
 %      the existing singleton*.
 %
-%      SETTINGSDISPLAY('CALLBACK',hObject,eventData,handles,...) calls the local
-%      function named CALLBACK in SETTINGSDISPLAY.M with the given input arguments.
+%      DATAORGANISATION('CALLBACK',hObject,eventData,handles,...) calls the local
+%      function named CALLBACK in DATAORGANISATION.M with the given input arguments.
 %
-%      SETTINGSDISPLAY('Property','Value',...) creates a new SETTINGSDISPLAY or raises the
+%      DATAORGANISATION('Property','Value',...) creates a new DATAORGANISATION or raises the
 %      existing singleton*.  Starting from the left, property value pairs are
 %      applied to the GUI before winProcessingScriptSettings2_OpeningFunction gets called.  An
 %      unrecognized property name or invalid value makes property application
-%      stop.  All inputs are passed to SettingsDisplay_OpeningFcn via varargin.
+%      stop.  All inputs are passed to DataOrganisation_OpeningFcn via varargin.
 %
 %      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
 %      instance to run (singleton)".
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
 
-% Edit the above text to modify the response to help SettingsDisplay
+% Edit the above text to modify the response to help DataOrganisation
 
-% Last Modified by GUIDE v2.5 25-May-2017 15:12:35
+% Last Modified by GUIDE v2.5 17-Oct-2017 13:37:01
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
                    'gui_Singleton',  gui_Singleton, ...
-                   'gui_OpeningFcn', @SettingsDisplay_OpeningFcn, ...
-                   'gui_OutputFcn',  @SettingsDisplay_OutputFcn, ...
+                   'gui_OpeningFcn', @DataOrganisation_OpeningFcn, ...
+                   'gui_OutputFcn',  @DataOrganisation_OutputFcn, ...
                    'gui_LayoutFcn',  [] , ...
                    'gui_Callback',   []);
 if nargin & isstr(varargin{1})
@@ -44,25 +44,25 @@ end
 % End initialization code - DO NOT EDIT
 
 
-% --- Executes just before SettingsDisplay is made visible.
-function SettingsDisplay_OpeningFcn(hObject, eventdata, handles, varargin)
+% --- Executes just before DataOrganisation is made visible.
+function DataOrganisation_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-% varargin   command line arguments to SettingsDisplay (see VARARGIN)
+% varargin   command line arguments to DataOrganisation (see VARARGIN)
 
-% Choose default command line output for SettingsDisplay
+% Choose default command line output for DataOrganisation
 handles.output = hObject;
 
 % Update handles structure
 guidata(hObject, handles);
 
-% UIWAIT makes SettingsDisplay wait for user response (see UIRESUME)
+% UIWAIT makes DataOrganisation wait for user response (see UIRESUME)
 % uiwait(handles.PROCESSINGSCRIPTSETTINGS);
 
 % --- Outputs from this function are returned to the command line.
-function varargout = SettingsDisplay_OutputFcn(hObject, eventdata, handles)
+function varargout = DataOrganisation_OutputFcn(hObject, eventdata, handles)
 % varargout  cell array for returning output args (see VARARGOUT);
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB

@@ -22,7 +22,7 @@ FILEIMPORT.FILENAMES = {};
 FILEIMPORT.PATTERN = '';      % the pattern used to retrieve potvals
 
 %%%% open gui figure
-fig_handle=winFileImporter;
+fig_handle=FileConverter;
 FILEIMPORT.FIGURE=fig_handle;
 
 %%%% disable stuff at the beginning

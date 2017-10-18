@@ -5,7 +5,7 @@ if nargin > 0 && ischar(varargin{1})
     return
 end
 
-handle=winSelectLoopOrder;
+handle=SmartCycling;
 setLoopOrderWindow(handle)
 
 end
