@@ -24,6 +24,7 @@ initProcessingData();
 
 %%%% open the main menu and the settings window and update them with data
 main_handle=workbench();            % open the figure
+setupToolSelectionDropdownmenus(main_handle); % set up the tools dropdown menus
 updateFigure(main_handle);      % and update it 
 setHelpMenus(main_handle)      % and set help buttons
 
@@ -139,7 +140,7 @@ save(ScriptData.DATAFILE,'ProcessingData');
 end
 
 
-function updateFigure(handle)
+function updateFigure(figObj)
 % changes all Settings in the figure ( that belongs to handle) according to
 % ScriptData.  
 %Updates everything in the gui figures, including File Listbox etc..
@@ -151,7 +152,7 @@ global ScriptData;
 fn = fieldnames(ScriptData);
 for p=1:length(fn)
     %%%% identify the uicontrol object in the gui figure ("handle") that is related to the fieldname. The uicontrol object are identified by there tag property
-    obj = findobj(allchild(handle),'tag',fn{p});
+    obj = findobj(allchild(figObj),'tag',fn{p});
     if ~isempty(obj) % if field is also Tag to a uicontroll object in the figure..
         %%%% change that uicontroll. Depending on type..  
         objtype = ScriptData.TYPE.(fn{p});
@@ -168,7 +169,7 @@ for p=1:length(fn)
                 end
             case {'double','vector','listboxedit','integer'}
                 obj.String = mynum2str(ScriptData.(fn{p}));
-            case {'bool'}
+            case {'bool','toolsdropdownmenu'}
                 obj.Value = ScriptData.(fn{p});
             case {'select'}   % case of ScriptData.GROUPSELECT  
                 value = ScriptData.(fn{p});    % int telling which group is selected
@@ -213,8 +214,8 @@ for p=1:length(fn)
                 rungroup = ScriptData.RUNGROUPSELECT;
                 if (rungroup > 0)
                     set(obj,'enable','on','visible','on');
-                    set(findobj(allchild(handle),'tag','GROUPSELECT'),'enable','on','visible','on')
-                    set(findobj(allchild(handle),'tag','RUNGROUPFILESBUTTON'),'enable','on','visible','on')
+                    set(findobj(allchild(figObj),'tag','GROUPSELECT'),'enable','on','visible','on')
+                    set(findobj(allchild(figObj),'tag','RUNGROUPFILESBUTTON'),'enable','on','visible','on')
 
                     cellarray = ScriptData.(fn{p});                     
                     switch objtype(9:end)
@@ -228,8 +229,8 @@ for p=1:length(fn)
                     ScriptData.(fn{p})=cellarray;
                 else
                     set(obj,'enable','inactive','visible','off');
-                    set(findobj(allchild(handle),'tag','GROUPSELECT'),'enable','off','visible','off')
-                    set(findobj(allchild(handle),'tag','RUNGROUPFILESBUTTON'),'enable','off','visible','off')
+                    set(findobj(allchild(figObj),'tag','GROUPSELECT'),'enable','off','visible','off')
+                    set(findobj(allchild(figObj),'tag','RUNGROUPFILESBUTTON'),'enable','off','visible','off')
                 end
         end
     end
@@ -425,6 +426,57 @@ delete(errordlgObjs);
 clear global ProcessingData ScriptData FIDSDISPLAY SLICEDISPLAY TS
 end
 
+
+
+function setupToolSelectionDropdownmenus(figObj)
+global ScriptData
+[pathToPFEIFERfile,~,~] = fileparts(which('PFEIFER.m'));   % find path to PFEIFER.m
+
+%%%% hardcoded lists of the tags of the dropdown menus and the folders corresponding to them
+dropdownTags = {    'FILTER_SELECTION'};
+toolsFoldernames = {'temporal_filters'};
+toolsOptions = {    'FILTER_OPTIONS'};
+
+
+%%%% loop through dropdown menus:
+for p=1:length(dropdownTags)
+
+    %%%% find the dropdown object
+    dropdownObj = findobj(allchild(figObj),'Tag',dropdownTags{p});
+    
+    %%%% get the path to tools folder
+    pathToTools = fullfile(pathToPFEIFERfile,'TOOLS',toolsFoldernames{p});
+    
+    %%%% get all the function.m names in that folder. these are the different options to choose from
+    folderData = what(pathToTools);
+    functionNames = folderData.m;
+    % get rid of the '.m' at the end
+    for q=1:length(functionNames)
+        functionNames{q} = functionNames{q}(1:end-2);
+    end
+    
+    
+    %%%% set the dropdownObj.String
+    if isempty(functionNames)
+        dropdownObj.String ='no function found';
+    else
+        dropdownObj.String = functionNames;
+    end
+    
+    %%%% set the dropdownObj.Value
+    if ScriptData.(dropdownTags{p}) > length(functionNames)
+        ScriptData.(dropdownTags{p}) = 1;
+    end
+    dropdownObj.Value = ScriptData.(dropdownTags{p});
+    
+    %%%% set the toolsOptions
+    ScriptData.(toolsOptions{p}) = functionNames;
+end
+    
+
+end
+
+
 function Browse(handle,ext,mode)
 % callback to all the browse buttons.  mode is either 'file' or 'folder'
     global ScriptData
@@ -470,6 +522,7 @@ function Browse(handle,ext,mode)
                 return
             end
             %%%% update stuff
+            setupToolSelectionDropdownmenus(findobj(allchild(0),'tag','PROCESSINGSCRIPTMENU'));
             updateFigure(findobj(allchild(0),'tag','PROCESSINGSCRIPTSETTINGS'));
             updateFigure(findobj(allchild(0),'tag','PROCESSINGSCRIPTMENU')); 
             getInputFiles
@@ -558,9 +611,7 @@ switch objtype
         ScriptData.(tag)= hObject.String;
     case {'double','vector','integer'}
         ScriptData.(tag)=mystr2num(hObject.String);
-    case 'bool'
-        ScriptData.(tag)=hObject.Value;
-    case 'select'
+    case {'bool','select','toolsdropdownmenu'}
         ScriptData.(tag)=hObject.Value;
     case 'selectR'
         value=hObject.Value;
@@ -614,7 +665,8 @@ switch objtype
             end
             ScriptData.(tag)=cellarray;
         end
-        updateACQFiles;         
+        updateACQFiles;
+        
 end
 
 if strcmp(tag,'RUNGROUPFILES')
@@ -636,6 +688,7 @@ if nargin == 2
         getInputFiles;    %update all the file related cellarrays, load files into TS cellarray
     end
 end
+
 updateFigure(findobj(allchild(0),'tag','PROCESSINGSCRIPTSETTINGS'));
 updateFigure(findobj(allchild(0),'tag','PROCESSINGSCRIPTMENU')); 
 
@@ -672,6 +725,7 @@ end
 
 
 %%%% update stuff
+setupToolSelectionDropdownmenus(findobj(allchild(0),'tag','PROCESSINGSCRIPTMENU'));
 updateFigure(findobj(allchild(0),'tag','PROCESSINGSCRIPTSETTINGS'));
 updateFigure(findobj(allchild(0),'tag','PROCESSINGSCRIPTMENU')); 
 getInputFiles
@@ -1213,7 +1267,6 @@ function success = ProcessACQFile(inputfilename,inputfiledir)
 %       - if DO_BASELINE_USER:  open FidsDisplay. User chosses bl fids,
 %       which are stored in .. fids of type 16!?
 %       - some navigation stuff  & ExportUserSettings
-%       - Do_DeltaFoverF if selected (get rid of??)
 %       - Do baseline correction, call sigBaseLine(index,[],baselinewidth),
 %       which asks for fidsFindFids(..'baseline') to get blpts..
 % - DO_LABLACIAN_INTERPOLATE, if selected.
@@ -1296,6 +1349,42 @@ TS{index}.leadinfo(badleads) = 1;
 
 %%%%% do the temporal filter of current file %%%%%%%%%%%%%%%%
 if ScriptData.DO_FILTER      % if 'apply temporal filter' is selected
+    if isempty(ScriptData.FILTER_OPTIONS)
+        errordlg('There are not filter functions in the TOOLS/temporal_filter folder. Could not filter data. Aborting...')
+        return
+    end
+    
+    %%%% get filterFunction (the function selected to do temporal filtering) and check if it is valid
+    filterFunction = ScriptData.FILTER_OPTIONS{ScriptData.FILTER_SELECTION};
+    if nargin(filterFunction)~=1 || nargout(filterFunction)~=1
+        msg=sprintf('the provided temporal filter function ''%s'' does not have the right number of input and output arguments. Cannot filter data. Aborting..',filterFunction);
+        errordlg(msg)
+        return
+    end
+    
+    %%%% try catch to filter the data
+    h = waitbar(0,'Filtering signal please wait...');
+    try
+        TS{index}.potvals = feval(filterFunction,TS{index}.potvals);
+    catch
+        msg = sprintf('Something wrong with the provided temporal filter function ''%s''. Using it to filter the data failed. Aborting..',filterFunction);
+        errordlg(msg)
+        return
+    end
+    if isgraphics(h), close(h); end
+    
+    %%%%  check if potvals still have the right format and the filterFunction worked correctly
+    if TS{index}.numframes ~= size(TS{index}.potvals,2) || TS{index}.numleads ~= size(TS{index}.potvals,1)
+        msg = sprintf('The provided temporal filter function ''%s'' does not work as supposed. It changes the dimensions of the potvals. Using it to filter the data failed. Aborting..',filterFunction);
+        errordlg(msg)
+        return
+    end
+    
+    
+    %%%% add an audit string
+    auditString = sprintf('|used the temporal filter ''%s'' on the data',filterFunction);
+    tsAddAudit(index,auditString);
+    
     
     
     sigTemporalFilter(index);
@@ -1848,9 +1937,7 @@ function defaultsettings=getDefaultSettings
                     'DO_BASELINE',1,'bool',...
                     'DO_BASELINE_RMS',0,'bool',...
                     'DO_BASELINE_USER',1,'bool',...
-                    'DO_DELTAFOVERF',0,'bool',...
                     'DO_DETECT_USER',1,'bool',...
-                    'DO_DETECT_LOADTSDFC',1,'bool',...
                     'DO_INTEGRALMAPS',1,'bool',...
                     'DO_ACTIVATIONMAPS',1,'bool',...
                     'DO_FILTER',0,'bool',...
@@ -1886,13 +1973,15 @@ function defaultsettings=getDefaultSettings
                     'RECWIN',7,'integer',...
                     'RECDEG',3,'integer',...
                     'RECNEG',0,'integer',...
-                    'RUNGROUPSELECT',0,'selectR',... 
+                    'FILTER_SELECTION',1,'toolsdropdownmenu',....    % tools options
+                    'FILTER_OPTIONS',{},'other',...
+                    'RUNGROUPSELECT',0,'selectR',...            % rungroup options
                     'RUNGROUPNAMES','RUNGROUP', 'rungroupstring',...
                     'RUNGROUPFILES',[],'rungroupvector'... 
                     'RUNGROUPMAPPINGFILE','','rungroupstring',...
                     'RUNGROUPCALIBRATIONMAPPINGUSED','','rungroupstring',...
                     'RUNGROUPFILECONTAIN', '', 'rungroupstring',...
-                    'DO_AUTOFIDUCIALISING', 0, 'bool',...
+                    'DO_AUTOFIDUCIALISING', 0, 'bool',...      % autofiducialising
                     'AUTOFID_USER_INTERACTION', 0, 'bool',...
                     'ACCURACY', 0.9, 'double',...
                     'FIDSKERNELLENGTH',10,'integer',...

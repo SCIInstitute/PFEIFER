@@ -1,6 +1,6 @@
 function filteredPotvals = temporalFilter(potvals)
 
-
+disp('using original_temporalFilter')
 %%%% filter Parameters
 A = 1;
 B = [0.03266412226059 0.06320942361376 0.09378788647083 0.10617422096837 0.09378788647083 0.06320942361376 0.03266412226059];
