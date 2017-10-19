@@ -59,7 +59,6 @@ global times
 times=struct();
 times(1).count=1;
 
-a=tic;
 for beatNumber=2:length(AUTOPROCESSING.beats)    % skip the first beat, as this is the user fiducialized one
     b=tic;
     success = processBeat(beatNumber);
@@ -68,8 +67,6 @@ for beatNumber=2:length(AUTOPROCESSING.beats)    % skip the first beat, as this 
     if ~success, return, end
     times(1).count=times(1).count+1;
 end
-t1=toc(a);
-fprintf('%f seconds for main loop trough all beats\n',t1)
 
 fn=fieldnames(times);
 for p=1:length(fn)

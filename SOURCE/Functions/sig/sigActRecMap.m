@@ -19,7 +19,7 @@ function [TSmapindex, success] = sigActRecMap(TSindeces,refmode)
                 act = act(:,1); % only get the first series
             else
                 success=0; 
-                msg=sprintf('There are no activation values for the file %s. Cannot do activation maps..',TS{TSidx}.filename);
+                msg=sprintf('There are no activation values for the file %s. Cannot do activation maps. Select ''Auto Detect Activation'' or determine activations manually. Aborting...',TS{TSidx}.filename);
                 errordlg(msg)
                 return
             end
@@ -28,7 +28,7 @@ function [TSmapindex, success] = sigActRecMap(TSindeces,refmode)
                 rec = rec(:,1); % only get the first series
             else
                 success=0;
-                msg=sprintf('There are no recovery values for the file %s. Cannot do activation maps..',TS{TSidx}.filename);
+                msg=sprintf('There are no recovery values for the file %s. Cannot do recovery maps. Select ''Auto Detect Recovery'' or determine recoveries manually. Aborting..',TS{TSidx}.filename);
                 errordlg(msg)
                 return
             end
