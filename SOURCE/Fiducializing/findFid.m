@@ -1,10 +1,10 @@
 function [globFid, indivFids, variance] = findFid(windows,kernels)
 % inputs:
-%   - windows:  a nLeads x length(beat) - array with all the windows of a beat
+%   - windows:  a nLeads x length(window) - array with all the windows of a beat
 %   - kernels: a nLeads x length(kernel) - array with all the kernels of one fiducial
 %
 % outputs:
-%   - gobalFid: idx of global fids, determined from indivFids using "method"
+%   - gobalFid: idx of global fids, determined by taking mode from indivFids 
 %   - indivFids: indeces of individual fids,    indivFids=lag(index))+1 (= index!)   this way   windows(indivFids:indivFids+length(kernel)-1) matches kernel best;
 %     this means, indivFids still needs to be shiftet to the point in kernel, where the actuall fid is.
 %   - indivXcorr: nLeads x 1 array with normalised xcorr values of matches

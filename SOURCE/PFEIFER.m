@@ -996,10 +996,7 @@ function runScript(~)
             errordlg(msg);
             return
         end
-        tic
         success = ProcessACQFile(ScriptData.ACQFILENAME{acqfiles(p)},ScriptData.ACQDIR);
-        t=toc;
-        fprintf('%f seconds to ProcessACQFile\n',t)
         
         
         
@@ -1478,10 +1475,7 @@ end
 %%%% now we have a fiducialed beat - use it as template to autoprocess the rest of the data in TS{unslicedDataIndex}
 if ScriptData.DO_AUTOFIDUCIALISING
     ScriptData.CURRENTTS = index;
-    tic
     success = autoProcessSignal;
-    t=toc;
-    fprintf('%f seconds to autoProcessSignal\n',t)
     if ~success, return, end
 end
     
@@ -1559,7 +1553,9 @@ if ScriptData.DO_ACTIVATIONMAPS == 1
 
     %%%% make new ts at TS(mapindices). That new ts is like the old
     %%%% one, but has ts.potvals=[act rec act-rec]
-    mapindices = sigActRecMap(splittedTSindices);   
+    [mapindices, success] = sigActRecMap(splittedTSindices);   
+    if ~success,return, end
+    
     tsDeal(mapindices,'filename',ioUpdateFilename('.mat',inputfilename,ScriptData.GROUPEXTENSION{ScriptData.CURRENTRUNGROUP}(splitgroup),'-ari')); 
     tsSet(mapindices,'newfileext','');
     
@@ -1881,8 +1877,8 @@ function defaultsettings=getDefaultSettings
                     'CURRENTTS',1,'integer',...
                     'FIDSLOOPFIDS',1,'integer',...
                     'LOOP_ORDER',1,'vector',...
-                    'FIDSAUTOACT',1,'integer',...
-                    'FIDSAUTOREC',1,'integer',...
+                    'FIDSAUTOACT',1,'bool',...
+                    'FIDSAUTOREC',1,'bool',...
                     'MATODIR','','string',...
                     'ACTWIN',7,'integer',...
                     'ACTDEG',3,'integer',...

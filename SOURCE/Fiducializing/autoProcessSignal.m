@@ -31,8 +31,6 @@ AUTOPROCESSING.oriFids=TS{ScriptData.CURRENTTS}.fids;
 %%%% get signal, the RMS needed to find beats
 signal = preprocessPotvals(TS{unslicedDataIndex}.potvals(leadsOfAllGroups,:));   % make signal out of leadsOfAllGroups
 
-
-
 %%%% find allFids based on oriFids and signal
 [AUTOPROCESSING.allFids, success]=findAllFids(TS{unslicedDataIndex}.potvals(AUTOPROCESSING.leadsToAutoprocess,:),signal);
 
@@ -57,18 +55,28 @@ end
 
 
 %%%%% main loop: process each beat.
+global times
+times=struct();
+times(1).count=1;
 
 a=tic;
 for beatNumber=2:length(AUTOPROCESSING.beats)    % skip the first beat, as this is the user fiducialized one
     b=tic;
-    disp('-------------')
     success = processBeat(beatNumber);
     t2=toc(b);
-    fprintf('%f seconds to processBeat',t2)
+    times(times(1).count).processBeat=t2;
     if ~success, return, end
+    times(1).count=times(1).count+1;
 end
 t1=toc(a);
 fprintf('%f seconds for main loop trough all beats\n',t1)
+
+fn=fieldnames(times);
+for p=1:length(fn)
+    times(times(1).count).(fn{p}) = sum([times.(fn{p})]);
+end
+        
+
 
 success = 1;
 end
@@ -175,7 +183,10 @@ success = 0;
 global TS ScriptData AUTOPROCESSING
 
 
+global times
+
 %%%% slice "complete ts" into beat (in TS{newBeatIdx} )
+a=tic;
 newBeatIdx=tsNew(1);
 beatframes=AUTOPROCESSING.beats{beatNumber}(1):AUTOPROCESSING.beats{beatNumber}(2);  % all time frames of the beat
 
@@ -183,27 +194,35 @@ TS{newBeatIdx}=TS{ScriptData.unslicedDataIndex};
 TS{newBeatIdx}.potvals=TS{newBeatIdx}.potvals(:,beatframes);
 TS{newBeatIdx}.numframes=length(beatframes);
 TS{newBeatIdx}.selframes=[beatframes(1),beatframes(end)];
-    
+t=toc(a);
+times(times(1).count).a_sliceIntoBeat=t;
+
 %%%% put the new fids in the "local beat frame" and save them in newBeatIdx
+
+a=tic;
 fids=AUTOPROCESSING.allFids{beatNumber};
 reference=beatframes(1);
-
 for fidNumber=1:length(fids)
     fids(fidNumber).value=fids(fidNumber).value-reference+1;  % fids now in local frame
 end
 if isfield(fids,'variance'),  fids=rmfield(fids,'variance'); end  %variance not wanted in the output
 TS{newBeatIdx}.fids=fids;
+t=toc(a);
+times(times(1).count).b_MakeFidsLocalAndRemvoeVariance=t;
 
-
-%%%%%% if 'blank bad leads' button is selected,   set all values of the bad leads to 0   
+%%%%%% if 'blank bad leads' button is selected,   set all values of the bad leads to 0
+a=tic;
 if ScriptData.DO_BLANKBADLEADS == 1
     badleads = tsIsBad(newBeatIdx);
     TS{newBeatIdx}.potvals(badleads,:) = 0;
     tsSetBlank(newBeatIdx,badleads);
     tsAddAudit(newBeatIdx,'|Blanked out bad leads');
 end
+t=toc(a);
+times(times(1).count).c_blankBadLeads=t;
 
 %%%%  baseline correction
+a=tic;
 if ScriptData.DO_BASELINE
     sigBaseLine(newBeatIdx,[1,length(beatframes)-ScriptData.BASELINEWIDTH],ScriptData.BASELINEWIDTH);
     % also add the baseline fid to ts.fids
@@ -213,17 +232,24 @@ if ScriptData.DO_BASELINE
     TS{newBeatIdx}.fids(end).value=length(beatframes)-ScriptData.BASELINEWIDTH;
     
 end
+t=toc(a);
+times(times(1).count).d_BaselineCorrection=t;
 
 
 %%%%% do activation and deactivation
+
+a=tic;
 if ScriptData.FIDSAUTOACT == 1, DetectActivation(newBeatIdx); end
 if ScriptData.FIDSAUTOREC == 1, DetectRecovery(newBeatIdx); end
-
+t=toc(a);
+times(times(1).count).e_DetectActivationRecovery=t;
 
 
 
 
 %%%% construct the filename  (add eg '-b10' to filename)
+a=tic;
+
 [~,filename,~]=fileparts(TS{ScriptData.unslicedDataIndex}.filename);
 filename=sprintf('%s-b%d',filename,beatNumber-1); 
 
@@ -241,20 +267,28 @@ grIndices = tsSplitTS(newBeatIdx, channels);
 tsDeal(grIndices,'filename',ioUpdateFilename('.mat',filename,ScriptData.GROUPEXTENSION{ScriptData.CURRENTRUNGROUP}(splitgroup))); 
 tsClear(newBeatIdx);
 
+t=toc(a);
+times(times(1).count).f_splitIntoGroups=t;
+
 
 %%%% save the new ts structures
+a=tic;
 for grIdx=grIndices
     ts=TS{grIdx};
     fullFilename=fullfile(ScriptData.MATODIR, ts.filename);
     fprintf('Saving file: %s\n',ts.filename)
     save(fullFilename,'ts','-v6')
 end
-
+t=toc(a);
+times(times(1).count).g_saveGroups=t;
 
 
 
 %%%% do integral maps and save them  
+
+
 if ScriptData.DO_INTEGRALMAPS == 1
+    a=tic;
     if ScriptData.DO_DETECT == 0
         msg=sprintf('Need fiducials (at least QRS wave or T wave) to do integral maps for %s. Aborting..', filename);
         errordlg(msg)
@@ -281,15 +315,18 @@ if ScriptData.DO_INTEGRALMAPS == 1
         save(fullFilename,'ts','-v6')
     end
     tsClear(mapindices);
-    
-    
-    
+    t=toc(a);
+    times(times(1).count).h_IntegralMaps=t;
     
 end
+
+
        
 %%%%% Do activation maps   
 
 if ScriptData.DO_ACTIVATIONMAPS == 1
+    a=tic;
+    
     if ScriptData.DO_DETECT == 0 % 'Detect fiducials must be selected'
         errordlg('Fiducials needed to do Activationsmaps! Select the ''Do Fiducials'' button to do Activationmaps. Aborting...')
         return
@@ -297,7 +334,8 @@ if ScriptData.DO_ACTIVATIONMAPS == 1
 
     %%%% make new ts at TS(mapindices). That new ts is like the old
     %%%% one, but has ts.potvals=[act rec act-rec]
-    mapindices = sigActRecMap(grIndices);   
+    [mapindices, success] = sigActRecMap(grIndices);   
+    if ~success,return, end
     tsDeal(mapindices,'filename',ioUpdateFilename('.mat',filename,ScriptData.GROUPEXTENSION{ScriptData.CURRENTRUNGROUP}(splitgroup),'-ari')); 
     tsSet(mapindices,'newfileext','');
 
@@ -309,13 +347,17 @@ if ScriptData.DO_ACTIVATIONMAPS == 1
         save(fullFilename,'ts','-v6')
     end
     tsClear(mapindices);
+    t=toc(a);
+    times(times(1).count).i_IntegralMaps=t;
 end
 
 %%%%% clear TS
+a=tic;
 tsClear(grIndices);
+t=toc(a);
+times(times(1).count).j_clearGRrIdxs=t;
 
 success = 1;
-
 end
     
 function DetectActivation(newBeatIdx)
@@ -420,17 +462,7 @@ neg = ScriptData.RECNEG;
 
 %%%% get the recovery values for each lead
 for leadNumber=1:numchannels
-    try
-        rec(leadNumber) = ARdetect(TS{newBeatIdx}.potvals(leadNumber,ts(leadNumber):te(leadNumber)),win,deg,neg)/ScriptData.SAMPLEFREQ + ts(leadNumber);
-    catch
-        x = ts(leadNumber)
-        
-        xx = te(leadNumber)
-        
-        idx = newBeatIdx
-        
-        error('end it here')
-    end
+    rec(leadNumber) = ARdetect(TS{newBeatIdx}.potvals(leadNumber,ts(leadNumber):te(leadNumber)),win,deg,neg)/ScriptData.SAMPLEFREQ + ts(leadNumber);
 end
 
 %%%% put the recovery values in fids

@@ -117,7 +117,7 @@ function SetupNavigationBar(handle)
 end
 
     
-function handle = Init(tsindex,mode)
+function figObj = Init(tsindex,mode)
     %initialisation function, essentially the first function that is run,
     %It also opens the gui figure
     global ScriptData;
@@ -131,16 +131,20 @@ function handle = Init(tsindex,mode)
         mode = 1;
     end
 
-    handle = fiducializer;
-    InitFiducials(handle,mode);
-    InitDisplayButtons(handle);  
-    InitMouseFunctions(handle);   %sets callback functions for user interface (eg 'ButtonUpFcn'
-    SetupNavigationBar(handle);
-    SetupDisplay(handle);
-    UpdateDisplay(handle);
+    figObj = fiducializer;
+    InitFiducials(figObj,mode);
+    InitDisplayButtons(figObj);  
+    InitMouseFunctions(figObj);   %sets callback functions for user interface (eg 'ButtonUpFcn'
+    SetupNavigationBar(figObj);
+    SetupDisplay(figObj);
+    UpdateDisplay(figObj);
     
     if mode==2
-        setInvisible(handle)
+        setInvisible(figObj)
+        figObj.Name = 'CONFIRM BEATS ENVELOPE';
+        
+        titleTextObj=findobj(allchild(figObj),'Tag','text1');
+        titleTextObj.String = 'CONFIRM BEATS ENVELOPE';
     end
     
     
@@ -161,7 +165,6 @@ function SetFids(handle)
     % then it udates Axes accordingly (by calling DisplayFiducials)
 
     global FIDSDISPLAY;
-
     window = handle.Parent;
     tag = handle.Tag;
     switch tag
@@ -272,7 +275,7 @@ function FidsButton(handle)
     
     tag = handle.Tag;
     switch tag
-        case {'FIDSLOOPFIDS','FIDSAUTOREC','FIDSAUTOACT'}
+        case {'FIDSLOOPFIDS'}
             ScriptData.(tag) = handle.Value;
         case {'ACTNEG','RECNEG'}
             ScriptData.(tag) = handle.Value-1;
@@ -416,8 +419,8 @@ function setInvisible(handle)
 % set the uicontrolls that are not needed, if only baseline values are to
 % be selected (if mode==2)
 
-Tags2beSetInvisible={'FIDSCLEAR','FIDSLOOPFIDS', 'SELECT_LOOP','FIDSAUTOACT','FIDSDETECTACT',...
-    'FIDSAUTOREC', 'FIDSDETECTREC', 'text26','text29','text27','ACTWIN','RECWIN','text28','ACTDEG',...
+Tags2beSetInvisible={'FIDSCLEAR','FIDSLOOPFIDS', 'SELECT_LOOP','FIDSDETECTACT',...
+    'FIDSDETECTREC', 'text26','text29','text27','ACTWIN','RECWIN','text28','ACTDEG',...
     'RECDEG','ACTNEG','RECNEG'};
 
 for p=1:length(Tags2beSetInvisible)

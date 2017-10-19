@@ -1,4 +1,4 @@
-function TSmapindex = sigActRecMap(TSindex,refmode)
+function [TSmapindex, success] = sigActRecMap(TSindeces,refmode)
 % - get act and rec from TS{TSindex}.fid
 % - create datamap=[ act; rec; ari=act-rec]
 % - place a new ts in TS, that is a copy of the input ts, but with
@@ -7,22 +7,33 @@ function TSmapindex = sigActRecMap(TSindex,refmode)
 
     TSmapindex = [];
 
-    if isnumeric(TSindex)
+    if isnumeric(TSindeces)
         global TS;
   
-        for p=TSindex
+        for TSidx=TSindeces
             
             %%%% get act, ref and rec: nx1 vectors that contain the fids          
-            act = fidsFindLocalFids(p,'act');
+            act = fidsFindLocalFids(TSidx,'act');
+            
             if ~isempty(act)
                 act = act(:,1); % only get the first series
+            else
+                success=0; 
+                msg=sprintf('There are no activation values for the file %s. Cannot do activation maps..',TS{TSidx}.filename);
+                errordlg(msg)
+                return
             end
-            rec = fidsFindLocalFids(p,'rec');
+            rec = fidsFindLocalFids(TSidx,'rec');
             if ~isempty(rec)
                 rec = rec(:,1); % only get the first series
+            else
+                success=0;
+                msg=sprintf('There are no recovery values for the file %s. Cannot do activation maps..',TS{TSidx}.filename);
+                errordlg(msg)
+                return
             end
             ref = 0;
-            rf = fidsFindGlobalFids(p,'reference');
+            rf = fidsFindGlobalFids(TSidx,'reference');
             if (~isempty(rf))
                 ref = (rf(1)-1);
             end 
@@ -41,7 +52,7 @@ function TSmapindex = sigActRecMap(TSindex,refmode)
             
             
             %%%% create datamap=[ act; rec; ari=act-rec]
-            numchannels = size(TS{p}.potvals,1);
+            numchannels = size(TS{TSidx}.potvals,1);
             datamap = zeros(numchannels,3);
             
             if ~isempty(act), if length(act) == numchannels, datamap(:,1) = act; end, end
@@ -52,7 +63,7 @@ function TSmapindex = sigActRecMap(TSindex,refmode)
             %%%% place a new ts in TS, that is a copy of the input ts,
             %%%% except that potvals are changed to datamap.
             q = tsNew(1);
-            TS{q} = TS{p};
+            TS{q} = TS{TSidx};
             TS{q}.potvals = datamap;
             TS{q}.numleads = numchannels;
             TS{q}.numframes = 3;
@@ -64,5 +75,4 @@ function TSmapindex = sigActRecMap(TSindex,refmode)
             TSmapindex = [TSmapindex q];
         end
     end
-    
-    return
+    success = 1;

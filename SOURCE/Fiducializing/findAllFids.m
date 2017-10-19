@@ -144,9 +144,12 @@ for beatNumber=1:nBeats %for each beat
         globFid=globFid+fidsKernelLength-kernel_shift+bs-1+locFrFidsValues(fidNumber)-window_width;      % put it into "complete potvals" frame
 
         
-        %%%% if globFids are outside of beat, correct that
-        globFid(globFid > be) =  be;
-        globFid(globFid < bs) =  bs;
+        %%%% if globFids are outside of beat, make beat larger to fit fiducial
+        if globFid > be
+            AUTOPROCESSING.beats{beatNumber}(2)=globFid;
+        elseif globFid < bs
+            AUTOPROCESSING.beats{beatNumber}(1)=globFid;
+        end
         
 
         %%%% put the found newIndivFids in allFids
