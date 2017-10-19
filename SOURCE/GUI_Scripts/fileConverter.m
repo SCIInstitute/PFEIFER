@@ -37,6 +37,27 @@ end
 
 %%%%%%%%%%%%%%% callbacks %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+
+
+function OUTPUTDIR_Callback(cbobj, ~,~)
+% callback to input directory edit text
+global FILEIMPORT
+
+
+%%%% retrieve pathstring and check if its correct
+path = cbobj.String;
+if exist(path,'dir')
+    FILEIMPORT.OUTPUTDIR = path;
+else
+    cbobj.String = FILEIMPORT.OUTPUTDIR;
+    errordlg('Output directory doesn''t exist.')
+    return
+end
+
+
+
+
+
 function INPUTDIR_Callback(cbobj, ~,~)
 % callback to input directory edit text
 global FILEIMPORT

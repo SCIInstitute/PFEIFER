@@ -1296,8 +1296,8 @@ TS{index}.leadinfo(badleads) = 1;
 
 %%%%% do the temporal filter of current file %%%%%%%%%%%%%%%%
 if ScriptData.DO_FILTER      % if 'apply temporal filter' is selected
-    ScriptData.FILTERSETTINGS.B = [0.03266412226059 0.06320942361376 0.09378788647083 0.10617422096837 0.09378788647083 0.06320942361376 0.03266412226059];
-    ScriptData.FILTERSETTINGS.A = 1;
+    
+    
     sigTemporalFilter(index);
 end
         

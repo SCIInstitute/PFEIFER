@@ -20,8 +20,13 @@ function sigTemporalFilter(index)
 
 global ScriptData TS;
 
-A = ScriptData.FILTERSETTINGS.A;
-B = ScriptData.FILTERSETTINGS.B;
+% A = ScriptData.FILTERSETTINGS.A;
+% B = ScriptData.FILTERSETTINGS.B;
+A = 1;
+B = [0.03266412226059 0.06320942361376 0.09378788647083 0.10617422096837 0.09378788647083 0.06320942361376 0.03266412226059];
+
+
+
 
 
 h = waitbar(0,'Filtering signal please wait...');
@@ -38,5 +43,3 @@ TS{index}.potvals = D';
 tsAddAudit(index,'|used a temporal filter on the data');
 
 if isgraphics(h), close(h); end
-
-return
