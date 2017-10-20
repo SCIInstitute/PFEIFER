@@ -221,13 +221,14 @@ times(times(1).count).c_blankBadLeads=t;
 %%%%  baseline correction
 a=tic;
 if ScriptData.DO_BASELINE
-    sigBaseLine(newBeatIdx,[1,length(beatframes)-ScriptData.BASELINEWIDTH],ScriptData.BASELINEWIDTH);
-    % also add the baseline fid to ts.fids
+    % first add the default baseline fids (=start/endframe) to the beat
     TS{newBeatIdx}.fids(end+1).type=16;
     TS{newBeatIdx}.fids(end).value=1;
     TS{newBeatIdx}.fids(end+1).type=16;
     TS{newBeatIdx}.fids(end).value=length(beatframes)-ScriptData.BASELINEWIDTH;
-    
+    % now do the baseline correction
+    success = baseLineCorrectSignal(newBeatIdx);
+    if ~success, return, end
 end
 t=toc(a);
 times(times(1).count).d_BaselineCorrection=t;

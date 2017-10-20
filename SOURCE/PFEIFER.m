@@ -170,7 +170,7 @@ for p=1:length(fn)
             case {'double','vector','listboxedit','integer'}
                 obj.String = mynum2str(ScriptData.(fn{p}));
             case {'bool','toolsdropdownmenu'}
-                obj.Value = ScriptData.(fn{p});
+                [obj.Value] = deal(ScriptData.(fn{p}));
             case {'select'}   % case of ScriptData.GROUPSELECT  
                 value = ScriptData.(fn{p});    % int telling which group is selected
                 if value == 0, value = 1; end  %if nothing was selected
@@ -433,9 +433,9 @@ global ScriptData
 [pathToPFEIFERfile,~,~] = fileparts(which('PFEIFER.m'));   % find path to PFEIFER.m
 
 %%%% hardcoded lists of the tags of the dropdown menus and the folders corresponding to them
-dropdownTags = {    'FILTER_SELECTION'};
-toolsFoldernames = {'temporal_filters'};
-toolsOptions = {    'FILTER_OPTIONS'};
+dropdownTags = {    'FILTER_SELECTION', 'BASELINE_SELECTION'};
+toolsFoldernames = {'temporal_filters', 'baseline_corrections'};
+toolsOptions = {    'FILTER_OPTIONS',   'BASELINE_OPTIONS'};
 
 
 %%%% loop through dropdown menus:
@@ -458,18 +458,18 @@ for p=1:length(dropdownTags)
     
     %%%% set the dropdownObj.String
     if isempty(functionNames)
-        dropdownObj.String ='no function found';
+        [dropdownObj.String] = deal('no function found');
     else
-        dropdownObj.String = functionNames;
+        [dropdownObj.String] = deal(functionNames);      % deal and [  ] necessary here, because in case of 'BASELINE_SELECTION', there are two objects (since there are select baseline dropdown menus with the same tag)
     end
     
     %%%% set the dropdownObj.Value
     if ScriptData.(dropdownTags{p}) > length(functionNames)
         ScriptData.(dropdownTags{p}) = 1;
     end
-    dropdownObj.Value = ScriptData.(dropdownTags{p});
+    [dropdownObj.Value] = deal(ScriptData.(dropdownTags{p}));     % deal and [ ... ] necessary here, because in case of 'BASELINE_SELECTION', there are two objects (since both select baseline dropdown menus have that same tag)
     
-    %%%% set the toolsOptions
+    %%%% save the toolsOptions in ScriptData (for later use)
     ScriptData.(toolsOptions{p}) = functionNames;
 end
     
@@ -1243,44 +1243,6 @@ end
 
 
 function success = ProcessACQFile(inputfilename,inputfiledir)
-
-%this function does all the processing, in particular:
-% - checks if mappingfile and calibration file exist and loads
-% inputfilename in TS using all available files
-% - check if potvals are in accourdance with group lead choise 
-% - do pacing stuff (get rid of???)
-% - ImportUserSettings
-% - store GBADLEADS in TS
-% - DO Temporal Filter of ts
-% - DO THE SCLICING STUFF:
-%        - call SliceDisplay
-%        - some Navigation stuff
-%        -  does some upgrades to bad leads 
-%        -  ExportUserSettings
-%        - calls sigSlice, which in this case:  updates TS{currentIndex} bei
-%           keeping only the timeframe-window specified
-% - Do 'blank leads', if that option is selected
-% - DO ALL THE BASELINE STUFF
-%       - shift fiducials to local frame (I think?!)
-%       - Do 'Pre-RMS baseline correction (call sigBaseline) if that button
-%       is pressed
-%       - if DO_BASELINE_USER:  open FidsDisplay. User chosses bl fids,
-%       which are stored in .. fids of type 16!?
-%       - some navigation stuff  & ExportUserSettings
-%       - Do baseline correction, call sigBaseLine(index,[],baselinewidth),
-%       which asks for fidsFindFids(..'baseline') to get blpts..
-% - DO_LABLACIAN_INTERPOLATE, if selected.
-% - Detect the other fiducials, if user interaction is on
-%       - do fids shift, same as before with baseline
-%       - correct baseline values, just as before (why?)
-%       - open FidsDisplay, in mode 1 this time, do navigation stuff and
-%       Export User Settings
-% - split current ts into n_groups sub-ts structures, delete original ts
-% - Do_interpolation again, for each sub-ts
-% - SAVE the ts structures, 
-% - do integral maps, if selected and save them
-% - do Activation maps, if that option is selected
-
 success = 0;
 olddir = pwd;
 global ScriptData TS
@@ -1322,7 +1284,6 @@ end
     
     
 %%%% make ts.filename only the filename without the path
-
 [~,filename,ext]=fileparts(TS{index}.filename);
 TS{index}.filename=[filename ext];
     
@@ -1362,7 +1323,9 @@ if ScriptData.DO_FILTER      % if 'apply temporal filter' is selected
         return
     end
     
-    %%%% try catch to filter the data
+    [oldNumLeads, oldNumFrames] =  size(TS{index}.potvals);
+    
+    %%%% try catch to filter the data using filterFunction
     h = waitbar(0,'Filtering signal please wait...');
     try
         TS{index}.potvals = feval(filterFunction,TS{index}.potvals);
@@ -1374,7 +1337,7 @@ if ScriptData.DO_FILTER      % if 'apply temporal filter' is selected
     if isgraphics(h), close(h); end
     
     %%%%  check if potvals still have the right format and the filterFunction worked correctly
-    if TS{index}.numframes ~= size(TS{index}.potvals,2) || TS{index}.numleads ~= size(TS{index}.potvals,1)
+    if oldNumFrames ~= size(TS{index}.potvals,2) || oldNumLeads ~= size(TS{index}.potvals,1)
         msg = sprintf('The provided temporal filter function ''%s'' does not work as supposed. It changes the dimensions of the potvals. Using it to filter the data failed. Aborting..',filterFunction);
         errordlg(msg)
         return
@@ -1384,10 +1347,6 @@ if ScriptData.DO_FILTER      % if 'apply temporal filter' is selected
     %%%% add an audit string
     auditString = sprintf('|used the temporal filter ''%s'' on the data',filterFunction);
     tsAddAudit(index,auditString);
-    
-    
-    
-    sigTemporalFilter(index);
 end
         
 
@@ -1423,7 +1382,7 @@ if ScriptData.DO_BLANKBADLEADS == 1
     tsAddAudit(index,'|Blanked out bad leads');
 end
 
-%%%% if autofid user interaction is activated, to autofid, even if it is not selected.
+%%%% if autofid user interaction is activated, to autofidicializing
 if ScriptData.AUTOFID_USER_INTERACTION
     ScriptData.DO_AUTOFIDUCIALISING = 1;
 end
@@ -1479,8 +1438,8 @@ if (ScriptData.DO_BASELINE == 1)
     %%%% if 'Pre-RMS Baseline correction' button is pressed, do baseline
     %%%% corection of current index (before user selects anything..
     if ScriptData.DO_BASELINE_RMS == 1
-        baselinewidth = ScriptData.BASELINEWIDTH;
-        sigBaseLine(index,[],baselinewidth);
+        success = baseLineCorrectSignal(index);
+        if ~success, return, end
     end
     
     %%%%   open Fidsdisplay in mode 2, (baseline mode)
@@ -1501,12 +1460,12 @@ if (ScriptData.DO_BASELINE == 1)
      
     %%%% now do the final baseline correction
     if ScriptData.DO_BASELINE == 1
-        baselinewidth = ScriptData.BASELINEWIDTH;
         if length(fidsFindFids(index,'baseline')) < 2 
             han = errordlg('At least two baseline points need to be specified, skipping baseline correction');
             waitfor(han);
         else
-            sigBaseLine(index,[],baselinewidth);
+            success = baseLineCorrectSignal(index);
+            if ~success, return, end
         end
     end    
 end
@@ -1973,8 +1932,8 @@ function defaultsettings=getDefaultSettings
                     'RECWIN',7,'integer',...
                     'RECDEG',3,'integer',...
                     'RECNEG',0,'integer',...
-                    'FILTER_SELECTION',1,'toolsdropdownmenu',....    % tools options
-                    'FILTER_OPTIONS',{},'other',...
+                    'FILTER_SELECTION',1,'toolsdropdownmenu',...    % tools options
+                    'BASELINE_SELECTION',1,'toolsdropdownmenu',...
                     'RUNGROUPSELECT',0,'selectR',...            % rungroup options
                     'RUNGROUPNAMES','RUNGROUP', 'rungroupstring',...
                     'RUNGROUPFILES',[],'rungroupvector'... 
