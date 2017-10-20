@@ -1,3 +1,29 @@
+% MIT License
+% 
+% Copyright (c) 2017 The Scientific Computing and Imaging Institute
+% 
+% Permission is hereby granted, free of charge, to any person obtaining a copy
+% of this software and associated documentation files (the "Software"), to deal
+% in the Software without restriction, including without limitation the rights
+% to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+% copies of the Software, and to permit persons to whom the Software is
+% furnished to do so, subject to the following conditions:
+% 
+% The above copyright notice and this permission notice shall be included in all
+% copies or substantial portions of the Software.
+% 
+% THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+% IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+% FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+% AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+% LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+% OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+% SOFTWARE.
+
+
+
+
+
 function PFEIFER(varargin)
     %this is the first function to be called from the command line
 %         - Init ScriptData
@@ -433,9 +459,9 @@ global ScriptData
 [pathToPFEIFERfile,~,~] = fileparts(which('PFEIFER.m'));   % find path to PFEIFER.m
 
 %%%% hardcoded lists of the tags of the dropdown menus and the folders corresponding to them
-dropdownTags = {    'FILTER_SELECTION', 'BASELINE_SELECTION'};
-toolsFoldernames = {'temporal_filters', 'baseline_corrections'};
-toolsOptions = {    'FILTER_OPTIONS',   'BASELINE_OPTIONS'};
+dropdownTags = {    'FILTER_SELECTION', 'BASELINE_SELECTION',   'ACT_SELECTION', 'REC_SELECTION'};     % the Tags of the dropdown uicontrol objects
+toolsFoldernames = {'temporal_filters', 'baseline_corrections', 'act_detection', 'rec_detection'};    % these are the folder names of the folder in the TOOLS folder
+toolsOptions = {    'FILTER_OPTIONS',   'BASELINE_OPTIONS',     'ACT_OPTIONS',   'REC_OPTIONS'};
 
 
 %%%% loop through dropdown menus:
@@ -1050,9 +1076,13 @@ function runScript(~)
             errordlg(msg);
             return
         end
-        success = ProcessACQFile(ScriptData.ACQFILENAME{acqfiles(p)},ScriptData.ACQDIR);
         
         
+        try
+            success = ProcessACQFile(ScriptData.ACQFILENAME{acqfiles(p)},ScriptData.ACQDIR);
+        catch
+            fprintf('ERROR: something went wrong procssing the file %s. Skipping this file...',ScriptData.ACQFILENAME{acqfiles(p)})
+        end
         
         if ~success, return, end
         
@@ -1316,21 +1346,21 @@ if ScriptData.DO_FILTER      % if 'apply temporal filter' is selected
     end
     
     %%%% get filterFunction (the function selected to do temporal filtering) and check if it is valid
-    filterFunction = ScriptData.FILTER_OPTIONS{ScriptData.FILTER_SELECTION};
-    if nargin(filterFunction)~=1 || nargout(filterFunction)~=1
-        msg=sprintf('the provided temporal filter function ''%s'' does not have the right number of input and output arguments. Cannot filter data. Aborting..',filterFunction);
+    filterFunctionString = ScriptData.FILTER_OPTIONS{ScriptData.FILTER_SELECTION};
+    if nargin(filterFunctionString)~=1 || nargout(filterFunctionString)~=1
+        msg=sprintf('the provided temporal filter function ''%s'' does not have the right number of input and output arguments. Cannot filter data. Aborting..',filterFunctionString);
         errordlg(msg)
         return
     end
-    
+    filterFunction = str2func(filterFunctionString);
     [oldNumLeads, oldNumFrames] =  size(TS{index}.potvals);
     
     %%%% try catch to filter the data using filterFunction
     h = waitbar(0,'Filtering signal please wait...');
     try
-        TS{index}.potvals = feval(filterFunction,TS{index}.potvals);
+        TS{index}.potvals = filterFunction(TS{index}.potvals);
     catch
-        msg = sprintf('Something wrong with the provided temporal filter function ''%s''. Using it to filter the data failed. Aborting..',filterFunction);
+        msg = sprintf('Something wrong with the provided temporal filter function ''%s''. Using it to filter the data failed. Aborting..',filterFunctionString);
         errordlg(msg)
         return
     end
@@ -1338,14 +1368,14 @@ if ScriptData.DO_FILTER      % if 'apply temporal filter' is selected
     
     %%%%  check if potvals still have the right format and the filterFunction worked correctly
     if oldNumFrames ~= size(TS{index}.potvals,2) || oldNumLeads ~= size(TS{index}.potvals,1)
-        msg = sprintf('The provided temporal filter function ''%s'' does not work as supposed. It changes the dimensions of the potvals. Using it to filter the data failed. Aborting..',filterFunction);
+        msg = sprintf('The provided temporal filter function ''%s'' does not work as supposed. It changes the dimensions of the potvals. Using it to filter the data failed. Aborting..',filterFunctionString);
         errordlg(msg)
         return
     end
     
     
     %%%% add an audit string
-    auditString = sprintf('|used the temporal filter ''%s'' on the data',filterFunction);
+    auditString = sprintf('|used the temporal filter ''%s'' on the data',filterFunctionString);
     tsAddAudit(index,auditString);
 end
         
@@ -1928,12 +1958,12 @@ function defaultsettings=getDefaultSettings
                     'MATODIR','','string',...
                     'ACTWIN',7,'integer',...
                     'ACTDEG',3,'integer',...
-                    'ACTNEG',1,'integer',...
                     'RECWIN',7,'integer',...
                     'RECDEG',3,'integer',...
-                    'RECNEG',0,'integer',...
                     'FILTER_SELECTION',1,'toolsdropdownmenu',...    % tools options
                     'BASELINE_SELECTION',1,'toolsdropdownmenu',...
+                    'ACT_SELECTION',1,'toolsdropdownmenu',...
+                    'REC_SELECTION',1,'toolsdropdownmenu',...
                     'RUNGROUPSELECT',0,'selectR',...            % rungroup options
                     'RUNGROUPNAMES','RUNGROUP', 'rungroupstring',...
                     'RUNGROUPFILES',[],'rungroupvector'... 

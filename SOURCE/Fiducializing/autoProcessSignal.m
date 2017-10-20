@@ -1,3 +1,30 @@
+% MIT License
+% 
+% Copyright (c) 2017 The Scientific Computing and Imaging Institute
+% 
+% Permission is hereby granted, free of charge, to any person obtaining a copy
+% of this software and associated documentation files (the "Software"), to deal
+% in the Software without restriction, including without limitation the rights
+% to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+% copies of the Software, and to permit persons to whom the Software is
+% furnished to do so, subject to the following conditions:
+% 
+% The above copyright notice and this permission notice shall be included in all
+% copies or substantial portions of the Software.
+% 
+% THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+% IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+% FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+% AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+% LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+% OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+% SOFTWARE.
+
+
+
+
+
+
 function success = autoProcessSignal()
 % do all the autoprocessing.  Use the fiducials in the fiducialed beat to find all other beats of 
 % that run and fiducialise those beats, too. Handle & save the autoprocessed beats just like the 
@@ -237,8 +264,14 @@ times(times(1).count).d_BaselineCorrection=t;
 %%%%% do activation and deactivation
 
 a=tic;
-if ScriptData.FIDSAUTOACT == 1, DetectActivation(newBeatIdx); end
-if ScriptData.FIDSAUTOREC == 1, DetectRecovery(newBeatIdx); end
+if ScriptData.FIDSAUTOACT == 1
+    success = DetectActivation(newBeatIdx); 
+    if ~success, return, end
+end
+if ScriptData.FIDSAUTOREC == 1
+    success = DetectRecovery(newBeatIdx); 
+    if ~success, return, end
+end
 t=toc(a);
 times(times(1).count).e_DetectActivationRecovery=t;
 
@@ -358,7 +391,7 @@ times(times(1).count).j_clearGRrIdxs=t;
 success = 1;
 end
     
-function DetectActivation(newBeatIdx)
+function success = DetectActivation(newBeatIdx)
 %%%% load globals and set mouse arrow to waiting
 global TS ScriptData;
 
@@ -398,27 +431,32 @@ qe = max([qstart qend],[],2);
 %%%% init win/deg/neg
 win = ScriptData.ACTWIN;
 deg = ScriptData.ACTDEG;
-neg = ScriptData.ACTNEG;
 
-%%%% find act for all leads within QRS using ARdetect() 
-for leadNumber=1:numchannels
- %for each lead in each group = for all leads..  
-    if isfield(TS{newBeatIdx},'noisedrange')
-        act(leadNumber) = (ARdetect(TS{newBeatIdx}.potvals(leadNumber,qs(leadNumber):qe(leadNumber)),win,deg,neg,TS{newBeatIdx}.noisedrange(leadNumber))-1)/ScriptData.SAMPLEFREQ + qs(leadNumber);
-    else
-        [act(leadNumber)] = (ARdetect(TS{newBeatIdx}.potvals(leadNumber,qs(leadNumber):qe(leadNumber)),win,deg,neg)-1)/ScriptData.SAMPLEFREQ + qs(leadNumber);
+%%%% find act for all leads within QRS using the activation function selected by user() 
+
+[actFktHandle, success]=getActFunction;
+if ~success, return, end
+
+try
+    for leadNumber=1:numchannels
+     %for each lead in each group = for all leads..  
+       [act(leadNumber)] = (actFktHandle(TS{newBeatIdx}.potvals(leadNumber,qs(leadNumber):qe(leadNumber)),win,deg)-1)/ScriptData.SAMPLEFREQ + qs(leadNumber);
     end
+catch
+    errordlg('The selected function used to find the activations caused an error. Aborting...')
+    success = 0;
+    return
 end
 
 %%%% put the act in the fids
 TS{newBeatIdx}.fids(end+1).type=10;
 TS{newBeatIdx}.fids(end).value=act;
+success = 1;
 end
 
 
-function DetectRecovery(newBeatIdx)
+function success = DetectRecovery(newBeatIdx)
 %callback for DetectRecovery
-
 
 %%%% some initialisation, setting the mouse pointer..
 global TS ScriptData
@@ -456,80 +494,27 @@ te = max([tstart tend],[],2);
 %%%% set up some stuff
 win = ScriptData.RECWIN;
 deg = ScriptData.RECDEG;
-neg = ScriptData.RECNEG;
 
 %%%% get the recovery values for each lead
-for leadNumber=1:numchannels
-    rec(leadNumber) = ARdetect(TS{newBeatIdx}.potvals(leadNumber,ts(leadNumber):te(leadNumber)),win,deg,neg)/ScriptData.SAMPLEFREQ + ts(leadNumber);
+
+[recFktHandle, success] = getRecFunction;
+if ~success, return, end
+try
+    for leadNumber=1:numchannels
+        rec(leadNumber) = recFktHandle(TS{newBeatIdx}.potvals(leadNumber,ts(leadNumber):te(leadNumber)),win,deg)/ScriptData.SAMPLEFREQ + ts(leadNumber);
+    end
+catch
+    errordlg('The selected function used to find the activations caused an error. Aborting...')
+    success = 0;
+    return
 end
 
 %%%% put the recovery values in fids
 TS{newBeatIdx}.fids(end+1).type=13;
 TS{newBeatIdx}.fids(end).value=rec;
 
-end
 
-function x = ARdetect(sig,win,deg,pol,ndrange)
-if nargin == 4
-    ndrange = 0;
-end
-
-%%%% if sigdrange to small compared to noisedrange (ndrange), return
-%%%% x=len(sig)
-sigdrange = max(sig)-min(sig);  
-if (sigdrange <= 1.75*ndrange)
-    x = length(sig);
-    return;
-end
-
-%make sure win is uneven
-if mod(win,2) == 0, win = win + 1; end
-
-%%%% return x=1, if len(sig)<win
-if length(sig) < win, x=1; return; end
-
-% Detection of the minimum derivative
-% Use a window of 5 frames and fit a 2nd order polynomial
-
-cen = ceil(win/2);
-X = zeros(win,(deg+1));
-L = [-(cen-1):(cen-1)]';
-for p=1:(deg+1)
-    X(:,p) = L.^((deg+1)-p);
-end
-
-E = (X'*X)\X';
-
-sig = [sig sig(end)*ones(1,cen-1)];
-
-a = filter(E(deg,[win:-1:1]),1,sig);
-dy = a(cen:end);
-
-if pol == 1
-    [mv,mi] = min(dy(cen:end-cen));
-else
-    [mv,mi] = max(dy(cen:end-cen));
-end
-mi = mi(1)+(cen-1);
-
-% preset values for peak detector
-
-win2 = 5;
-deg2 = 2;
-
-cen2 = ceil(win2/2);
-L2 = [-(cen2-1):(cen2-1)]';
-for p=1:(deg2+1), X2(:,p) = L2.^((deg2+1)-p); end
-c = inv(X2'*X2)*X2'*(dy(L2+mi)');
-
-if abs(c(1)) < 100*eps, dx = 0; else dx = -c(2)/(2*c(1)); end
-
-dvdt = 2*c(1)*dx+c(2);
-
-dx = median([-0.5 dx 0.5]);
-
-x = mi+dx-1;
-
+success = 1;
 end
 
 
