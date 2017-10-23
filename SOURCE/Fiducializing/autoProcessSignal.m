@@ -174,7 +174,6 @@ for beatNumber = 1:numBeats
     variances =[AUTOPROCESSING.allFids{beatNumber}.variance];
     types = [AUTOPROCESSING.allFids{beatNumber}.type];
     faultyIndeces = find(variances > treshold_variance);
-    
     faultyFids = types(faultyIndeces); % get fids with to high variance
     
     if isempty(faultyFids) % if all fids of that beat are fine

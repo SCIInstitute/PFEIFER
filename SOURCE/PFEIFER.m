@@ -242,6 +242,10 @@ for p=1:length(fn)
                     set(obj,'enable','on','visible','on');
                     set(findobj(allchild(figObj),'tag','GROUPSELECT'),'enable','on','visible','on')
                     set(findobj(allchild(figObj),'tag','RUNGROUPFILESBUTTON'),'enable','on','visible','on')
+                    
+                    set(findobj(allchild(figObj),'tag','BROWSE_RUNGROUPMAPPINGFILE'),'enable','on','visible','on')
+                    set(findobj(allchild(figObj),'tag','USE_MAPPINGFILE'),'enable','on','visible','on')
+                    set(findobj(allchild(figObj),'tag','mappingfileStaticTextObj'),'enable','on','visible','on')
 
                     cellarray = ScriptData.(fn{p});                     
                     switch objtype(9:end)
@@ -257,6 +261,10 @@ for p=1:length(fn)
                     set(obj,'enable','inactive','visible','off');
                     set(findobj(allchild(figObj),'tag','GROUPSELECT'),'enable','off','visible','off')
                     set(findobj(allchild(figObj),'tag','RUNGROUPFILESBUTTON'),'enable','off','visible','off')
+                    
+                    set(findobj(allchild(figObj),'tag','BROWSE_RUNGROUPMAPPINGFILE'),'enable','off','visible','off')
+                    set(findobj(allchild(figObj),'tag','USE_MAPPINGFILE'),'enable','off','visible','off')
+                    set(findobj(allchild(figObj),'tag','mappingfileStaticTextObj'),'enable','off','visible','off')
                 end
         end
     end
@@ -296,11 +304,11 @@ end
 
 %%%% change into ScriptData.ACQDIR,if it exists and is not empty
 olddir = pwd;
-try
-    cd(ScriptData.ACQDIR);
-catch
+if isempty(ScriptData.ACQDIR)
     errordlg('input directory doesn''t exist. No files loaded..')
     return
+else
+    cd(ScriptData.ACQDIR)
 end
 
 
@@ -428,7 +436,7 @@ try
      saveSettings
      disp('Saved SETTINGS before closing PFEIFER')
     else
-     disp('PFEIFER closed without saving SETTINGs')
+     disp('PFEIFER closed without saving SETTINGS')
     end
 catch
     %do nothing
@@ -1078,11 +1086,11 @@ function runScript(~)
         end
         
         
-        try
+%         try
             success = ProcessACQFile(ScriptData.ACQFILENAME{acqfiles(p)},ScriptData.ACQDIR);
-        catch
-            fprintf('ERROR: something went wrong procssing the file %s. Skipping this file...',ScriptData.ACQFILENAME{acqfiles(p)})
-        end
+%         catch
+%             fprintf('ERROR: something went wrong procssing the file %s. Skipping this file...',ScriptData.ACQFILENAME{acqfiles(p)})
+%         end
         
         if ~success, return, end
         

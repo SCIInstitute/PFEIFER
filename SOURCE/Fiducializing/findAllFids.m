@@ -24,7 +24,7 @@
 
 
 
-function [allFidsGlFr success] = findAllFids(potvals,signal)
+function [allFidsGlFr, success] = findAllFids(potvals,signal)
 % returns allFids = {fidsBeat1, fidsBeat2, .... , FidsLastBeat}
 % each fidsBeatN is a numFids - array - struct 'fids' with the fields: 'type' (the fiducial type) and  'value' (the values of the fid in global frame) 
 % in short: fidsBeatN is just like the 'fids' struct as it is saved in ts,
@@ -34,7 +34,7 @@ function [allFidsGlFr success] = findAllFids(potvals,signal)
 success = 0;
 allFidsGlFr = 'dummyValue'; % to make sure this function has a value to return, even if function returns earlier as planned due to error
 %%%%% get paramters from ScriptData
-global ScriptData AUTOPROCESSING
+global ScriptData AUTOPROCESSING TS
 accuracy=ScriptData.ACCURACY;  % abort condition5
 fidsKernelLength=ScriptData.FIDSKERNELLENGTH;  % the kernel indices will be from fidsValue-fidsKernelLength  until fidsValue+fidsKernelLength
 kernel_shift=0;       % a "kernel shift", to shift the kernel by kernel_shift   % not used, just here as placeholder..
@@ -46,6 +46,9 @@ window_width=ScriptData.WINDOW_WIDTH;   % dont search complete beat, but only a 
 totalKernelLength = 2*fidsKernelLength +1;   % the length of a kernel
 
 
+%%%% beat kernel
+bsk=AUTOPROCESSING.bsk;   %start and end of beat
+bek=AUTOPROCESSING.bek;
 
 
 %%%% clear any nonglobal fids from oriFids
@@ -61,48 +64,86 @@ oriFids(toBeCleared)=[];
 
 
 
-%%%% beat kernel
-bsk=AUTOPROCESSING.bsk;   %start and end of beat
-bek=AUTOPROCESSING.bek;
 
-%%%% make sure all needed fids are there and tehre are not to many of them
-necFids =  [2 4 5 7 6];
-fidNames = {'qrs-Wave', 'qrs-Wave','T-Wave','T-Wave','T-Peak'};
-count=1;
-for fidType = necFids
-    idx = find([oriFids.type]==fidType);
-    if length(idx)~=1  % if more then one ore no occurence of this necessary fiducial
-        global TS
-        filename = TS{ScriptData.CURRENTTS}.filename;
-        fidName = fidNames{count};
-        msg = sprintf('Problem to autofiducialise the file %s: There is either no Fiducial or to many fiducials of type %s in this file. Aborting..',filename, fidName);
-        errordlg(msg)
-        return
+
+
+
+
+% %%%% get the indeces of qrs- and t-wave and t-peak
+% qrsStartIdx = find([oriFids.type]==2, 1);
+% qrsEndIdx = find([oriFids.type]==4, 1);
+% tStartIdx = find([oriFids.type]==5, 1);
+% tEndIdx = find([oriFids.type]==7, 1);
+% tPeakIdx = find([oriFids.type]==6, 1);
+% 
+% 
+% %%%% get fidsTypes and locFrFidsValues:  these are the fiducials that are done by the user and that will be autofiducialised
+% fidsTypes = [];
+% locFrFidsValues = [];
+% if ~isempty(qrsStartIdx) && ~isempty(qrsEndIdx)   % if there is a qrs wave
+%     loc_qrs_start = round(oriFids(qrsStartIdx(1)).value);
+%     loc_qrs_end = round(oriFids(qrsEndIdx(1)).value);
+%     fidsTypes = [fidsTypes 2 4];
+%     locFrFidsValues = [locFrFidsValues loc_qrs_start loc_qrs_end];
+% end
+% if ~isempty(tStartIdx) && ~isempty(tEndIdx)   % if there is a t wave
+%     loc_t_start = round(oriFids(tStartIdx(1)).value);
+%     loc_t_end = round(oriFids(tEndIdx(1)).value);
+%     fidsTypes = [fidsTypes 5 7];
+%     locFrFidsValues = [locFrFidsValues loc_t_start loc_t_end];
+% end
+% if ~isempty(tPeakIdx)   % if there is a t peak
+%     loc_t_peak = round(oriFids(tPeakIdx(1)).value);
+%     fidsTypes = [fidsTypes 6];
+%     locFrFidsValues = [locFrFidsValues loc_t_peak];
+% end
+
+
+%%%%% get the fids done by the user (in oriFids), that will be fiducialized
+
+% these are the possible fiducials that might be done by the user
+% corresponds to wave:   p    qrs   t     X               
+possibleWaves =       [ 0 1   2 4  5 7  26 27 ];
+% corresponds to peak: qrs    t    X
+possiblePeaks =       [ 3     6    25 ];
+
+
+% loop through possible Waves and see if the user did them. If yes, get their values from oriFids and add them to locFrFidsValues
+fidsTypes = [];       % these will be the fid types... 
+locFrFidsValues = []; % ...and corresponding fiducials that will be auto-fiducialised
+for waveStartTypeIdx = 1:2:length(possibleWaves)
+    waveStartType = possibleWaves(waveStartTypeIdx);
+    waveEndType = possibleWaves(waveStartTypeIdx+1);
+    
+    startOriFidsIdx = find([oriFids.type]==waveStartType, 1);
+    endOriFidsIdx = find([oriFids.type]==waveEndType, 1);
+    
+    if ~isempty(startOriFidsIdx) && ~isempty(endOriFidsIdx)   % if wave is in oriFids (ergo, was done by user)
+        waveStartValue = round(oriFids(startOriFidsIdx(1)).value);  % get fids value
+        waveEndValue = round(oriFids(endOriFidsIdx(1)).value);  
+        fidsTypes = [fidsTypes waveStartType waveEndType];               % and put them in fidsTypes and locFrFidsValues
+        locFrFidsValues = [locFrFidsValues waveStartValue waveEndValue];
     end
-    count = count +1;
+end
+% now loop through possible peaks and do the same like with waves
+for peakType = possiblePeaks    
+    peakOriFidsIdx = find([oriFids.type]==peakType, 1);
+    if ~isempty(peakOriFidsIdx)   % if peak is in oriFids (ergo, was done by user)
+        peakValue = round(oriFids(peakOriFidsIdx(1)).value);  % get peak value
+        fidsTypes = [fidsTypes peakType];               % and put them in fidsTypes and locFrFidsValues
+        locFrFidsValues = [locFrFidsValues peakValue];
+    end
 end
 
 
 
-%%%% get the the fids to be found
-%local fids in the "local beat frame"
-loc_qrs_start=round(oriFids([oriFids.type]==2).value);
-loc_qrs_end=round(oriFids([oriFids.type]==4).value);
-loc_t_start=round(oriFids([oriFids.type]==5).value);
-loc_t_end=round(oriFids([oriFids.type]==7).value);
-loc_t_peak=round(oriFids([oriFids.type]==6).value);
-
-
-
-%%%% put fids in organised way, also get the globFidsValues, the fids in the "global complete signal frame"
-fidsTypes=[2 4 5 7 6];   % oder here is important: start of a wave must be imediatly followed by end of same wave. otherwise FidsToEvents failes.
-locFrFidsValues = [loc_qrs_start; loc_qrs_end; loc_t_start; loc_t_end; loc_t_peak];
+%%%% get the globFidsValues, the fids in the "global complete signal frame"
 globFrFidsValues = locFrFidsValues+bsk-1;
 nFids=length(fidsTypes);
 
 %%%% set up the fsk and fek and get the first kernels based on the user fiducialized beat
-fsk=globFrFidsValues-fidsKernelLength+kernel_shift;   % fiducial start kernel,  the index in potvals where the kernel for fiducials starts
-fek=globFrFidsValues+fidsKernelLength+kernel_shift;   % analog to fsk, but 'end'
+fsk=globFrFidsValues - fidsKernelLength + kernel_shift;   % fiducial start kernel,  the index in potvals where the kernel for fiducials starts
+fek=globFrFidsValues + fidsKernelLength + kernel_shift;   % analog to fsk, but 'end'
 
 nLeads=size(potvals,1);
 kernels = zeros(nLeads,totalKernelLength, nFids);
@@ -114,12 +155,7 @@ end
 
 
 %%%%% find the beats, get rid of beats before user fiducialiced beat
-
-
-
 beats=findMatches(signal, signal(bsk:bek), accuracy);
-
-
 % find oriBeatIdx, the index of the template beat
 for beatNumber=1:length(beats)
     if (beats{beatNumber}(1)-AUTOPROCESSING.bsk) < 3  % if found beat "close enough" to original Beat 
@@ -127,8 +163,6 @@ for beatNumber=1:length(beats)
         break
     end
 end
-
-
 AUTOPROCESSING.beats = beats(oriBeatIdx:end);   % get rid if beats occuring before the user fiducialized beat
 nBeats=length(AUTOPROCESSING.beats);
 

@@ -1,4 +1,4 @@
-function resize(handle,~)
+function resize(figObj,~)
 %this is the SizeChangedFcn callback for all windows of the gui.
 %It adjust the fontsize of all the windows whenever the windows are resized
 %so everything still looks nice..
@@ -13,21 +13,19 @@ function resize(handle,~)
 % - the first Object with textproperties in figure is used to determine fontsize.
 %  => use its innerPosition property to control FontSize.  A heigth of 0.026145 results in FontSize = 13;
 
-% inner Position height: 0.026145067698259195
 
 
 
-objects=allchild(handle);  
+objects=allchild(figObj);  
 
 newFontsize=5;
 %%%% first find the default fontsize
 for p=1:length(objects)
     obj=objects(p);
-    if isStaticTextObject(obj)
+    if isSuitableStaticTextObject(obj)
         obj.Units='pixel';
         avail_widht=obj.Position(3);
         avail_height=obj.Position(4);
-        
         
         %%%% try increasingly smaller fontsizes and check if they are small enough
         for temp_fontsize=[13:-1:5]  % for each fontsize
@@ -45,7 +43,6 @@ for p=1:length(objects)
     end
 end
 
-
 %now change the fontsize of all objects to newFontsize
 for p=1:length(objects)
     if isprop(objects(p),'FontSize') && isprop(objects(p),'Extent') && ~strcmp(objects(p).Type,'uicontextmenu')
@@ -56,13 +53,21 @@ end
 
 
 
-function tf=isStaticTextObject(obj)
+function tf=isSuitableStaticTextObject(obj)
 tf=false;
+
+tagsOfNotSuitableTextObjs = {'multilinetext'};
+if ismember(obj.Tag,tagsOfNotSuitableTextObjs)
+    return
+end
+
+
 if isprop(obj,'Style')
     if strcmp(obj.Style,'text')
         tf=true;
     end
 end
+
 
     
     

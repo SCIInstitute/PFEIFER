@@ -75,21 +75,6 @@ function Navigation(handle,mode)
         handle.DeleteFcn = '';  % normally, DeleteFcn is: FidsDisplay('Navigation',gcbf,'stop')  (why?!)
         delete(handle);
     case {'apply'}
-        if ScriptData.DO_AUTOFIDUCIALISING && FIDSDISPLAY.MODE == 1
-            %%%% check if user has selected everyting needed for autofiducializing
-            neededFidTypes = [2 3, 5];
-            for neededType = neededFidTypes
-                indeces = find(FIDSDISPLAY.EVENTS{1}.type==neededType);
-                if length(indeces) < 1
-                    errordlg('QRS-Wave, T-Wave and T-Peak needed for autofiducialising!')
-                    return
-                elseif length(indeces) > 1
-                    errordlg('At least one fiducial was selected more than once.. Delete the dublicates!')
-                    return
-                end
-            end
-        end
-        
         EventsToFids;
         ScriptData.NAVIGATION = 'apply';
         handle.DeleteFcn = '';
@@ -1499,7 +1484,7 @@ function FidsToEvents
             qind = [qind q]; qval = [qval mean(fids(q).value)*isamplefreq];
         elseif fids(q).type == 7
             tind = [tind q]; tval = [tval mean(fids(q).value)*isamplefreq];
-        elseif fids(q).type==27  % X-Wave
+        elseif fids(q).type==27  % X-Wave off
             xind = [xind q]; xval = [xval mean(fids(q).value)*isamplefreq];    
         end
     end
@@ -1559,7 +1544,7 @@ function FidsToEvents
                 mtype = 8; val1 = fids(p).value*isamplefreq; val2 = val1;
             case 14
                 mtype = 9; val1 = fids(p).value*isamplefreq; val2 = val1;
-            case 26     % X-Wave
+            case 26     % X-Wave start
                 mtype = 11;
                 val1 = fids(p).value*isamplefreq;
                 if isempty(xind), continue; end
