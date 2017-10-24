@@ -63,42 +63,6 @@ oriFids(toBeCleared)=[];
 
 
 
-
-
-
-
-
-
-% %%%% get the indeces of qrs- and t-wave and t-peak
-% qrsStartIdx = find([oriFids.type]==2, 1);
-% qrsEndIdx = find([oriFids.type]==4, 1);
-% tStartIdx = find([oriFids.type]==5, 1);
-% tEndIdx = find([oriFids.type]==7, 1);
-% tPeakIdx = find([oriFids.type]==6, 1);
-% 
-% 
-% %%%% get fidsTypes and locFrFidsValues:  these are the fiducials that are done by the user and that will be autofiducialised
-% fidsTypes = [];
-% locFrFidsValues = [];
-% if ~isempty(qrsStartIdx) && ~isempty(qrsEndIdx)   % if there is a qrs wave
-%     loc_qrs_start = round(oriFids(qrsStartIdx(1)).value);
-%     loc_qrs_end = round(oriFids(qrsEndIdx(1)).value);
-%     fidsTypes = [fidsTypes 2 4];
-%     locFrFidsValues = [locFrFidsValues loc_qrs_start loc_qrs_end];
-% end
-% if ~isempty(tStartIdx) && ~isempty(tEndIdx)   % if there is a t wave
-%     loc_t_start = round(oriFids(tStartIdx(1)).value);
-%     loc_t_end = round(oriFids(tEndIdx(1)).value);
-%     fidsTypes = [fidsTypes 5 7];
-%     locFrFidsValues = [locFrFidsValues loc_t_start loc_t_end];
-% end
-% if ~isempty(tPeakIdx)   % if there is a t peak
-%     loc_t_peak = round(oriFids(tPeakIdx(1)).value);
-%     fidsTypes = [fidsTypes 6];
-%     locFrFidsValues = [locFrFidsValues loc_t_peak];
-% end
-
-
 %%%%% get the fids done by the user (in oriFids), that will be fiducialized
 
 % these are the possible fiducials that might be done by the user
@@ -172,13 +136,17 @@ nBeats=length(AUTOPROCESSING.beats);
 
 %%%% initialice/preallocate allFids
 clear allFidsGlFr % clear the dummy value from above
-defaultFid(nFids).type=[];
+if nFids > 0
+    defaultFid(nFids).type=[];
+else
+    defaultFid = struct('type',[],'value',[],'variance',[]);
+end
 [allFidsGlFr{1:nBeats}]=deal(defaultFid);
 
 
 %%%%%%%%%%%%% fill AllFids with values %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-h=waitbar(0/nBeats,'Autofiducialicing Beats..');
+h=waitbar(0/nBeats,'Autofiducializing Beats..');
 for beatNumber=1:nBeats %for each beat
     bs=AUTOPROCESSING.beats{beatNumber}(1);  % start of beat
     be=AUTOPROCESSING.beats{beatNumber}(2);  % end of beat

@@ -47,7 +47,12 @@ obj=findobj(allchild(guiFigureObj),'tag','SPLITFILELISTBOX');
 cellarray = ScriptData.('ACQLISTBOX');
 if ~isempty(cellarray) 
     values = intersect(ScriptData.ACQFILENUMBER,files2split);
-    set(obj,'string',cellarray,'max',length(cellarray),'value',values,'enable','on');
+    if length(cellarray) == 1   % make sure maxValue is not 1, even if there is only one file in directory. If listboxObj.Max == 1, it is not possible to have 'nothing' selected..
+        maxVal=3;
+    else
+        maxVal = length(cellarray);
+    end
+    set(obj,'string',cellarray,'max',maxVal,'value',values,'enable','on');
 else
     set(obj,'string',{'NO ACQ or AC2 FILES FOUND','',''},'max',3,'value',[],'enable','off');
 end

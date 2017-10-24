@@ -71,7 +71,7 @@ getFaultyBeats;
 if ScriptData.AUTOFID_USER_INTERACTION
     autoProcFig=plotAutoProcFids;
     waitfor(autoProcFig);  %do not proceed to processing until user is done
-    save(ScriptData.SCRIPTFILE,'ScriptData')  % save settings.. in case user made a change in autofiducialising window
+    save(ScriptData.SCRIPTFILE,'ScriptData')  % save settings.. in case user made a change in autofiducializing window
 end
 
 % return, if user pressed 'Stop','Prev', or 'next'
@@ -163,18 +163,20 @@ end
 
 %%%% set up variables
 treshold_variance = AUTOPROCESSING.TRESHOLD_VAR;
-faultyBeatIndeces =[]; % the indeces of faulty beats
-faultyBeatInfo = {};    % which fiducials in the beat are bad?
+faultyBeatIndeces =[]; % the indeces in .Beats of faulty beats
+faultyBeatInfo = {};    % which fiducials (which types) in the beat are bad?     of format { [2 4], [5 6],.. }  
 faultyBeatValues = {};
 numBeats = length(AUTOPROCESSING.beats);
-
+if ~isempty(AUTOPROCESSING.allFids)
+    numFids = length(AUTOPROCESSING.allFids{1})/2;
+end
 
 %%%% loop through beats and find faulty ones
 for beatNumber = 1:numBeats
     variances =[AUTOPROCESSING.allFids{beatNumber}.variance];
     types = [AUTOPROCESSING.allFids{beatNumber}.type];
     faultyIndeces = find(variances > treshold_variance);
-    faultyFids = types(faultyIndeces); % get fids with to high variance
+    faultyFids = types(faultyIndeces); % get fids of beat with to high variance
     
     if isempty(faultyFids) % if all fids of that beat are fine
         continue
@@ -183,7 +185,7 @@ for beatNumber = 1:numBeats
         faultyBeatInfo{end+1} = faultyFids;
         
         %%%% get the faultyValues of that faulty beat
-        faultyIndeces = faultyIndeces + 5;  % now faultyIndeces are indeces of global bad fiducials
+        faultyIndeces = faultyIndeces + numFids;  % now faultyIndeces are indeces of global bad fiducials
         faultyValues = [AUTOPROCESSING.allFids{beatNumber}(faultyIndeces).value];
         faultyBeatValues{end+1}=faultyValues;
     end   
@@ -322,12 +324,14 @@ if ScriptData.DO_INTEGRALMAPS == 1
     if ScriptData.DO_DETECT == 0
         msg=sprintf('Need fiducials (at least QRS wave or T wave) to do integral maps for %s. Aborting..', filename);
         errordlg(msg)
+        success = 0;
         return
     end
     mapindices = fidsIntAll(grIndices);
     if length(splitgroup)~=length(mapindices)
         msg=sprintf('Fiducials (QRS wave or T wave) necessary to do integral maps. However, for %s there are no fiducials for all groups. Aborting...',filename);
         errordlg(msg)
+        success = 0;
         return
     end
 
@@ -402,10 +406,18 @@ qstart = zeros(numchannels,1);
 qend = zeros(numchannels,1);
 act = ones(numchannels,1)*(1/ScriptData.SAMPLEFREQ);
 
-
-%%%% qstart/end=QRS-Komplex-start/end-timeframe as saved in the fids
+%%%% check if there is a t-wave to do recovery
 qstart_indeces=find([TS{newBeatIdx}.fids.type]==2);
 qend_indeces=find([TS{newBeatIdx}.fids.type]==4);
+if isempty(qstart_indeces) || isempty(qend_indeces)
+    msg = sprintf('There is no qrs-wave for the file %s. Therefore,activation detection cannot be done for this file. Aborting...',TS{newBeatIdx}.filename);
+    errordlg(msg)
+    success = 0;
+    return
+end
+
+
+%%%% qstart/end=QRS-Komplex-start/end-timeframe as saved in the fids
 for qstart_idx=qstart_indeces % loop trought to find global qrs
     if length(TS{newBeatIdx}.fids(qstart_idx).value) == 1
         qstart = TS{newBeatIdx}.fids(qstart_idx).value * ones(numchannels,1);
@@ -469,9 +481,17 @@ tstart = zeros(numchannels,1);
 tend = zeros(numchannels,1);
 rec = ones(numchannels)*(1/ScriptData.SAMPLEFREQ);  
 
-%%%% get tstart/end as saved in the fids
+%%%% check if there is a t-wave to do recovery
 tStartIndeces=find([TS{newBeatIdx}.fids.type]==5); 
 tEndIndeces=find([TS{newBeatIdx}.fids.type]==7);
+if isempty(tStartIndeces) || isempty(tEndIndeces)
+    msg = sprintf('There is no t-wave for the file %s. Therefore,recovery detection cannot be done for this file. Aborting...',TS{newBeatIdx}.filename);
+    errordlg(msg)
+    success = 0;
+    return
+end
+
+%%%% get tstart/end  values as saved in the fids
 for tStartIdx=tStartIndeces % loop trought to find global t wave
     if length(TS{newBeatIdx}.fids(tStartIdx).value) == 1
         tstart = TS{newBeatIdx}.fids(tStartIdx).value * ones(numchannels,1);
@@ -503,7 +523,7 @@ try
         rec(leadNumber) = recFktHandle(TS{newBeatIdx}.potvals(leadNumber,ts(leadNumber):te(leadNumber)),win,deg)/ScriptData.SAMPLEFREQ + ts(leadNumber);
     end
 catch
-    errordlg('The selected function used to find the activations caused an error. Aborting...')
+    errordlg('The selected function used to find the recoveries caused an error. Aborting...')
     success = 0;
     return
 end

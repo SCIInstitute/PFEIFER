@@ -189,7 +189,13 @@ for p=1:length(fn)
                 cellarray = ScriptData.(fn{p});
                 if ~isempty(cellarray) 
                     values = intersect(ScriptData.ACQFILENUMBER,ScriptData.ACQFILES);
-                    set(obj,'string',cellarray,'max',length(cellarray),'value',values,'enable','on');
+                    
+                    if length(cellarray) == 1
+                        maxVal=3;
+                    else
+                        maxVal = length(cellarray);
+                    end
+                    set(obj,'string',cellarray,'max',maxVal,'value',values,'enable','on');
                 else
                     set(obj,'string',{'NO ACQ or AC2 FILES FOUND','',''},'max',3,'value',[],'enable','off');
                 end
@@ -241,9 +247,9 @@ for p=1:length(fn)
                 if (rungroup > 0)
                     set(obj,'enable','on','visible','on');
                     set(findobj(allchild(figObj),'tag','GROUPSELECT'),'enable','on','visible','on')
-                    set(findobj(allchild(figObj),'tag','RUNGROUPFILESBUTTON'),'enable','on','visible','on')
+                    set(findobj(allchild(figObj),'tag','RUNGROUPFILESBUTTON'),'enable','on','visible','on','BackgroundColor',[0.28 0.28 0.28])
                     
-                    set(findobj(allchild(figObj),'tag','BROWSE_RUNGROUPMAPPINGFILE'),'enable','on','visible','on')
+                    set(findobj(allchild(figObj),'tag','BROWSE_RUNGROUPMAPPINGFILE'),'enable','on','visible','on','BackgroundColor',[0.28 0.28 0.28])
                     set(findobj(allchild(figObj),'tag','USE_MAPPINGFILE'),'enable','on','visible','on')
                     set(findobj(allchild(figObj),'tag','mappingfileStaticTextObj'),'enable','on','visible','on')
 
@@ -274,13 +280,11 @@ end
 
 function getInputFiles
 % this function finds all files in ScriptData.ACQDIR (the input directory) and updates the following fields of ScriptData accordingly:
-% - ScriptData.ACQFILENUMBER     double array of the form
-% - [1:NumberOfFilesDisplayedInListbox]
+% - ScriptData.ACQFILENUMBER     double array of the form [1:NumberOfFilesDisplayedInListbox]
 % - ScriptData.ACQLISTBOX        cellarray with strings for the listbox
 % - ScriptData.ACQFILENAME       cellarray with all filenames in ACQDIR
 % - ScriptData.ACQINFO           cellarray with a label for each file
-% - ScriptData.ACQFILES          double array of selected files in the
-% - listbox obj in main menu gui figure
+% - ScriptData.ACQFILES          double array of selected files in the listbox in main menu gui figure
 
 global ScriptData TS;
 
@@ -323,7 +327,6 @@ for p=1:length(exts)
 end
 % filenames is cellarray with all the filenames of files in folder, e.g. {'Ran0001.ac2'    'Ru0009.ac2'}
 
-
 %%%% get rid of files that don't belong here, also sort files
 filenames(strncmp('._',filenames,2))=[];  % necessary to get rid of weird ghost files on server
 filenames = sort(filenames);
@@ -343,6 +346,7 @@ end
 h = waitbar(0,'INDEXING AND READING FILES','Tag','waitbar'); drawnow;
 nFiles=length(filenames);
 for p = 1:nFiles  
+    
     %%%% load filename in various ways, depending if .mat .ac2..
     %%%% with/without 'ts_info...,  adds ts_info if its missing
     clear ts ts_info
@@ -387,7 +391,7 @@ for p = 1:nFiles
         errordlg(sprintf('Problems occured reading file %s. This file does not have the filename field.  Aborting to load files...',filenames{p}));
         return
     end
-
+    
     ts.label=myStrTrim(ts.label); %necessary, because original strings have weird whitespaces that are not recognized as whitespaces.. really weird!
     ScriptData.ACQFILENUMBER(p) = p;      
 
@@ -403,20 +407,21 @@ for p = 1:nFiles
     ts.time=myStrTrim(ts.time);   % use of myStrTrim for the same reason as above..     
 
     ScriptData.ACQLISTBOX{p} = sprintf('%04d %20s %10s %10s %20s',ScriptData.ACQFILENUMBER(p),ts.filename,rungroup, ts.time,ts.label);
-
     ScriptData.ACQFILENAME{p} = ts.filename;
     ScriptData.ACQINFO{p} = ts.label;
-
     if isgraphics(h), waitbar(p/nFiles,h); end
 end
 
 [~,~,ScriptData.ACQFILES] = intersect(oldfilenames,ScriptData.ACQFILENAME);
 ScriptData.ACQFILES = sort(ScriptData.ACQFILES);
 
+
+
 if isgraphics(h), waitbar(1,h); end
 drawnow;
 if isgraphics(h), delete(h); end
 cd(olddir);
+
 end
 
 

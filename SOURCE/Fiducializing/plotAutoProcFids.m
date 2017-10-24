@@ -991,7 +991,7 @@ FidsToEvents;
 function FidsToEvents
 %puts .allFids into .EVENTS
 
-global TS ScriptData AUTOPROCESSING;
+global ScriptData AUTOPROCESSING;
 
 samplefreq = ScriptData.SAMPLEFREQ;
 isamplefreq = 1/samplefreq;
@@ -999,6 +999,8 @@ isamplefreq = 1/samplefreq;
 for beatNumber=1:length(AUTOPROCESSING.allFids)  %for each beat
     AUTOPROCESSING.EVENTS{beatNumber}=AUTOPROCESSING.DEFAULT_EVENTS;
     fids=AUTOPROCESSING.allFids{beatNumber};
+    
+    if isempty([fids.type]), continue, end
     
     %%%% find the start_value and the end_value of a wave
     %this takes advantage of the fact, that end of wave imediatly follows beginning of waves in fids

@@ -158,10 +158,9 @@ function figObj = Init(tsindex,mode)
     
     if mode==2
         setInvisible(figObj)
-        figObj.Name = 'CONFIRM BEATS ENVELOPE';
-        
+        figObj.Name = 'CONFIRM BEAT ENVELOPE';
         titleTextObj=findobj(allchild(figObj),'Tag','text1');
-        titleTextObj.String = 'CONFIRM BEATS ENVELOPE';
+        titleTextObj.String = 'CONFIRM BEAT ENVELOPE';
     end
     
     
