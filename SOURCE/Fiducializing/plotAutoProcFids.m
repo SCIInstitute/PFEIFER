@@ -117,7 +117,7 @@ end
 
 function initDisplayButtons(fig)
 % initialize everything in figure exept the plotting stuff.. 
-global AUTOPROCESSING
+global AUTOPROCESSING ScriptData
 
 
 
@@ -128,7 +128,7 @@ numBeatsTextObj.String = num2str(numFaultyBeats);
 
 %%%% set up treshold var edit text 
 obj = findobj(allchild(fig),'Tag','TRESHOLD_VAR');
-obj.String = num2str(AUTOPROCESSING.TRESHOLD_VAR);
+obj.String = num2str(ScriptData.TRESHOLD_VAR);
 
 %%%% set up beatSelection popup menu
 beatSelectPopupObj = findobj(allchild(fig),'Tag','SELFAULTYBEAT');
@@ -903,7 +903,7 @@ UpdateDisplay;
 
 function DisplayButton(cbobj)
 %callback function to all the buttons
-global ScriptData AUTOPROCESSING
+global ScriptData
 
 
 switch cbobj.Tag
@@ -912,12 +912,12 @@ switch cbobj.Tag
         setupDisplay(cbobj.Parent)
         UpdateDisplay
     case {'TRESHOLD_VAR'}     % in case of str2double and AUTOPROCESSING needs update
-        newNumber = str2double(cbobj.String);        
-        if isnan(newNumber)
-            cbobj.String = num2str(AUTOPROCESSING.(cbobj.Tag));
+        newTreshold = str2double(cbobj.String);        
+        if isnan(newTreshold)
+            cbobj.String = num2str(ScriptData.(cbobj.Tag));
             return
         end
-        AUTOPROCESSING.(cbobj.Tag)=newNumber;
+        ScriptData.(cbobj.Tag)=newTreshold;
         
     otherwise
         ScriptData.(cbobj.Tag)=cbobj.Value;
@@ -1152,20 +1152,23 @@ function getFaultyBeats
 % determine the beats, where autoprocessing didn't quite work ( eg those with very high variance)
 % fill AUTOPROCESSING.faultyBeatInfo and AUTOPROCESSING.faultyBeatIndeces with info
 
-global AUTOPROCESSING
+global AUTOPROCESSING ScriptData
 
 %%%% if not set yet, set default for treshold variance
-if ~isfield(AUTOPROCESSING, 'TRESHOLD_VAR')
-    AUTOPROCESSING.TRESHOLD_VAR = 50;
+if ~isfield(ScriptData, 'TRESHOLD_VAR')
+    ScriptData.TRESHOLD_VAR = 50;
 end
 
 
 %%%% set up variables
-treshold_variance = AUTOPROCESSING.TRESHOLD_VAR;
+treshold_variance = ScriptData.TRESHOLD_VAR;
 faultyBeatIndeces =[]; % the indeces of faulty beats
 faultyBeatInfo = {};    % which fiducials in the beat are bad?
 faultyBeatValues = {};
 numBeats = length(AUTOPROCESSING.beats);
+if ~isempty(AUTOPROCESSING.allFids)
+    numFids = length(AUTOPROCESSING.allFids{1})/2;
+end
 
 %%%% loop through beats and find faulty ones
 for beatNumber = 1:numBeats
@@ -1183,7 +1186,7 @@ for beatNumber = 1:numBeats
         faultyBeatInfo{end+1} = faultyFids;
         
         %%%% get the faultyValues of that faulty beat
-        faultyIndeces = faultyIndeces + 5;  % now faultyIndeces are indeces of global bad fiducials
+        faultyIndeces = faultyIndeces + numFids;  % now faultyIndeces are indeces of global bad fiducials
         faultyValues = [AUTOPROCESSING.allFids{beatNumber}(faultyIndeces).value];
         faultyBeatValues{end+1}=faultyValues;
     end

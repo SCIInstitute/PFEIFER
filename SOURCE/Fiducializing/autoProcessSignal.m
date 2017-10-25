@@ -153,16 +153,16 @@ function getFaultyBeats
 % determine the beats, where autoprocessing didn't quite work ( eg those with very high variance)
 % fill AUTOPROCESSING.faultyBeatInfo and AUTOPROCESSING.faultyBeatIndeces with info
 
-global AUTOPROCESSING
+global AUTOPROCESSING ScriptData
 
 %%%% if not set yet, set default for treshold variance
-if ~isfield(AUTOPROCESSING, 'TRESHOLD_VAR')
-    AUTOPROCESSING.TRESHOLD_VAR = 50;
+if ~isfield(ScriptData, 'TRESHOLD_VAR')
+    ScriptData.TRESHOLD_VAR = 50;
 end
 
 
 %%%% set up variables
-treshold_variance = AUTOPROCESSING.TRESHOLD_VAR;
+treshold_variance = ScriptData.TRESHOLD_VAR;
 faultyBeatIndeces =[]; % the indeces in .Beats of faulty beats
 faultyBeatInfo = {};    % which fiducials (which types) in the beat are bad?     of format { [2 4], [5 6],.. }  
 faultyBeatValues = {};

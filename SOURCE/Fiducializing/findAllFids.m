@@ -31,7 +31,6 @@ function [allFidsGlFr, success] = findAllFids(potvals,signal)
 % but in the global frame!!
 % Fids are determined based on 'oriFids', die fids done by the user.
 
-success = 0;
 allFidsGlFr = 'dummyValue'; % to make sure this function has a value to return, even if function returns earlier as planned due to error
 %%%%% get paramters from ScriptData
 global ScriptData AUTOPROCESSING TS
@@ -127,6 +126,9 @@ for beatNumber=1:length(beats)
         break
     end
 end
+
+aaaa = oriBeatIdx
+
 AUTOPROCESSING.beats = beats(oriBeatIdx:end);   % get rid if beats occuring before the user fiducialized beat
 nBeats=length(AUTOPROCESSING.beats);
 
