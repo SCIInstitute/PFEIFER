@@ -21,9 +21,6 @@
 % SOFTWARE.
 
 
-
-
-
 function baseline_corrected_potvals = baselineCorrection(potvals,startframe,endframe,baselineWidth)
 % start/endframe is either a number (global) or a vector (individual on a lead by lead basis)
 

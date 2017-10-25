@@ -23,27 +23,37 @@
 
 
 
+function RECdetect
+close all
+x = -15:30;
+% y = sin(0.1*x)+1;
+y = -(x + 0.5*x.^2 - 0.01*x.^3)/100;
 
-function x = RECdetect(sig,win,deg,ndrange)
-if nargin == 3
-    ndrange = 0;
+
+
+
+sig=y;
+win = 6;
+deg = 3;
+
+
+
+act = xxxRECdetect(sig,win,deg);
 end
 
-%%%% if sigdrange to small compared to noisedrange (ndrange), return
-sigdrange = max(sig)-min(sig);  
-if (sigdrange <= 1.75*ndrange)
-    x = length(sig);
-    return;
-end
+
+
+
+function x = xxxRECdetect(signal,win,deg)
 
 %%%% make sure win is uneven
 if mod(win,2) == 0, win = win + 1; end
 
 %%%% return x=1, if len(sig)<win
-if length(sig) < win, x=1; return; end
+if length(signal) < win, x=1; return; end
 
 
-%%%% Detection of the minimum derivative using a window of 5 frames and fit a 2nd order polynomial
+%%%% Detection of the minimum derivative using a window of win frames and fit a deg order polynomial
 cen = ceil(win/2);
 X = zeros(win,(deg+1));
 L = [-(cen-1):(cen-1)]';
@@ -51,22 +61,35 @@ for p=1:(deg+1)
     X(:,p) = L.^((deg+1)-p);
 end
 
-E = (X'*X)\X';
 
-sig = [sig sig(end)*ones(1,cen-1)];
-
-a = filter(E(deg,(win:-1:1)),1,sig);
-dy = a(cen:end);
+E = (X'*X)\X';  % only used in the filter
 
 
-[~,mi] = max(dy(cen:end-cen));
-mi = mi(1)+(cen-1);
+
+%%%% continue signal with last value
+signal = [signal signal(end)*ones(1,cen-1)];
+
+
+
+filteredSignal = filter( E(deg,(win:-1:1)), 1, signal );
+
+
+
+trunctFiltSig = filteredSignal(cen:end);
+
+
+
+
+%%%% get index maxIdx of maximum in truncFiltSig, but leave out maxima at borders
+[~,maxIdx] = max(trunctFiltSig(cen:end-cen));
+maxIdx = maxIdx(1)+(cen-1);
+
+
+
 
 % preset values for peak detector
-
 win2 = 5;
 deg2 = 2;
-
 cen2 = ceil(win2/2);
 L2 = (-(cen2-1):(cen2-1))';
 
@@ -75,7 +98,13 @@ X2=zeros(length(L2),length((deg2+1)));
 for p=1:(deg2+1)
     X2(:,p) = L2.^((deg2+1)-p);
 end
-c = (X2'*X2)\X2'*(dy(L2+mi)');
+
+
+
+
+c = (X2'*X2)\X2' * (trunctFiltSig(L2+maxIdx)');
+
+
 
 
 if abs(c(1)) < 100*eps
@@ -86,7 +115,7 @@ end
 
 dx = median([-0.5 dx 0.5]);
 
-x = mi+dx-1;
+x = maxIdx+dx-1;
 
 end
 

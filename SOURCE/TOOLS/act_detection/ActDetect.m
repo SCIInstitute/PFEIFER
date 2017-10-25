@@ -24,17 +24,7 @@
 
 
 
-function x = ActDetect(sig,win,deg,ndrange)
-if nargin == 3
-    ndrange = 0;
-end
-
-%%%% if sigdrange to small compared to noisedrange (ndrange), return
-sigdrange = max(sig)-min(sig);  
-if (sigdrange <= 1.75*ndrange)
-    x = length(sig);
-    return;
-end
+function x = ActDetect(sig,win,deg)
 
 %%%% make sure win is uneven
 if mod(win,2) == 0, win = win + 1; end

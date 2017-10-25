@@ -11,7 +11,7 @@ end
 
 %%%% now get actFunction (the function selected to detect activation) and check if it is valid
 actFunctionString = ScriptData.ACT_OPTIONS{ScriptData.ACT_SELECTION};
-if nargin(actFunctionString)~=4 || nargout(actFunctionString)~=1
+if nargin(actFunctionString)~=3 || nargout(actFunctionString)~=1
     msg=sprintf('the provided activation detection function ''%s'' does not have the right number of input and output arguments. Cannot filter data. Aborting..',actFunctionString);
     errordlg(msg)
     success = 0;
