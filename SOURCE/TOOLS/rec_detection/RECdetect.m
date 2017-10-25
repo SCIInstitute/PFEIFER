@@ -20,31 +20,7 @@
 % OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 % SOFTWARE.
 
-
-
-
-function RECdetect
-close all
-x = -15:30;
-% y = sin(0.1*x)+1;
-y = -(x + 0.5*x.^2 - 0.01*x.^3)/100;
-
-
-
-
-sig=y;
-win = 6;
-deg = 3;
-
-
-
-act = xxxRECdetect(sig,win,deg);
-end
-
-
-
-
-function x = xxxRECdetect(signal,win,deg)
+function x = RECdetect(signal,win,deg)
 
 %%%% make sure win is uneven
 if mod(win,2) == 0, win = win + 1; end
@@ -53,7 +29,7 @@ if mod(win,2) == 0, win = win + 1; end
 if length(signal) < win, x=1; return; end
 
 
-%%%% Detection of the minimum derivative using a window of win frames and fit a deg order polynomial
+%%%% Detection of the minimum derivative using a window of 5 frames and fit a 2. order polynomial
 cen = ceil(win/2);
 X = zeros(win,(deg+1));
 L = [-(cen-1):(cen-1)]';
@@ -62,21 +38,15 @@ for p=1:(deg+1)
 end
 
 
-E = (X'*X)\X';  % only used in the filter
+E = (X'*X)\X';
 
 
 
 %%%% continue signal with last value
 signal = [signal signal(end)*ones(1,cen-1)];
 
-
-
 filteredSignal = filter( E(deg,(win:-1:1)), 1, signal );
-
-
-
 trunctFiltSig = filteredSignal(cen:end);
-
 
 
 
