@@ -202,9 +202,11 @@ pause(0.3)
 
 
 function plotEstiPeak(plag)
-global aaa
-xccoef = aaa.xc_coef;
-xval= 1:length(xccoef);
+
+load('xc_coef')    % run the plottAllEstimatedPeaks function to get 'xc_coeff'
+
+
+xval= 1:length(xc_coef);
 
 idx=plag + 1;
 
@@ -228,19 +230,20 @@ pause(0.5)
 
 
 function plotBlankedSteppedXcor(stepXCs,stepLags)
-s=25000;
-e=30000;
+s=1;
+e=3000;
 
 figure
 idx=find( and(stepLags < e, stepLags > s));
 
 plot(stepLags(idx),stepXCs(idx))
 title('plotBlankedSteppedXcor')
+pause(1)
 
 function plotAllEstimatedPeaks(estimatedPeakLags, kernel, signal)
 
-[xc_coef, ~] = coef_xcorr(signal,kernel);
-save('xc_coef','xc_coef');
+% [xc_coef, ~] = coef_xcorr(signal,kernel);
+% save('xc_coef','xc_coef');
 
 load('xc_coef','xc_coef')
 
@@ -264,6 +267,8 @@ for xval = estimatedPeakLags
     end
 end
 title('plotAllExtimatedPeaks')
+xlabel('lag')
+ylabel('cross correlation')
 
 
 
