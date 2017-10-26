@@ -86,11 +86,6 @@ end
 % Check whether the DFC-files have been converted to TSDFC-files
 % If not return error
 
-% if this warning pops up something has gone wrong as dfc-files should be implemented
-if ~isempty(files.dfc)
-    msgError('DFC support has not been implemented yet',5);
-end
-
 % OPTICAL DATA SUPPORT
 % CURRENTLY THE CAMERA DATA IS DEFINED BY A FILE WITH NO FILE EXTENSION
 % AND STARTING WITH RUN...... 

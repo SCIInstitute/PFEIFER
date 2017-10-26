@@ -24,7 +24,6 @@ global TS;
 
 %%%% get the fids structures
 if isnumeric(TSindex)
-    if TSindex > length(TS), msgError('TSindex out of range',5); return; end
     if isfield(TS{TSindex},'fids'), fids  = TS{TSindex}.fids; end
 end
 

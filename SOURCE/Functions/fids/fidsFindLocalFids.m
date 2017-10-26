@@ -22,10 +22,7 @@ function values = fidsFindLocalFids(TSindex,type,fidset)
 fids = [];
 fidset = {};
 values = [];
-if iscell(TSindex)
-    if length(TSindex) > 1, msgError('This function only works with one timeseries only',5); return; end
-    TSindex = TSindex{1};
-end
+
 
 if isstruct(TSindex)
     if isfield(TSindex,'fids'), fids  = TSindex.fids; end
@@ -35,7 +32,6 @@ end
 
 if isnumeric(TSindex)
     global TS;
-    if TSindex > length(TS), msgError('TSindex out of range',5); return; end
     if isfield(TS{TSindex},'fids'), fids  = TS{TSindex}.fids; end
     if isfield(TS{TSindex},'fidset'), fidset = TS{TSindex}.fidset; end
 end

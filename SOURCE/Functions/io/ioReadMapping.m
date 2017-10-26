@@ -34,8 +34,8 @@ FID = fopen(filename,'r');
 
 if FID < 1
     err = sprintf('Could not open file : %s\n',filename);
-    msgError(err,3);
-    return
+    errordlg(err)
+    error(err)
 end
 
 fgetl(FID); 					% We do need this info, matlab determines by it self how much data there is to read

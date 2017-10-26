@@ -29,10 +29,6 @@ if ischar(type)					% Translate the fiducial type from a hardcoded list
     type = fidsType(type); % translate the string input
 end
 
-if length(type) > 1					% Sorry but at this time only one type is allowed
-    msgError('Cannot deal with more than one type');
-end
-
 global TS;
 
 if nargin == 2						% if fidset is not specified, just look through all of them

@@ -38,8 +38,8 @@ ac2filename = files.ac2{1};
 TSindices = [];
 
 if isempty(ac2filename)
-    msgError('No AC2-file specified',3);
-    return;
+    errordlg('the function ReadAC2 was called but there is no AC2-file specified')
+    error('No AC2-file specified');
 end    
 
 TSindices = tsNew(1);						% get the same number of new entries 

@@ -25,7 +25,7 @@ cal = [];
 
 % Try to correct a faulty file name
 switch ext
-case {'.cal8'},
+case {'.cal8'}
     % do nothing
 otherwise    
     filename = fullfile(pn,[fn '.cal8']);
@@ -33,10 +33,10 @@ end
 
 FID = fopen(filename,'r');
 
-if FID < 1,
+if FID < 1
     err = sprintf('Could not open file : %s\n',filename);
-    msgError(err,3);
-    return
+    errordlg(err);
+    error(err)
 end
 
 dummy = fgetl(FID); 					% We do need this info, matlab determines by it self how much data there is to read

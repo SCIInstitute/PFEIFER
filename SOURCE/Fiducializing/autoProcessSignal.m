@@ -144,7 +144,7 @@ D(1:(max(length(A),length(B))-1),:) = ones(max(length(A),length(B))-1,1)*D(max(l
 potvals = D';
 
 %%%% do RMS
-signal=rms(potvals,1);
+signal=sqrt(mean(potvals.^2));
 signal=signal-min(signal);
 end
 
