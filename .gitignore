@@ -5,3 +5,6 @@
 *.m~
 test*
 
+!*ProcessingDataNoUserInteractionPreprocessed.mat
+!*ScriptDataNoUserInteractionPreprocessed.mat
+!*Run*.mat
