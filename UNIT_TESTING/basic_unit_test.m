@@ -71,7 +71,7 @@ end
 %%%% clear output folder
 clearFolder(testOutputDir)
 
-disp('SUCCESSFULLY RUN UNIT TEST: basic_unit_test')
+disp('SUCCESSFULLY RAN UNIT TEST: basic_unit_test')
 
 
 
@@ -116,8 +116,8 @@ PFEIFER('CloseFcn',settingsFigure)
 function feedbackMsg = compareFolders(folder1, folder2)
 feedbackMsg = 'foldersAreEqual';
 %%%%% first test if the folders have the same files
-metaFolder1 = dir( folder1 );
-metaFolder2 = dir( folder2 ); 
+metaFolder1 = dir(fullfile(folder1, '*.mat'));
+metaFolder2 = dir(fullfile(folder2, '*.mat'));
 metaFolder1( [metaFolder1.isdir] ) = [];
 metaFolder2( [metaFolder2.isdir] ) = [];
 files1={metaFolder1.name};
