@@ -49,14 +49,13 @@ initProcessingData();
 
 
 %%%% open the main menu and the settings window and update them with data
-main_handle=workbench();            % open the figure
-setupToolSelectionDropdownmenus(main_handle); % set up the tools dropdown menus
-updateFigure(main_handle);      % and update it 
-setHelpMenus(main_handle)      % and set help buttons
+workbenchFigObj=workbench();            % open the figure
+setupToolSelectionDropdownmenus(workbenchFigObj); % set up the tools dropdown menus
+setHelpMenus(workbenchFigObj)      % and set help buttons
 
-setting_handle=DataOrganisation();    %Open the settings Display
-updateFigure(setting_handle);     % and update it
-setHelpMenus(setting_handle);      % initialise help menus that pop up when you righ click on button
+dataOrgFigHandle=DataOrganisation();    %Open the settings Display
+updateFigure(dataOrgFigHandle);     % and update it
+setHelpMenus(dataOrgFigHandle);      % initialise help menus that pop up when you righ click on button
 updateACQFiles      % get ACQ Files from input directory to display
 end
 
@@ -171,7 +170,7 @@ function updateFigure(figObj)
 % ScriptData.  
 %Updates everything in the gui figures, including File Listbox etc..
 % handle is gui figure object
-    
+
 global ScriptData;
 
 %%%% loop through all fieldnames of ScriptData and make changes accourding to the fieldname

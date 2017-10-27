@@ -1414,7 +1414,9 @@ deg = ScriptData.ACTDEG;
 
 %%%% find act for all leads within QRS using ARdetect() 
 [actFktHandle,success] = getActFunction;
-if ~success, return, end
+if ~success
+    return
+end
 try
     for p=1:numgroups
         for q=ScriptData.GROUPLEADS{ScriptData.CURRENTRUNGROUP}{p}

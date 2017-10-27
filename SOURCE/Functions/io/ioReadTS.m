@@ -83,13 +83,7 @@ end
 
 % MAIN LOOP/SWITCH BOARD
 
-% Check whether the DFC-files have been converted to TSDFC-files
-% If not return error
 
-% OPTICAL DATA SUPPORT
-% CURRENTLY THE CAMERA DATA IS DEFINED BY A FILE WITH NO FILE EXTENSION
-% AND STARTING WITH RUN...... 
-% IT IS CRUDE BUT SHOULD WORK FOR THE TIME BEING
 
 if ~isempty(files.optraw)
     TSindices = [];
@@ -99,8 +93,6 @@ if ~isempty(files.optraw)
     return;
 end
 
-% MAT FILE SUPPORT
-% THIS WILL CONVERT ANY MATLAB FILE TO THE PROPER DATA FORMAT
 
 if ~isempty(files.mat)
      for q = 1:length(files.mat)
@@ -152,41 +144,7 @@ if ~isempty(files.mat)
     end
 end
 
-if (isempty(files.tsdf)) && (~isempty(files.tsdfc))
-    % Load a complete TSDFC file into memory
-    % Use ioReadTSDFC to read the complete set into memory   
 
-    % This function adds the complete TSDFC listing to the files.tsdf directory
-    % and then continues in the next function, loading them all
-    
-    files.tsdf = ioiReadTSDFCFiles(files.tsdfc);
-    
-    % This should be sufficient to force the next function to read all the files
-end
-    
-if (~isempty(files.tsdf))
-   % Load a series of TSDF files into memory
-     
-   for p = 1:length(files.tsdf)
-     
-      % This function first scans the TSDF-file to see whether more than one file is stored in this file
-      % subsequently it creates empty spaces in the TS structure and starts loading the TSDF files into
-      % these empty slots
-   
-      tsdffile = files.tsdf{p};
-      if options.skiptsdffile
-          index = tsNew(1);						% create an empty array
-          tsSet(index,'filename',tsdffile);				% just put in the filenames
-      else
-          index = ioiReadTSDF(tsdffile,options);  			% store the TS entries
-      end
-            
-      ioiReadFids(index,tsdffile,files.tsdfc,files.fids,options); 	% add the fiducials	
-      fidsUpdateFids(index,options);					% check range/number of channels in fiducials
-      
-      TSindices = [TSindices index]; 					% add them to the output vector 
-   end
-end
 
 if (~isempty(files.acq))
    % Load a series of ACQ files into memory
@@ -204,35 +162,23 @@ if (~isempty(files.acq))
           addaudit = sprintf('|acqfile=%s',acqfile);  
           newoptions = options;
           if ~isempty(files.mapping)
-             if length(files.mapping) > 1
-	         msgError('Currently only one mapping file per run is supported',2);
-             end
              mapfile = files.mapping{1};
              newoptions.leadmap = ioReadMapping(mapfile);
              addaudit = [addaudit sprintf('|mappingfile=%s',mapfile)];
           end
    
           if ~isempty(files.cal)
-             if length(files.cal) > 1
-                 msgError('Currently only one cal file per run is supported',2);
-             end
              calfile = files.cal{1};
              newoptions.scalemap = ioReadCal(calfile);
              addaudit = [addaudit sprintf('|calfile=%s',calfile)];
           end    
           if ~isempty(files.cal8)
-             if length(files.cal8) > 1
-                 msgError('Currently only one cal8 file per run is supported',2);
-             end
              calfile = files.cal8{1};
              newoptions.scalemap = ioReadCal8(calfile);
              addaudit = [addaudit sprintf('|cal8file=%s',calfile)];
           end
                     
           if ~isempty(files.acqcal)
-             if length(files.acqcal) > 1
-                 msgError('Currently only one acqcal file per run is supported',2);
-             end
              calfile = files.calacq{1};
              newoptions.scalemap = ioReadCal8(calfile);
              if ~isempty(files.mapping)
@@ -264,87 +210,34 @@ if (~isempty(files.ac2))
    % Load a series of AC2 files into memory
      
    for p = 1:length(files.ac2)
-     
-      % This function first scans the TSDF-file to see whether more than one file is stored in this file
-      % subsequently it creates empty spaces in the TS structure and starts loading the TSDF files into
-      % these empty slots
 
-      ac2file = files.ac2{p};
-      if options.skiptsdffile
-          index = tsNew(1);						% create an empty array
-          tsSet(index,'filename',ac2file);				% just put in the filenames
-      else
-          addaudit = sprintf('|ac2file=%s',ac2file);  
-          newoptions = options;
-          if ~isempty(files.mapping)
-             if length(files.mapping) > 1
-	         msgError('Currently only one mapping file per run is supported',2);
-             end
-             mapfile = files.mapping{1};
-             newoptions.leadmap = ioReadMapping(mapfile);
-             addaudit = [addaudit sprintf('|mappingfile=%s',mapfile)];
-          end
-   
-          if ~isempty(files.cal)
-             if length(files.cal) > 1
-                 msgError('Currently only one cal file per run is supported',2);
-             end
-             calfile = files.cal{1};
-             newoptions.scalemap = ioReadCal(calfile);
-             addaudit = [addaudit sprintf('|calfile=%s',calfile)];
-          end    
-          if ~isempty(files.cal8)
-             if length(files.cal8) > 1
-                 msgError('Currently only one cal8 file per run is supported',2);
-             end
-             calfile = files.cal8{1};
-             newoptions.scalemap = ioReadCal8(calfile);
-             addaudit = [addaudit sprintf('|cal8file=%s',calfile)];
-          end
-                    
-          if ~isempty(files.acqcal)
-             if length(files.acqcal) > 1
-                 msgError('Currently only one acqcal file per run is supported',2);
-             end
-             calfile = files.calacq{1};
-             newoptions.scalemap = ioReadCal8(calfile);
-             if ~isempty(files.mapping)
-                 leadmap = newoptions.leadmap;
-                 newoptions = rmfield(newoptions,'leadmap');
-             end    
-             index = ioiReadACQ(acqfile,newoptions);
-             TS{index}.audit = [TS{index}.audit addaudit];
-             if ~isempty(files.mapping)
-                TS{index}.potvals = TS{index}.potvals(leadmap,:);
-                TS{index}.leadinfo = TS{index}.leadinfo(leadmap);
-                TS{index}.gain = TS{index}.gain(leadmap);
-                TS{index}.numnleads = size(leadmap);
-             end
-         else
-             index = ioiReadAC2(ac2file,newoptions);
-             TS{index}.audit = [TS{index}.audit addaudit];     
-         end
-      end
-    
-      if ~isfield(TS{index},'samplefrequency'), TS{index}.samplefrequency = 1000; end
-      
-      TSindices = [TSindices index]; 					% add them to the output vector 
+        ac2file = files.ac2{p};
+
+        addaudit = sprintf('|ac2file=%s',ac2file);  
+        newoptions = options;
+
+        %%%% if there is a mapping file, load it
+        if ~isempty(files.mapping)
+            mapfile = files.mapping{1};
+            newoptions.leadmap = ioReadMapping(mapfile);
+            addaudit = [addaudit sprintf('|mappingfile=%s',mapfile)];
+        end
+
+        %%%% if there is a calibration file, load it
+        if ~isempty(files.cal8)
+            calfile = files.cal8{1};
+            newoptions.scalemap = ioReadCal8(calfile);
+            addaudit = [addaudit sprintf('|cal8file=%s',calfile)];
+        end
+
+        %%%% read in the ac2 file
+        index = ioiReadAC2(ac2file,newoptions);
+        TS{index}.audit = [TS{index}.audit addaudit];     
+
+        if ~isfield(TS{index},'samplefrequency'), TS{index}.samplefrequency = 1000; end
+
+        TSindices = [TSindices index]; 					% add them to the output vector 
    end
 end
 
 
-
-if (isempty(files.tsdf)&& isempty(files.tsdfc) && isempty(files.acq) && isempty(files.ac2) && isempty(files.mat))
-   msgError('You should specify a filename with a timeseries',1);
-end
-   
-      
-if ~isempty(files.geom)
-
-    geomindices = ioReadGEOM(files.geom);
-    tsSet(TSindices,'geom',geomindices);                % link geometry with timeseries
-  
-end
-
-return   
-   

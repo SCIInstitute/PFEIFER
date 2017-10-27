@@ -23,7 +23,7 @@ function result = ioWriteCal8(filename,cal)
     
     if FID < 1
        err = sprintf('Could not open file : %s\n',filename);
-       msgError(err,3);
+       errordlg(err);
        result = 0;
        return
     end
