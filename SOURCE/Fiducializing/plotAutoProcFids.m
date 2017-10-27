@@ -650,19 +650,19 @@ UpdateDisplay
 
 %%%%%%% callback functions %%%%%%%%%%%%%%%%%%%%%
 
-function Navigation(handle,mode)
+function Navigation(figObj,mode)
 %callback to all navigation buttons (including apply)
 global ScriptData
 switch mode
-case {'prev','next','stop'}
+case {'prev','next','stop','back'}
     ScriptData.NAVIGATION = mode;
-    handle.DeleteFcn = '';
-    delete(handle);
+    figObj.DeleteFcn = '';
+    delete(figObj);
 case {'apply'}
     ScriptData.NAVIGATION = 'apply';
     EventsToFids
-    handle.DeleteFcn = '';
-    delete(handle);
+    figObj.DeleteFcn = '';
+    delete(figObj);
 otherwise
     error('unknown navigation command');
 end

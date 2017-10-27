@@ -62,7 +62,7 @@ function handle = FidsDisplay(varargin)
 end
 
 
-function Navigation(handle,mode)
+function Navigation(figObj,mode)
     %callback function to Navigation bar. E.G. the "next" button has
     %callback function:   FidsDisplay('Navigation',gcbf,'next')
     %also callback to "apply" button!!
@@ -70,15 +70,15 @@ function Navigation(handle,mode)
     global ScriptData FIDSDISPLAY
     
     switch mode
-    case {'prev','next','stop','redo','back'}
+    case {'prev','next','stop','back'}
         ScriptData.NAVIGATION = mode;
-        handle.DeleteFcn = '';  % normally, DeleteFcn is: FidsDisplay('Navigation',gcbf,'stop')  (why?!)
-        delete(handle);
+        figObj.DeleteFcn = '';  % normally, DeleteFcn is: FidsDisplay('Navigation',gcbf,'stop')  (why?!)
+        delete(figObj);
     case {'apply'}
         EventsToFids;
         ScriptData.NAVIGATION = 'apply';
-        handle.DeleteFcn = '';
-        delete(handle);
+        figObj.DeleteFcn = '';
+        delete(figObj);
         
     otherwise
         error('unknown navigation command');

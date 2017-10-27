@@ -146,7 +146,7 @@ for pl = estimatedPeakLags  % for each "estimated" peak
         continue
     else
         matches{count} = [sl+1, sl+kernelLength] ;
-        start_values(count) = sl+1;
+        start_values(count) = sl+1;  % for sorting
     end
 end
 

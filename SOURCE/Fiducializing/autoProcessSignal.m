@@ -71,13 +71,16 @@ getFaultyBeats;
 if ScriptData.AUTOFID_USER_INTERACTION
     autoProcFig=plotAutoProcFids;
     waitfor(autoProcFig);  %do not proceed to processing until user is done
+    
+    %%%% if user pressed any navigation command, deal with it:
+    switch ScriptData.NAVIGATION
+        case {'prev','next','stop','back'}
+            tsClear(ScriptData.unslicedDataIndex);
+            ScriptData.unslicedDataIndex=[];
+            success = 1;
+            return; 
+    end  
     save(ScriptData.SCRIPTFILE,'ScriptData')  % save settings.. in case user made a change in autofiducializing window
-end
-
-% return, if user pressed 'Stop','Prev', or 'next'
-if ismember(ScriptData.NAVIGATION,{'prev','next','stop'})
-    success = 0;
-    return
 end
 
 

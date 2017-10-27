@@ -1491,7 +1491,7 @@ if (ScriptData.DO_BASELINE == 1)
         waitfor(handle);
 
         switch ScriptData.NAVIGATION
-            case {'prev','next','stop','redo','back'}
+            case {'prev','next','stop','back'}
                 cd(olddir);
                 tsClear(index);
                 success = 1;
@@ -1568,6 +1568,12 @@ if ScriptData.DO_AUTOFIDUCIALISING
     ScriptData.CURRENTTS = index;
     success = autoProcessSignal;
     if ~success, return, end
+    
+    switch ScriptData.NAVIGATION
+        case {'prev','next','stop','back'}
+            success = 1;
+            return; 
+    end  
 end
     
 

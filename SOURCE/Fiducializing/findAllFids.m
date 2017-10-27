@@ -120,6 +120,7 @@ end
 %%%%% find the beats, get rid of beats before user fiducialiced beat
 beats=findMatches(signal, signal(bsk:bek), accuracy);
 % find oriBeatIdx, the index of the template beat
+oriBeatIdx = [];
 for beatNumber=1:length(beats)    
     if (abs(beats{beatNumber}(1)-AUTOPROCESSING.bsk)) < 3  % if found beat "close enough" to original Beat 
         oriBeatIdx=beatNumber;
@@ -127,11 +128,14 @@ for beatNumber=1:length(beats)
     end
 end
 
+if isempty(oriBeatIdx)
+    oriBeatEnvelope=[bsk,bek];
+    AUTOPROCESSING.beats=[oriBeatEnvelope beats];
+    disp('beat issue')
+else
+    AUTOPROCESSING.beats = beats(oriBeatIdx:end);   % get rid if beats occuring before the user fiducialized beat
 
-
-
-
-AUTOPROCESSING.beats = beats(oriBeatIdx:end);   % get rid if beats occuring before the user fiducialized beat
+end
 nBeats=length(AUTOPROCESSING.beats);
 
 
