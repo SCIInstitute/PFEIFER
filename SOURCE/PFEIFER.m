@@ -1598,7 +1598,7 @@ tsClear(index);
 
 tsDeal(splittedTSindices,'filename',ioUpdateFilename('.mat',inputfilename,ScriptData.GROUPEXTENSION{ScriptData.CURRENTRUNGROUP}(splitgroup)));
 
-%%%% save integral maps  and clear them
+%%%% save the group ts structures
 for splitIdx=splittedTSindices
     ts=TS{splitIdx};
     fullFilename=fullfile(ScriptData.MATODIR, ts.filename);

@@ -24,7 +24,6 @@ global TS
 for q=1:length(TSindices)
     index = [];
     audit = '|';
-    
     startframe = fidsFindGlobalFids(TSindices(q),'qrson');
     endframe = fidsFindGlobalFids(TSindices(q),'qrsoff');
     if (~isempty(startframe)) && (~isempty(endframe))
@@ -34,6 +33,7 @@ for q=1:length(TSindices)
         end
     end
     
+
     startframe = fidsGetGlobalFids(TSindices(q),'qrson');
     endframe = fidsGetGlobalFids(TSindices(q),'toff');
     if (~isempty(startframe)) && (~isempty(endframe))
@@ -42,7 +42,8 @@ for q=1:length(TSindices)
             audit = [audit 'QRST/'];
         end
     end
-        
+    
+
     startframe = fidsGetGlobalFids(TSindices(q),'qrsoff');
     endframe = fidsGetGlobalFids(TSindices(q),'toff');
     if (~isempty(startframe)) && (~isempty(endframe))
@@ -52,10 +53,11 @@ for q=1:length(TSindices)
             audit = [audit 'ST/'];
         end
     end
-
-    qrsstart = fidsGetGlobalFids(TSindices(q),'qrsoff');
-    if ~isempty(qrsstart)
-        st80 = qrsstart(1)+80;
+    
+    
+    qrsoff = fidsGetGlobalFids(TSindices(q),'qrsoff'); 
+    if ~isempty(qrsoff)
+        st80 = qrsoff(1)+80;
         startframe = st80-4;   
         endframe = st80+4;
         
@@ -70,20 +72,26 @@ for q=1:length(TSindices)
         end
     end
     
+    
+    
     startframe = fidsGetGlobalFids(TSindices(q),'qrsoff');
     endframe = fidsGetGlobalFids(TSindices(q),'toff');
+    
+    
+    
     if (~isempty(startframe)) && (~isempty(endframe))
         if (isfinite(startframe(1)) && isfinite(endframe(1)))
             index = fidsIntegralMap(index,TSindices(q),startframe(1),endframe(1));
             audit = [audit 'STT/'];
         end
     end
+
     
     if ~isempty(index)
         TSmapindices(q) = index;
      
          % now just change some of the text fields
-        TS{TSmapindices(q)}.newfileext = ['-itg'];
+        TS{TSmapindices(q)}.newfileext = '-itg';
         TS{TSmapindices(q)}.audit = [ TS{TSmapindices(q)}.audit audit ' integration'];
         TS{TSmapindices(q)}.label = [TS{TSmapindices(q)}.label audit ' Integralmap'];   
     else
