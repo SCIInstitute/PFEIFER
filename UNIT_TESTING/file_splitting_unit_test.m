@@ -133,7 +133,15 @@ for fileIdx = 1:length(files1)
     
     
     %%%% compare the ts
-    fieldsToIgnore = {'audit'};
+    fieldsToIgnore = {'audit','potvals'};
+    pv1=fileMeta1.ts.potvals;
+    pv2=fileMeta2.ts.potvals;
+    
+    if ~isempty(find( (pv1-pv2) > 0.001, 1))
+        feedbackMsg = sprintf('the files %s don''t have the same potvals ... \n',files1{fileIdx});
+    end
+    
+    
     ts1=rmfield(fileMeta1.ts,fieldsToIgnore);
     ts2=rmfield(fileMeta2.ts,fieldsToIgnore);
     if ~isequal(ts1, ts2)
