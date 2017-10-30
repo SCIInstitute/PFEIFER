@@ -872,6 +872,28 @@ end
 %%%%  change the global, convert newFormat if necessary
 ScriptData =  newScriptData;
 old2newScriptData
+
+
+
+%%%% check all paths and make them empty, if they don't exist.
+pathTags = {'ACQDIR','MATODIR','CALIBRATIONFILE'};
+for p=1:length(pathTags)
+    pathTag= pathTags{p};
+    path = ScriptData.(pathTag);
+    if ~exist(path,'dir') && ~exist(path,'file')
+        ScriptData.(pathTag) = '';
+    end
+end
+% same for mapping files
+for p=1:length(ScriptData.RUNGROUPMAPPINGFILE)
+    if ~exist(ScriptData.RUNGROUPMAPPINGFILE{p},'file')
+        ScriptData.RUNGROUPMAPPINGFILE{p} = '';
+    end
+end
+
+
+
+
 ScriptData.DATAFILE =  oldProcessingDataPath;
 end
 
