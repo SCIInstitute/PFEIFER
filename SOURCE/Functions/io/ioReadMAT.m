@@ -1,6 +1,8 @@
-function index = ioReadMAT(varargin)
+function [index, success] = ioReadMAT(varargin)
 % load .mat into TS, remap if mapfile is there.. no calibration!! this needs
 % to be done earlier.
+
+index='dummy value';
 
 %%%% process input: identify mapping/cal/mat-file
 mapping='';
@@ -19,6 +21,14 @@ metadata=load(matfile);
 
 if ~isempty(mapping)
     leadmap = ioReadMapping(mapping);
+    
+    if length(leadmap)~=size(metadata.ts.potvals,1)
+        msg=sprintf('The mapping file and the file %s are not compatible',matfile);
+        errordlg(msg)
+        success = 0;
+        return
+    end
+    
     metadata.ts.potvals=metadata.ts.potvals(leadmap,:);   % remap leads
     metadata.ts.audit=[metadata.ts.audit sprintf('|mappingfile=%s',mapping) ];
 end
@@ -27,6 +37,8 @@ end
 global TS
 index=tsNew(1);
 TS{index}=metadata.ts;
+
+success = 1;
 
 
 

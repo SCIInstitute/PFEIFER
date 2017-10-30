@@ -1341,12 +1341,14 @@ end
 
 %%%% read in the files in TS.  index is index with TS{index}=current ts structure
 if isMatFile
-    index=ioReadMAT(files{:});
+    [index, success] =ioReadMAT(files{:});
+    if~success, return, end
 else
     index = ioReadTS(files{:}); % if ac2 file
 end
-    
-    
+
+
+
 %%%% make ts.filename only the filename without the path
 [~,filename,ext]=fileparts(TS{index}.filename);
 TS{index}.filename=[filename ext];
