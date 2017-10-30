@@ -155,7 +155,7 @@ for fileIdx = 1:length(files1)
     
     
     %%%% compare the ts
-    fieldsToIgnore = {'audit','potvals'};
+    fieldsToIgnore = {'audit','potvals','fids'};
     pv1=fileMeta1.ts.potvals;
     pv2=fileMeta2.ts.potvals;
     
