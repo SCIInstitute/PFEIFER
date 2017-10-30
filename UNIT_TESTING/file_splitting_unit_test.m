@@ -100,11 +100,6 @@ metaFolder1( [metaFolder1.isdir] ) = [];
 metaFolder2( [metaFolder2.isdir] ) = [];
 files1={metaFolder1.name};
 files2 = {metaFolder2.name};
-
-
-
-
-
 files_not_in_folder2  = setdiff( files1, files2 );
 files_not_in_folder1       = setdiff( files2, files1);
 
@@ -128,7 +123,9 @@ for fileIdx = 1:length(files1)
     
     %%%% compare if they have same variables
     
-    if ~isequal(fileMeta1, fileMeta2)
+    varNames1=fieldnames(fileMeta1);
+    varNames2=fieldnames(fileMeta2);
+    if ~isequal(varNames1, varNames2)
         feedbackMsg = sprintf('the files %s don''t have same variables in both folders. \n',files1{fileIdx});
         return
     end
@@ -136,7 +133,10 @@ for fileIdx = 1:length(files1)
     
     
     %%%% compare the ts
-    if ~isequal(fileMeta1.ts, fileMeta2.ts)
+    fieldsToIgnore = {'audit'};
+    ts1=rmfield(fileMeta1.ts,fieldsToIgnore);
+    ts2=rmfield(fileMeta2.ts,fieldsToIgnore);
+    if ~isequal(ts1, ts2)
         feedbackMsg = sprintf('the files %s don''t have the same ts ... \n',files1{fileIdx});
         return
     end
