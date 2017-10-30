@@ -1407,7 +1407,6 @@ qs = min([qstart qend],[],2);
 qe = max([qstart qend],[],2);
 
 
-
 %%%% init win/deg
 win = ScriptData.ACTWIN;
 deg = ScriptData.ACTDEG;
@@ -1421,9 +1420,7 @@ try
     for p=1:numgroups
         for q=ScriptData.GROUPLEADS{ScriptData.CURRENTRUNGROUP}{p}
          %for each lead in each group = for all leads..  
-            if qe(q) > qs(q)      % if not qe=qs=0 (as initialised -> if QRS was previously selected)
-                [act(q)] = (actFktHandle(TS{tsindex}.potvals(q,round(ScriptData.SAMPLEFREQ*qs(q)):round(ScriptData.SAMPLEFREQ*qe(q))),win,deg)-1)/ScriptData.SAMPLEFREQ + qs(q);
-            end
+            [act(q)] = (actFktHandle(TS{tsindex}.potvals(q,round(ScriptData.SAMPLEFREQ*qs(q)):round(ScriptData.SAMPLEFREQ*qe(q))),win,deg)-1)/ScriptData.SAMPLEFREQ + qs(q);
         end
     end
 catch

@@ -131,7 +131,6 @@ end
 if isempty(oriBeatIdx)
     oriBeatEnvelope=[bsk,bek];
     AUTOPROCESSING.beats=[oriBeatEnvelope beats];
-    disp('beat issue')
 else
     AUTOPROCESSING.beats = beats(oriBeatIdx:end);   % get rid if beats occuring before the user fiducialized beat
 
