@@ -32,17 +32,6 @@ function [TSmapindex, success] = sigActRecMap(TSindeces,refmode)
                 errordlg(msg)
                 return
             end
-            ref = 0;
-            rf = fidsFindGlobalFids(TSidx,'reference');
-            if (~isempty(rf))
-                ref = (rf(1)-1);
-            end 
-            
-            %%% shift with ref..
-            act = act - ref;
-            rec = rec - ref;
-            
-            
             
             if length(act) == length(rec)
                 ari = rec-act; 
