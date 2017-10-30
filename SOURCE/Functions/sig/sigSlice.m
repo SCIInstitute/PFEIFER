@@ -66,7 +66,7 @@ for p=1:length(TSindices)
         fids = TS{TSindices(p)}.fids;
         keep = [];
         for q=1:length(fids)
-            if (fids(q).value >= fstart(1)) && (fids(q).value <= fend(1))
+            if and((fids(q).value >= fstart(1)),(fids(q).value <= fend(1)))
                 keep = [keep q];
                 fids(q).value = fids(q).value - fstart(1)+1;
             end
