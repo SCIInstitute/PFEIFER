@@ -68,8 +68,8 @@ fiducial markings from those signals, and perform computational tasks that prepa
  Time signals recorded
 from typical experiments in cardiac electrophysiology require a
 substantial amount of processing before they can be used for diagnostic or
-analytical purposes. However, these processing steps
-are rarely described in adequate
+analytical purposes [@Good2016, @MacLeod2005, @Swenson2011, @Aras2014, @Aras2016]. 
+However, these processing steps are rarely described in adequate
 detail in literature. Until now, there has also been a scarcity of
 commonly available software tools, each group creating one-off tools for
 their exclusive use.  This lack of shared tools, code, and even detailed algorithms has
@@ -97,11 +97,6 @@ description that achieves these goals. The combination of flexibility,
 minimal computational requirements, time saving algorithms,
 and a structured framework easy to modify and extend makes PFEIFER the
 ideal toolkit for researchers processing cardiac electrical signals.
-
-
----
-nocite:[ @Good2016, @MacLeod2005, @Swenson2011, @Aras2014, @Aras2016]
----
 
 # References
 
