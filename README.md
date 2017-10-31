@@ -1,5 +1,5 @@
 
-![Matmap](DOC/Figures/pfeifer_logo.png)
+![Pfeifer](DOC/Figures/pfeifer_logo.png)
 
 #PFIEFER: Preprocessing Framework of Electrograms Intermittently Fiducialized from Experimental Recordings
 
