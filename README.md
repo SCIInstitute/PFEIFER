@@ -19,5 +19,5 @@ PFEIFER is designed as a collection of .m scripts and functions usable within an
 
 
 
-- [Documentation](https://github.com/SCIInstitute/PFEIFER/tree/master/DOC)
+- [Documentation](http://sci.utah.edu/devbuilds/pfeifer_docs/PfeiferDocumentation.pdf)
 
