@@ -32,13 +32,13 @@ function [allFidsGlFr, success] = findAllFids(potvals,signal)
 % Fids are determined based on 'oriFids', die fids done by the user.
 
 allFidsGlFr = 'dummyValue'; % to make sure this function has a value to return, even if function returns earlier as planned due to error
-%%%%% get paramters from ScriptData
-global ScriptData AUTOPROCESSING TS
-accuracy=ScriptData.ACCURACY;  % abort condition5
-fidsKernelLength=ScriptData.FIDSKERNELLENGTH;  % the kernel indices will be from fidsValue-fidsKernelLength  until fidsValue+fidsKernelLength
+%%%%% get paramters from SCRIPTDATA
+global SCRIPTDATA AUTOPROCESSING TS
+accuracy=SCRIPTDATA.ACCURACY;  % abort condition5
+fidsKernelLength=SCRIPTDATA.FIDSKERNELLENGTH;  % the kernel indices will be from fidsValue-fidsKernelLength  until fidsValue+fidsKernelLength
 kernel_shift=0;       % a "kernel shift", to shift the kernel by kernel_shift   % not used, just here as placeholder..
 % reminder: it is kernel_idx=fid_start-fidsKernelLength+kernel_shift:fid_start+fidsKernelLength+kernel_shift
-window_width=ScriptData.WINDOW_WIDTH;   % dont search complete beat, but only a window with width window_width,
+window_width=SCRIPTDATA.WINDOW_WIDTH;   % dont search complete beat, but only a window with width window_width,
 % ws=bs+loc_fidsValues(fidNumber)-window_width;  
 % we=bs+loc_fidsValues(fidNumber)+window_width;
 
@@ -213,7 +213,7 @@ function kernels = getNewKernels(lastFoundFids,potvals, lastFoundBeats)
 % - lastFoundFids: the subset of the last nBeats2avrg beats in allFids:    allFids(currentBeat-mBeats2avrg : currentBeat)
 % - lastFoundBeats:  the subset of .beats of the last nBeat2avrg:  beats(currentBeat-mBeats2avrg : currentBeat)
 % - potvals:  the complete potential values of the whole range of .beats
-global ScriptData AUTOPROCESSING
+global SCRIPTDATA AUTOPROCESSING
 
 
 %%%% set up some stuff

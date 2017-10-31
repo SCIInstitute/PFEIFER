@@ -4,7 +4,7 @@ function file_splitting_unit_test
 %%%% get all the folder paths
 [pathToUNIT_TESTING_folder,~,~] = fileparts(which('basic_unit_test.m'));   % find path to PFEIFER.m
 
-pathToScriptDataFile = fullfile(pathToUNIT_TESTING_folder,'FILE_SPLITTING_UNIT_TEST','fileSplittingHelperFiles','fileSplittingUnitTestScriptData.mat');
+pathToSCRIPTDATAFile = fullfile(pathToUNIT_TESTING_folder,'FILE_SPLITTING_UNIT_TEST','fileSplittingHelperFiles','fileSplittingUnitTestSCRIPTDATA.mat');
 pathToTemplateOutput = fullfile(pathToUNIT_TESTING_folder,'FILE_SPLITTING_UNIT_TEST','templateFolderFileSplitUnitTest');
 testOutputDir =  fullfile(pathToUNIT_TESTING_folder,'FILE_SPLITTING_UNIT_TEST','outputFolderFileSplittingUnitTest');
 testInputDir = fullfile(pathToUNIT_TESTING_folder,'FILE_SPLITTING_UNIT_TEST','inputFolderFileSplittingUnitTest');
@@ -16,7 +16,7 @@ settingsFigure = findobj(allchild(0),'tag','PROCESSINGSCRIPTSETTINGS');
 
 %%%% load the helper files into PFEIFER  (simulate user loading the helper files
 try
-    executeCallback(settingsFigure,'SCRIPTFILE',pathToScriptDataFile)
+    executeCallback(settingsFigure,'SCRIPTFILE',pathToSCRIPTDATAFile)
 catch
     disp('-----UNIT TEST: file_splitting_unit_test --------')
     disp('ERROR: Could not load helper files')

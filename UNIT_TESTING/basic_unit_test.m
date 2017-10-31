@@ -3,8 +3,7 @@ function basic_unit_test
 
 %%%% get all the folder paths
 [pathToUNIT_TESTING_folder,~,~] = fileparts(which('basic_unit_test.m'));   % find path to PFEIFER.m
-
-pathToScriptDataFile = fullfile(pathToUNIT_TESTING_folder,'BASIC_UNIT_TEST','helperFilesBasicUnitTest','ScriptDataNoUserInteractionPreprocessed.mat');
+pathToSCRIPTDATAFile = fullfile(pathToUNIT_TESTING_folder,'BASIC_UNIT_TEST','helperFilesBasicUnitTest','SCRIPTDATANoUserInteractionPreprocessed.mat');
 pathToProcDataFile = fullfile(pathToUNIT_TESTING_folder,'BASIC_UNIT_TEST','helperFilesBasicUnitTest','ProcessingDataNoUserInteractionPreprocessed.mat');
 pathToTemplateOutput = fullfile(pathToUNIT_TESTING_folder,'BASIC_UNIT_TEST','templateFolderBasicUnitTest');
 testOutputDir =  fullfile(pathToUNIT_TESTING_folder,'BASIC_UNIT_TEST','outputFolderBasicUnitTest');
@@ -26,18 +25,23 @@ settingsFigure = findobj(allchild(0),'tag','PROCESSINGSCRIPTSETTINGS');
 %%%% load the helper files into PFEIFER  (simulate user loading the helper files
 try
     executeCallback(settingsFigure,'DATAFILE',pathToProcDataFile)
-    executeCallback(settingsFigure,'SCRIPTFILE',pathToScriptDataFile)
+    executeCallback(settingsFigure,'SCRIPTFILE',pathToSCRIPTDATAFile)
 catch
+    
+    executeCallback(settingsFigure,'DATAFILE',pathToProcDataFile)
+    executeCallback(settingsFigure,'SCRIPTFILE',pathToSCRIPTDATAFile)
+    
+    
     disp('-----UNIT TEST: basic_unit_test --------')
     disp('ERROR: Could not load helper files')
 end
 
 
 %%%% set all the paths
-global ScriptData
-ScriptData.RUNGROUPMAPPINGFILE{1} = pathToMappingFile;
-ScriptData.MATODIR = testOutputDir;
-ScriptData.ACQDIR = testInputDir;
+global SCRIPTDATA
+SCRIPTDATA.RUNGROUPMAPPINGFILE{1} = pathToMappingFile;
+SCRIPTDATA.MATODIR = testOutputDir;
+SCRIPTDATA.ACQDIR = testInputDir;
 PFEIFER('updateFigure',settingsFigure)
 PFEIFER('updateFigure',mainFigure)
 

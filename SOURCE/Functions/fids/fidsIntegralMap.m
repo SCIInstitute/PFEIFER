@@ -1,3 +1,26 @@
+% MIT License
+% 
+% Copyright (c) 2017 The Scientific Computing and Imaging Institute
+% 
+% Permission is hereby granted, free of charge, to any person obtaining a copy
+% of this software and associated documentation files (the "Software"), to deal
+% in the Software without restriction, including without limitation the rights
+% to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+% copies of the Software, and to permit persons to whom the Software is
+% furnished to do so, subject to the following conditions:
+% 
+% The above copyright notice and this permission notice shall be included in all
+% copies or substantial portions of the Software.
+% 
+% THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+% IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+% FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+% AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+% LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+% OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+% SOFTWARE.
+
+
 function TSmapindex = fidsIntegralMap(TSmapindex,TSindices,startframe,endframe,average)
 
 % FUNCTION TSmapindex = fidsIntegralMap(TSmapindex,TSindices,startframe,endframe,['average'])
@@ -21,9 +44,6 @@ function TSmapindex = fidsIntegralMap(TSmapindex,TSindices,startframe,endframe,a
 %   /TSmapdata      Output of the adjusted data 
 %
 %
-
-global aaa
-if aaa, xxx = endframe, end
 
 if nargin == 4
     average = 0;
@@ -87,7 +107,6 @@ if (size(startframe,1) ~= numleads)||(size(startframe,2) ~= length(TSindices))
     error('startframe has not the right dimensions\n');
 end
 
-if aaa, xxx2 = endframe, end
 if length(endframe) == numel(endframe)
     if length(endframe) == 1
         endframe = endframe*ones(1,length(TSindices));
@@ -103,7 +122,6 @@ if length(endframe) == numel(endframe)
     end
 end
 
-if aaa, xxx3 = endframe, end
     
 if (size(endframe,1) ~= numleads)||(size(endframe,2) ~= length(TSindices))
     error('endframe has not the right dimensions\n');
@@ -113,7 +131,6 @@ end
 startframe = round(startframe);
 endframe = round(endframe);
 
-if aaa, xxx4 = endframe, end
 
 % Finally start with the integration
 

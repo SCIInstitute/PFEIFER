@@ -24,28 +24,28 @@
 
 
 
-function x = ActDetect(sig,win,deg)
+function x = ActDetect(singal,windowLength,degree)
 
 %%%% make sure win is uneven
-if mod(win,2) == 0, win = win + 1; end
+if mod(windowLength,2) == 0, windowLength = windowLength + 1; end
 
 %%%% return x=1, if len(sig)<win
-if length(sig) < win, x=1; return; end
+if length(singal) < windowLength, x=1; return; end
 
 
 %%%% Detection of the minimum derivative using a window of 5 frames and fit a 2nd order polynomial
-cen = ceil(win/2);
-X = zeros(win,(deg+1));
+cen = ceil(windowLength/2);
+X = zeros(windowLength,(degree+1));
 L = [-(cen-1):(cen-1)]';
-for p=1:(deg+1)
-    X(:,p) = L.^((deg+1)-p);
+for p=1:(degree+1)
+    X(:,p) = L.^((degree+1)-p);
 end
 
 E = (X'*X)\X';
 
-sig = [sig sig(end)*ones(1,cen-1)];
+singal = [singal singal(end)*ones(1,cen-1)];
 
-a = filter(E(deg,(win:-1:1)),1,sig);
+a = filter(E(degree,(windowLength:-1:1)),1,singal);
 dy = a(cen:end);
 
 

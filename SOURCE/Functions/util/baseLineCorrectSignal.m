@@ -1,11 +1,34 @@
+% MIT License
+% 
+% Copyright (c) 2017 The Scientific Computing and Imaging Institute
+% 
+% Permission is hereby granted, free of charge, to any person obtaining a copy
+% of this software and associated documentation files (the "Software"), to deal
+% in the Software without restriction, including without limitation the rights
+% to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+% copies of the Software, and to permit persons to whom the Software is
+% furnished to do so, subject to the following conditions:
+% 
+% The above copyright notice and this permission notice shall be included in all
+% copies or substantial portions of the Software.
+% 
+% THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+% IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+% FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+% AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+% LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+% OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+% SOFTWARE.
+
+
 function success = baseLineCorrectSignal(TSidx)
 % a wrapper function for the actual baselineCorrection
 
-global ScriptData TS
+global SCRIPTDATA TS
 
 
 %%%% prepare the inputs
-baselineWidth = ScriptData.BASELINEWIDTH;
+baselineWidth = SCRIPTDATA.BASELINEWIDTH;
 
 % start and endframe for baseline correction
 startframe =[];
@@ -23,7 +46,7 @@ if isempty(startframe)
 end
 
 %%%% check if there is actually a function there to do Baseline Correction
-if isempty(ScriptData.BASELINE_OPTIONS)
+if isempty(SCRIPTDATA.BASELINE_OPTIONS)
     errordlg('Cannot do baseline correction, since no baseline correction function is provided. Aborting...')
     success = 0;
     return
@@ -31,7 +54,7 @@ end
 
 
 %%%% now baselineFunction (the function selected to do baseline correction) and check if it is valid
-baselineFunctionString = ScriptData.BASELINE_OPTIONS{ScriptData.BASELINE_SELECTION};
+baselineFunctionString = SCRIPTDATA.BASELINE_OPTIONS{SCRIPTDATA.BASELINE_SELECTION};
 if nargin(baselineFunctionString)~=4 || nargout(baselineFunctionString)~=1
     msg=sprintf('the provided baseline correction function ''%s'' does not have the right number of input and output arguments. Cannot filter data. Aborting..',baselineFunctionString);
     errordlg(msg)

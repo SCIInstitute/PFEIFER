@@ -26,11 +26,11 @@
 
 function PFEIFER(varargin)
     %this is the first function to be called from the command line
-%         - Init ScriptData
-%         - Init ProcessingData
+%         - Init SCRIPTDATA
+%         - Init PROCESSINGDATA
 %         - Open the workbench.fig ("the main menu")
 %         - Open the Settings.fig ("settings menu")
-%         - Update workbench.fig and Settings.fig with data from ScriptData
+%         - Update workbench.fig and Settings.fig with data from SCRIPTDATA
 %         - Update/setup File list, (callback for "choose input directory)
 %         - this script also contains all the callbacks of the main menu
 %         and settings menu.  
@@ -42,10 +42,10 @@ if nargin > 1 && ischar(varargin{1})  % if called as a callback
     return
 end
 
-%%%% initianlize the globals ScriptData and ProcessingData
-clear global ScriptData ProcessingData
-initScriptData();   
-initProcessingData();
+%%%% initianlize the globals SCRIPTDATA and PROCESSINGDATA
+clear global SCRIPTDATA PROCESSINGDATA
+initSCRIPTDATA();   
+initPROCESSINGDATA();
 
 
 %%%% open the main menu and the settings window and update them with data
@@ -60,95 +60,95 @@ updateACQFiles      % get ACQ Files from input directory to display
 end
 
 
-function initScriptData()
-    % - Sets up global ScriptData as empty struct
-    % - initializes ScriptData with Default Values for everything
+function initSCRIPTDATA()
+    % - Sets up global SCRIPTDATA as empty struct
+    % - initializes SCRIPTDATA with Default Values for everything
     
-    global ScriptData;
-    ScriptData = struct();
-    ScriptData.TYPE = struct();
-    ScriptData.DEFAULT = struct();
+    global SCRIPTDATA;
+    SCRIPTDATA = struct();
+    SCRIPTDATA.TYPE = struct();
+    SCRIPTDATA.DEFAULT = struct();
 
     defaultsettings=getDefaultSettings;
 
     for p=1:3:length(defaultsettings)
         if strncmp(defaultsettings{p+2},'group',5) || strncmp(defaultsettings{p+2},'rungroup',8)
-            ScriptData.(defaultsettings{p})={};
+            SCRIPTDATA.(defaultsettings{p})={};
         else
-            ScriptData.(defaultsettings{p})=defaultsettings{p+1};
+            SCRIPTDATA.(defaultsettings{p})=defaultsettings{p+1};
         end
-        ScriptData.TYPE.(defaultsettings{p})=defaultsettings{p+2};
-        ScriptData.DEFAULT.(defaultsettings{p})=defaultsettings{p+1};
+        SCRIPTDATA.TYPE.(defaultsettings{p})=defaultsettings{p+2};
+        SCRIPTDATA.DEFAULT.(defaultsettings{p})=defaultsettings{p+1};
     end
 end
 
 
-function initProcessingData()
-% init the global ProcessingData
-global ProcessingData
-ProcessingData = struct;
-ProcessingData.SELFRAMES = {};
-ProcessingData.REFFRAMES = {};
-ProcessingData.AVERAGESTART = {};
-ProcessingData.AVERAGEEND = {};
-ProcessingData.FILENAME={};
+function initPROCESSINGDATA()
+% init the global PROCESSINGDATA
+global PROCESSINGDATA
+PROCESSINGDATA = struct;
+PROCESSINGDATA.SELFRAMES = {};
+PROCESSINGDATA.REFFRAMES = {};
+PROCESSINGDATA.AVERAGESTART = {};
+PROCESSINGDATA.AVERAGEEND = {};
+PROCESSINGDATA.FILENAME={};
 end
 
 function ExportUserSettings(filename,index,fields)
-    % save the user selections stored in TS{index}.(fields) in ProcessingData.  fields could be e.g. 'fids' 
-    % if fields dont exist in ts, it will be set to [] in ProcessingData. It's no
-    % problem if field doesnt exist in ProcessingData at beginning
+    % save the user selections stored in TS{index}.(fields) in PROCESSINGDATA.  fields could be e.g. 'fids' 
+    % if fields dont exist in ts, it will be set to [] in PROCESSINGDATA. It's no
+    % problem if field doesnt exist in PROCESSINGDATA at beginning
     
-    global ProcessingData TS;
+    global PROCESSINGDATA TS;
     %%%% first find filename
-    filenum = find(strcmp(filename,ProcessingData.FILENAME));
+    filenum = find(strcmp(filename,PROCESSINGDATA.FILENAME));
 
     %%%% if no entry for the file exists so far, make one
     if isempty(filenum)
-        ProcessingData.FILENAME{end+1} = filename;
-        filenum = length(ProcessingData.FILENAME);
+        PROCESSINGDATA.FILENAME{end+1} = filename;
+        filenum = length(PROCESSINGDATA.FILENAME);
     end
     
-    %%%% loop through fields and save data in ProcessingData
+    %%%% loop through fields and save data in PROCESSINGDATA
     for p=1:length(fields)
         if isfield(TS{index},lower(fields{p}))
             value = TS{index}.(lower(fields{p}));
-            if isfield(ProcessingData,fields{p})
-                data = ProcessingData.(fields{p});
+            if isfield(PROCESSINGDATA,fields{p})
+                data = PROCESSINGDATA.(fields{p});
             else
                 data = {};
             end
             data{filenum(1)} = value;
-            ProcessingData.(fields{p})=data;
+            PROCESSINGDATA.(fields{p})=data;
         else
             value = [];
-            if isfield(ProcessingData,fields{p})
-                data = ProcessingData.(fields{p});
+            if isfield(PROCESSINGDATA,fields{p})
+                data = PROCESSINGDATA.(fields{p});
             else
                 data = {};
             end
             data{filenum(1)} = value;
-            ProcessingData.(fields{p})=data;
+            PROCESSINGDATA.(fields{p})=data;
         end
     end
     
-    %%%% save data in ProcessingData file
-    saveProcessingData; 
+    %%%% save data in PROCESSINGDATA file
+    savePROCESSINGDATA; 
 end
 
 function ImportUserSettings(filename,index,fields)
-    % Imports the fields from ProcessingData in the corresponding ts structure of
+    % Imports the fields from PROCESSINGDATA in the corresponding ts structure of
     % TS. Identification via filename. 
 
-    global ProcessingData TS;
+    global PROCESSINGDATA TS;
     % FIRST FIND THE FILENAME
-    filenum = find(strcmp(filename,ProcessingData.FILENAME'));
+    filenum = find(strcmp(filename,PROCESSINGDATA.FILENAME'));
     % THEN RETRIEVE THE DATA FROM THE DATABASE
     
     if ~isempty(filenum)
         for p=1:length(fields)
-            if isfield(ProcessingData,fields{p})
-                data = ProcessingData.(fields{p});
+            if isfield(PROCESSINGDATA,fields{p})
+                data = PROCESSINGDATA.(fields{p});
                 if length(data) >= filenum(1)
                     if ~isempty(data{filenum(1)})
                         TS{index}.(lower(fields{p}))=data{filenum(1)};
@@ -159,35 +159,35 @@ function ImportUserSettings(filename,index,fields)
     end
 end
 
-function saveProcessingData()
-global ScriptData ProcessingData;
-save(ScriptData.DATAFILE,'ProcessingData');
+function savePROCESSINGDATA()
+global SCRIPTDATA PROCESSINGDATA;
+save(SCRIPTDATA.DATAFILE,'PROCESSINGDATA');
 end
 
 
 function updateFigure(figObj)
 % changes all Settings in the figure ( that belongs to handle) according to
-% ScriptData.  
+% SCRIPTDATA.  
 %Updates everything in the gui figures, including File Listbox etc..
 % handle is gui figure object
 
-global ScriptData;
+global SCRIPTDATA;
 
-%%%% loop through all fieldnames of ScriptData and make changes accourding to the fieldname
-fn = fieldnames(ScriptData);
+%%%% loop through all fieldnames of SCRIPTDATA and make changes accourding to the fieldname
+fn = fieldnames(SCRIPTDATA);
 for p=1:length(fn)
     %%%% identify the uicontrol object in the gui figure ("handle") that is related to the fieldname. The uicontrol object are identified by there tag property
     obj = findobj(allchild(figObj),'tag',fn{p});
     if ~isempty(obj) % if field is also Tag to a uicontroll object in the figure..
         %%%% change that uicontroll. Depending on type..  
-        objtype = ScriptData.TYPE.(fn{p});
+        objtype = SCRIPTDATA.TYPE.(fn{p});
         switch objtype
             case {'file','string'}
-                obj.String = ScriptData.(fn{p});
+                obj.String = SCRIPTDATA.(fn{p});
             case {'listbox'}
-                cellarray = ScriptData.(fn{p});
+                cellarray = SCRIPTDATA.(fn{p});
                 if ~isempty(cellarray) 
-                    values = intersect(ScriptData.ACQFILENUMBER,ScriptData.ACQFILES);
+                    values = intersect(SCRIPTDATA.ACQFILENUMBER,SCRIPTDATA.ACQFILES);
                     
                     if length(cellarray) == 1
                         maxVal=3;
@@ -199,35 +199,35 @@ for p=1:length(fn)
                     set(obj,'string',{'NO ACQ or AC2 FILES FOUND','',''},'max',3,'value',[],'enable','off');
                 end
             case {'double','vector','listboxedit','integer'}
-                obj.String = mynum2str(ScriptData.(fn{p}));
+                obj.String = mynum2str(SCRIPTDATA.(fn{p}));
             case {'bool','toolsdropdownmenu'}
-                [obj.Value] = deal(ScriptData.(fn{p}));
-            case {'select'}   % case of ScriptData.GROUPSELECT  
-                value = ScriptData.(fn{p});    % int telling which group is selected
+                [obj.Value] = deal(SCRIPTDATA.(fn{p}));
+            case {'select'}   % case of SCRIPTDATA.GROUPSELECT  
+                value = SCRIPTDATA.(fn{p});    % int telling which group is selected
                 if value == 0, value = 1; end  %if nothing was selected
                 obj.Value = value;
-                rungroup=ScriptData.RUNGROUPSELECT;
+                rungroup=SCRIPTDATA.RUNGROUPSELECT;
                 if rungroup==0, continue; end
-                selectnames = ScriptData.GROUPNAME{rungroup};  %update dropdown with GROUPNAME, but add 'NEW GROUP' first
+                selectnames = SCRIPTDATA.GROUPNAME{rungroup};  %update dropdown with GROUPNAME, but add 'NEW GROUP' first
                 selectnames{end+1} = 'NEW GROUP';
                 obj.String = selectnames;
 
             case {'selectR'}
-                value = ScriptData.(fn{p});    % int telling which rungroup is selected
+                value = SCRIPTDATA.(fn{p});    % int telling which rungroup is selected
                 if value == 0, value = 1; end  %if nothing was selected
-                selectrnames = ScriptData.RUNGROUPNAMES;  %update dropdown with GROUPNAME, but add 'NEW GROUP' first
+                selectrnames = SCRIPTDATA.RUNGROUPNAMES;  %update dropdown with GROUPNAME, but add 'NEW GROUP' first
                 selectrnames{end+1} = 'NEW RUNGROUP'; 
                 obj.String = selectrnames;
                 obj.Value = value;
 
 
             case {'groupfile','groupstring','groupdouble','groupvector','groupbool'}   
-                group = ScriptData.GROUPSELECT;
+                group = SCRIPTDATA.GROUPSELECT;
                 if (group > 0)
                     set(obj,'enable','on','visible','on');
-                    cellarray = ScriptData.(fn{p}){ScriptData.RUNGROUPSELECT};
+                    cellarray = SCRIPTDATA.(fn{p}){SCRIPTDATA.RUNGROUPSELECT};
                     if length(cellarray) < group   %if the 'new group' option is selected!
-                        cellarray{group} = ScriptData.DEFAULT.(fn{p});      % if new group was added, fill emty array slots with default values
+                        cellarray{group} = SCRIPTDATA.DEFAULT.(fn{p});      % if new group was added, fill emty array slots with default values
                     end
                     switch objtype(6:end)
                         case {'file','string'}
@@ -237,12 +237,12 @@ for p=1:length(fn)
                         case {'bool'}
                             obj.Value = cellarray{group};
                     end
-                    ScriptData.(fn{p}){ScriptData.RUNGROUPSELECT}=cellarray;    
+                    SCRIPTDATA.(fn{p}){SCRIPTDATA.RUNGROUPSELECT}=cellarray;    
                 else
                     set(obj,'enable','inactive','visible','off');
                 end
             case {'rungroupstring', 'rungroupvector'}    %any of the rungroupbuttons
-                rungroup = ScriptData.RUNGROUPSELECT;
+                rungroup = SCRIPTDATA.RUNGROUPSELECT;
                 if (rungroup > 0)
                     set(obj,'enable','on','visible','on');
                     set(findobj(allchild(figObj),'tag','GROUPSELECT'),'enable','on','visible','on')
@@ -252,7 +252,7 @@ for p=1:length(fn)
                     set(findobj(allchild(figObj),'tag','USE_MAPPINGFILE'),'enable','on','visible','on')
                     set(findobj(allchild(figObj),'tag','mappingfileStaticTextObj'),'enable','on','visible','on')
 
-                    cellarray = ScriptData.(fn{p});                     
+                    cellarray = SCRIPTDATA.(fn{p});                     
                     switch objtype(9:end)
                         case {'file','string'}
                             obj.String = cellarray{rungroup};
@@ -261,7 +261,7 @@ for p=1:length(fn)
                         case {'bool'}
                             obj.Value = cellarray{rungroup};
                     end
-                    ScriptData.(fn{p})=cellarray;
+                    SCRIPTDATA.(fn{p})=cellarray;
                 else
                     set(obj,'enable','inactive','visible','off');
                     set(findobj(allchild(figObj),'tag','GROUPSELECT'),'enable','off','visible','off')
@@ -278,23 +278,23 @@ end
 
 
 function getInputFiles
-% this function finds all files in ScriptData.ACQDIR (the input directory) and updates the following fields of ScriptData accordingly:
-% - ScriptData.ACQFILENUMBER     double array of the form [1:NumberOfFilesDisplayedInListbox]
-% - ScriptData.ACQLISTBOX        cellarray with strings for the listbox
-% - ScriptData.ACQFILENAME       cellarray with all filenames in ACQDIR
-% - ScriptData.ACQINFO           cellarray with a label for each file
-% - ScriptData.ACQFILES          double array of selected files in the listbox in main menu gui figure
+% this function finds all files in SCRIPTDATA.ACQDIR (the input directory) and updates the following fields of SCRIPTDATA accordingly:
+% - SCRIPTDATA.ACQFILENUMBER     double array of the form [1:NumberOfFilesDisplayedInListbox]
+% - SCRIPTDATA.ACQLISTBOX        cellarray with strings for the listbox
+% - SCRIPTDATA.ACQFILENAME       cellarray with all filenames in ACQDIR
+% - SCRIPTDATA.ACQINFO           cellarray with a label for each file
+% - SCRIPTDATA.ACQFILES          double array of selected files in the listbox in main menu gui figure
 
-global ScriptData TS;
+global SCRIPTDATA TS;
 
-if isempty(ScriptData.ACQDIR), return, end  % if no input directory selected so far, just return
+if isempty(SCRIPTDATA.ACQDIR), return, end  % if no input directory selected so far, just return
 
 %%%% create a cell array with all the filenames in the listbox, that are at the moment selected. This is needed to select them again in case they are also in the new input dir
 oldfilenames = {};
-if ~isempty(ScriptData.ACQFILES)
-    for p=1:length(ScriptData.ACQFILES)
-        if ScriptData.ACQFILES(p) <= length(ScriptData.ACQFILENAME)
-            oldfilenames{end+1} = ScriptData.ACQFILENAME{ScriptData.ACQFILES(p)};
+if ~isempty(SCRIPTDATA.ACQFILES)
+    for p=1:length(SCRIPTDATA.ACQFILES)
+        if SCRIPTDATA.ACQFILES(p) <= length(SCRIPTDATA.ACQFILENAME)
+            oldfilenames{end+1} = SCRIPTDATA.ACQFILENAME{SCRIPTDATA.ACQFILES(p)};
         end
     end
 end
@@ -305,19 +305,19 @@ end
 
 
 
-%%%% change into ScriptData.ACQDIR,if it exists and is not empty
+%%%% change into SCRIPTDATA.ACQDIR,if it exists and is not empty
 olddir = pwd;
-if isempty(ScriptData.ACQDIR)
+if isempty(SCRIPTDATA.ACQDIR)
     errordlg('input directory doesn''t exist. No files loaded..')
     return
 else
-    cd(ScriptData.ACQDIR)
+    cd(SCRIPTDATA.ACQDIR)
 end
 
 
 %%%% set up a cell array filenames with all the filenames in folder
 filenames = {};
-exts = commalist(ScriptData.ACQEXT);  % create cellarray with all the allowed file extensions specified by the user
+exts = commalist(SCRIPTDATA.ACQEXT);  % create cellarray with all the allowed file extensions specified by the user
 for p=1:length(exts)
     d = dir(sprintf('*%s',exts{p}));
     for q= 1:length(d)
@@ -332,11 +332,11 @@ filenames = sort(filenames);
 
 
 %%%% initialize/clear old entries
-ScriptData.ACQFILENUMBER = [];
-ScriptData.ACQLISTBOX= {};
-ScriptData.ACQFILENAME = {};
-ScriptData.ACQINFO = {};
-ScriptData.ACQFILES = [];
+SCRIPTDATA.ACQFILENUMBER = [];
+SCRIPTDATA.ACQLISTBOX= {};
+SCRIPTDATA.ACQFILENAME = {};
+SCRIPTDATA.ACQINFO = {};
+SCRIPTDATA.ACQFILES = [];
 
 if isempty(filenames)
     cd(olddir)
@@ -392,27 +392,27 @@ for p = 1:nFiles
     end
     
     ts.label=myStrTrim(ts.label); %necessary, because original strings have weird whitespaces that are not recognized as whitespaces.. really weird!
-    ScriptData.ACQFILENUMBER(p) = p;      
+    SCRIPTDATA.ACQFILENUMBER(p) = p;      
 
     %%%% find out which rungroup p belongs to
     rungroup='';
-    for rungroupIdx=1:length(ScriptData.RUNGROUPNAMES)
-        if ismember(p, ScriptData.RUNGROUPFILES{rungroupIdx})
-            rungroup=ScriptData.RUNGROUPNAMES{rungroupIdx};
+    for rungroupIdx=1:length(SCRIPTDATA.RUNGROUPNAMES)
+        if ismember(p, SCRIPTDATA.RUNGROUPFILES{rungroupIdx})
+            rungroup=SCRIPTDATA.RUNGROUPNAMES{rungroupIdx};
             break
         end
     end
 
     ts.time=myStrTrim(ts.time);   % use of myStrTrim for the same reason as above..     
 
-    ScriptData.ACQLISTBOX{p} = sprintf('%04d %20s %10s %10s %20s',ScriptData.ACQFILENUMBER(p),ts.filename,rungroup, ts.time,ts.label);
-    ScriptData.ACQFILENAME{p} = ts.filename;
-    ScriptData.ACQINFO{p} = ts.label;
+    SCRIPTDATA.ACQLISTBOX{p} = sprintf('%04d %20s %10s %10s %20s',SCRIPTDATA.ACQFILENUMBER(p),ts.filename,rungroup, ts.time,ts.label);
+    SCRIPTDATA.ACQFILENAME{p} = ts.filename;
+    SCRIPTDATA.ACQINFO{p} = ts.label;
     if isgraphics(h), waitbar(p/nFiles,h); end
 end
 
-[~,~,ScriptData.ACQFILES] = intersect(oldfilenames,ScriptData.ACQFILENAME);
-ScriptData.ACQFILES = sort(ScriptData.ACQFILES);
+[~,~,SCRIPTDATA.ACQFILES] = intersect(oldfilenames,SCRIPTDATA.ACQFILENAME);
+SCRIPTDATA.ACQFILES = sort(SCRIPTDATA.ACQFILES);
 
 
 
@@ -432,11 +432,11 @@ end
 
 function CloseFcn(~)
 %callback function for the 'close' buttons.
-global ScriptData ProcessingData FIDSDISPLAY SLICEDISPLAY TS
+global SCRIPTDATA PROCESSINGDATA FIDSDISPLAY SLICEDISPLAY TS
 
 %%%% save setting
 try
-    if ~isempty(ScriptData.SCRIPTFILE)
+    if ~isempty(SCRIPTDATA.SCRIPTFILE)
      saveSettings
      disp('Saved SETTINGS before closing PFEIFER')
     else
@@ -461,13 +461,13 @@ errordlgObjs = findall(0,'type','figure','tag','Msgbox_Error Dialog');
 delete(errordlgObjs);
 
 %%%% clear globals
-clear global ProcessingData ScriptData FIDSDISPLAY SLICEDISPLAY TS
+clear global PROCESSINGDATA SCRIPTDATA FIDSDISPLAY SLICEDISPLAY TS
 end
 
 
 
 function setupToolSelectionDropdownmenus(figObj)
-global ScriptData
+global SCRIPTDATA
 [pathToPFEIFERfile,~,~] = fileparts(which('PFEIFER.m'));   % find path to PFEIFER.m
 
 %%%% hardcoded lists of the tags of the dropdown menus and the folders corresponding to them
@@ -502,13 +502,13 @@ for p=1:length(dropdownTags)
     end
     
     %%%% set the dropdownObj.Value
-    if ScriptData.(dropdownTags{p}) > length(functionNames)
-        ScriptData.(dropdownTags{p}) = 1;
+    if SCRIPTDATA.(dropdownTags{p}) > length(functionNames)
+        SCRIPTDATA.(dropdownTags{p}) = 1;
     end
-    [dropdownObj.Value] = deal(ScriptData.(dropdownTags{p}));     % deal and [ ... ] necessary here, because in case of 'BASELINE_SELECTION', there are two objects (since both select baseline dropdown menus have that same tag)
+    [dropdownObj.Value] = deal(SCRIPTDATA.(dropdownTags{p}));     % deal and [ ... ] necessary here, because in case of 'BASELINE_SELECTION', there are two objects (since both select baseline dropdown menus have that same tag)
     
-    %%%% save the toolsOptions in ScriptData (for later use)
-    ScriptData.(toolsOptions{p}) = functionNames;
+    %%%% save the toolsOptions in SCRIPTDATA (for later use)
+    SCRIPTDATA.(toolsOptions{p}) = functionNames;
 end
     
 
@@ -517,7 +517,7 @@ end
 
 function Browse(handle,ext,mode)
 % callback to all the browse buttons.  mode is either 'file' or 'folder'
-    global ScriptData
+    global SCRIPTDATA
     if nargin == 1
         ext = 'mat';
         mode = 'file';
@@ -531,9 +531,9 @@ function Browse(handle,ext,mode)
     tag = tag(8:end);
     
     if strcmp(tag,'RUNGROUPMAPPINGFILE')
-        filename = ScriptData.(tag){ScriptData.RUNGROUPSELECT};
+        filename = SCRIPTDATA.(tag){SCRIPTDATA.RUNGROUPSELECT};
     else
-        filename = ScriptData.(tag);
+        filename = SCRIPTDATA.(tag);
     end
     
     switch mode
@@ -550,12 +550,12 @@ function Browse(handle,ext,mode)
     
     switch tag
         case 'ACQDIR'
-            ScriptData.(tag)=newFileString;
+            SCRIPTDATA.(tag)=newFileString;
             updateACQFiles(handle)
         case 'SCRIPTFILE'  
-            success = loadScriptData(newFileString);
+            success = loadSCRIPTDATA(newFileString);
             if success
-                ScriptData.SCRIPTFILE = newFileString;
+                SCRIPTDATA.SCRIPTFILE = newFileString;
             else
                 return
             end
@@ -566,14 +566,14 @@ function Browse(handle,ext,mode)
             getInputFiles
             return
         case 'DATAFILE'
-            success = loadProcessingData(newFileString);
+            success = loadPROCESSINGDATA(newFileString);
             if success
-                ScriptData.DATAFILE=newFileString;
+                SCRIPTDATA.DATAFILE=newFileString;
             end
         case 'RUNGROUPMAPPINGFILE'
-           ScriptData.(tag){ScriptData.RUNGROUPSELECT}=newFileString; 
+           SCRIPTDATA.(tag){SCRIPTDATA.RUNGROUPSELECT}=newFileString; 
         otherwise
-           ScriptData.(tag)=newFileString;
+           SCRIPTDATA.(tag)=newFileString;
     end
     updateFigure(handle.Parent);
 end
@@ -584,13 +584,13 @@ function selectRunGroupFiles(~)
 selectRungroupFiles
 
 %%%% make sure each file is associated with only one rungroup
-global ScriptData
-rungroup=ScriptData.RUNGROUPSELECT;
-for s=1:length(ScriptData.RUNGROUPFILES{rungroup})
-    rgFileID=ScriptData.RUNGROUPFILES{rungroup}(s);
-    for t=1:length(ScriptData.RUNGROUPFILES)
+global SCRIPTDATA
+rungroup=SCRIPTDATA.RUNGROUPSELECT;
+for s=1:length(SCRIPTDATA.RUNGROUPFILES{rungroup})
+    rgFileID=SCRIPTDATA.RUNGROUPFILES{rungroup}(s);
+    for t=1:length(SCRIPTDATA.RUNGROUPFILES)
         if t== rungroup, continue, end
-        ScriptData.RUNGROUPFILES{t}=ScriptData.RUNGROUPFILES{t}(ScriptData.RUNGROUPFILES{t}~=rgFileID);
+        SCRIPTDATA.RUNGROUPFILES{t}=SCRIPTDATA.RUNGROUPFILES{t}(SCRIPTDATA.RUNGROUPFILES{t}~=rgFileID);
     end
 end
         
@@ -628,53 +628,53 @@ function setScriptData(hObject, mode)
 % notes on how it works:
 % the tag property of each object in the figure display is used to locate that object
 % the tag of each each grafic object is also the fieldname of the
-% corresponding fiel in ScriptData.  To further differentiate how each
-% object is being dealt, the objecttype=ScriptData.TYPE.(tag) is used.
-% inputs: - hObject: the obj that calls setScriptData
+% corresponding fiel in SCRIPTDATA.  To further differentiate how each
+% object is being dealt, the objecttype=SCRIPTDATA.TYPE.(tag) is used.
+% inputs: - hObject: the obj that calls setSCRIPTDATA
 %         - mode: either left out or a string 'input', if called by input directory editText bar
 
 
-global ScriptData ProcessingData;
+global SCRIPTDATA PROCESSINGDATA;
 tag = hObject.Tag; 
 success = checkNewInput(hObject, tag);
 if ~success, return, end
 
-if isfield(ScriptData.TYPE,tag)
-    objtype = ScriptData.TYPE.(tag);
+if isfield(SCRIPTDATA.TYPE,tag)
+    objtype = SCRIPTDATA.TYPE.(tag);
 else
     objtype = 'string';
 end
 switch objtype
     case {'file','string'}
-        ScriptData.(tag)= hObject.String;
+        SCRIPTDATA.(tag)= hObject.String;
     case {'double','vector','integer'}
-        ScriptData.(tag)=mystr2num(hObject.String);
+        SCRIPTDATA.(tag)=mystr2num(hObject.String);
     case {'bool','select','toolsdropdownmenu'}
-        ScriptData.(tag)=hObject.Value;
+        SCRIPTDATA.(tag)=hObject.Value;
     case 'selectR'
         value=hObject.Value;
-        ScriptData.(tag)=value;           
-        if length(ScriptData.RUNGROUPNAMES) < value  %if NEW RUNGROUP is selected, make all group cells longer
-            fn=fieldnames(ScriptData.TYPE);
+        SCRIPTDATA.(tag)=value;           
+        if length(SCRIPTDATA.RUNGROUPNAMES) < value  %if NEW RUNGROUP is selected, make all group cells longer
+            fn=fieldnames(SCRIPTDATA.TYPE);
             for p=1:length(fn)
-                if strncmp(ScriptData.TYPE.(fn{p}),'group',5)
-                    ScriptData.(fn{p}){end+1}={};
+                if strncmp(SCRIPTDATA.TYPE.(fn{p}),'group',5)
+                    SCRIPTDATA.(fn{p}){end+1}={};
                 end
-                if strncmp(ScriptData.TYPE.(fn{p}),'rungroup',8)  %if NEW RUNGROUP is selected, make all rungroup cells one entry longer
-                    ScriptData.(fn{p}){end+1} = ScriptData.DEFAULT.(fn{p});
+                if strncmp(SCRIPTDATA.TYPE.(fn{p}),'rungroup',8)  %if NEW RUNGROUP is selected, make all rungroup cells one entry longer
+                    SCRIPTDATA.(fn{p}){end+1} = SCRIPTDATA.DEFAULT.(fn{p});
                 end                     
             end
-            ScriptData.GROUPSELECT=0;
+            SCRIPTDATA.GROUPSELECT=0;
          end          
     case 'listbox'
-        ScriptData.ACQFILES = ScriptData.ACQFILENUMBER(hObject.Value);
+        SCRIPTDATA.ACQFILES = SCRIPTDATA.ACQFILENUMBER(hObject.Value);
     case {'listboxedit'}
-        ScriptData.(tag)=mystr2num(hObject.String);
+        SCRIPTDATA.(tag)=mystr2num(hObject.String);
     case {'groupfile','groupstring','groupdouble','groupvector','groupbool'}      %if any of the groupstuff is changed
-        group = ScriptData.GROUPSELECT;      %integer, which group is selected in dropdown
+        group = SCRIPTDATA.GROUPSELECT;      %integer, which group is selected in dropdown
         if (group > 0)
-            if isfield(ScriptData,tag)  
-                cellarray = ScriptData.(tag){ScriptData.RUNGROUPSELECT};     % cellarray is eg {{'-gr1', '-gr2'}, .. } 
+            if isfield(SCRIPTDATA,tag)  
+                cellarray = SCRIPTDATA.(tag){SCRIPTDATA.RUNGROUPSELECT};     % cellarray is eg {{'-gr1', '-gr2'}, .. } 
             else
                 cellarray = {};
             end
@@ -686,12 +686,12 @@ switch objtype
                 case {'bool'}
                     cellarray{group} = hObject.Value;
             end
-            ScriptData.(tag){ScriptData.RUNGROUPSELECT}=cellarray;
+            SCRIPTDATA.(tag){SCRIPTDATA.RUNGROUPSELECT}=cellarray;
         end
     case {'rungroupstring', 'rungroupvector'}  
-        rungroup=ScriptData.RUNGROUPSELECT;
+        rungroup=SCRIPTDATA.RUNGROUPSELECT;
         if rungroup > 0
-            cellarray = ScriptData.(tag);     % cellarray is eg {{'-gr1', '-gr2'}, .. } 
+            cellarray = SCRIPTDATA.(tag);     % cellarray is eg {{'-gr1', '-gr2'}, .. } 
 
             switch objtype(9:end)     %change individual entry of cellarray according to user input. 
                 case {'file','string'}
@@ -701,7 +701,7 @@ switch objtype
                 case {'bool'}
                     cellarray{rungroup} = hObject.Value;
             end
-            ScriptData.(tag)=cellarray;
+            SCRIPTDATA.(tag)=cellarray;
         end
         updateACQFiles;
         
@@ -709,12 +709,12 @@ end
 
 if strcmp(tag,'RUNGROUPFILES')
     %make sure each file is only associated with one rungroup
-    rungroup=ScriptData.RUNGROUPSELECT;
-    for s=1:length(ScriptData.RUNGROUPFILES{rungroup})
-        rgFileID=ScriptData.RUNGROUPFILES{rungroup}(s);
-        for t=1:length(ScriptData.RUNGROUPFILES)
+    rungroup=SCRIPTDATA.RUNGROUPSELECT;
+    for s=1:length(SCRIPTDATA.RUNGROUPFILES{rungroup})
+        rgFileID=SCRIPTDATA.RUNGROUPFILES{rungroup}(s);
+        for t=1:length(SCRIPTDATA.RUNGROUPFILES)
             if t== rungroup, continue, end
-            ScriptData.RUNGROUPFILES{t}=ScriptData.RUNGROUPFILES{t}(ScriptData.RUNGROUPFILES{t}~=rgFileID);
+            SCRIPTDATA.RUNGROUPFILES{t}=SCRIPTDATA.RUNGROUPFILES{t}(SCRIPTDATA.RUNGROUPFILES{t}~=rgFileID);
         end
     end
     updateACQFiles(hObject);
@@ -738,26 +738,26 @@ end
 
 
 
-function editText_ScriptData_callback(handle)
-% callback to ScriptData edit text bar
-global ScriptData
+function editText_SCRIPTDATA_callback(handle)
+% callback to SCRIPTDATA edit text bar
+global SCRIPTDATA
 %%%% get input string:
 pathString = handle.String;
 
 
 %%%% check if path exists, if not: set back to old path
 if ~exist(pathString,'file')
-    handle.String = ScriptData.SCRIPTFILE; 
+    handle.String = SCRIPTDATA.SCRIPTFILE; 
     errordlg('Specified path does not exist.');
     return
 end
 
-%%%% if pathString is path to correct ScriptData file, set new path, load file, else return
-success = loadScriptData(pathString);
+%%%% if pathString is path to correct SCRIPTDATA file, set new path, load file, else return
+success = loadSCRIPTDATA(pathString);
 if success
-    ScriptData.SCRIPTFILE = pathString;
+    SCRIPTDATA.SCRIPTFILE = pathString;
 else
-    handle.String = ScriptData.SCRIPTFILE;
+    handle.String = SCRIPTDATA.SCRIPTFILE;
     return
 end
 
@@ -770,37 +770,37 @@ getInputFiles
 end
 
 
-function editText_ProcessingData_callback(handle)
-% callback to ScriptData edit text bar
-global ScriptData ProcessingData
+function editText_PROCESSINGDATA_callback(handle)
+% callback to SCRIPTDATA edit text bar
+global SCRIPTDATA PROCESSINGDATA
 %%%% get input string:
 pathString = handle.String;
 
 %%%% check if path exists, if not: set pack to old path
 if ~exist(pathString,'file')
-    handle.String = ScriptData.DATAFILE;
+    handle.String = SCRIPTDATA.DATAFILE;
     errordlg('Specified path does not exist.')
     return
 end
 
-%%%% if path contains correct ProcessingData file, load it and set new path. Otherwise nothing is loaded and old one is kept.
-succes = loadProcessingData(pathString);
+%%%% if path contains correct PROCESSINGDATA file, load it and set new path. Otherwise nothing is loaded and old one is kept.
+succes = loadPROCESSINGDATA(pathString);
 if succes
-    ScriptData.DATAFILE = pathString;
+    SCRIPTDATA.DATAFILE = pathString;
 else
-    handle.String = ScriptData.DATAFILE;
+    handle.String = SCRIPTDATA.DATAFILE;
 end
 end
 
 
-function success = loadProcessingData(pathString)
-% update ProcessingData accourding to ScriptData in pathString
+function success = loadPROCESSINGDATA(pathString)
+% update PROCESSINGDATA accourding to SCRIPTDATA in pathString
 % if pathString is wrong, issue error
-% basically just like load(pathString), but issues error if not a correct ProcessingData
+% basically just like load(pathString), but issues error if not a correct PROCESSINGDATA
 success = 1;    
 
-%%%% check the file if it looks like a ProcessingData file, if it is wrong, simply return
-global ProcessingData
+%%%% check the file if it looks like a PROCESSINGDATA file, if it is wrong, simply return
+global PROCESSINGDATA
 [~, ~, ext]=fileparts(pathString);
 if ~strcmp('.mat',ext)
     errordlg('Not a  ''.mat'' file. File not loaded..')
@@ -811,15 +811,15 @@ else
     fn=fieldnames(metastruct);
 
     if length(fn) ~=1
-        errordlg('loaded ProcessingData.mat file contains not just one variable. File not loaded..')
+        errordlg('loaded PROCESSINGDATA.mat file contains not just one variable. File not loaded..')
         success = 0;
         return
     else
-        newProcessingData=metastruct.(fn{1});
+        newPROCESSINGDATA=metastruct.(fn{1});
         necFields = {'SELFRAMES', 'FILENAME'};
         for p=1:3:length(necFields)
-            if ~isfield(newProcessingData, necFields{p})
-                errormsg = sprintf('The chosen file doesn''t seem to be a ScriptData file. \n It doesn''t have the %s field. File not loaded..', necFields{p});
+            if ~isfield(newPROCESSINGDATA, necFields{p})
+                errormsg = sprintf('The chosen file doesn''t seem to be a SCRIPTDATA file. \n It doesn''t have the %s field. File not loaded..', necFields{p});
                 errordlg(errormsg);
                 success = 0;
                 return
@@ -829,19 +829,19 @@ else
 end
     
 %%%%  change the global, convert newFormat if necessary
-ProcessingData =  newProcessingData;
+PROCESSINGDATA =  newPROCESSINGDATA;
 end
 
 
-function success = loadScriptData(pathString)
-% update ScriptData accourding to ScriptData in pathString
+function success = loadSCRIPTDATA(pathString)
+% update SCRIPTDATA accourding to SCRIPTDATA in pathString
 % if pathString is wrong, issue error
-% basically just like load(pathString), but checks content of pathString and converst to new ScriptData format
+% basically just like load(pathString), but checks content of pathString and converst to new SCRIPTDATA format
 success = 1;    
-global ScriptData;
-oldProcessingDataPath =ScriptData.DATAFILE;
+global SCRIPTDATA;
+oldPROCESSINGDATAPath =SCRIPTDATA.DATAFILE;
 
-%%%% check the file if it looks like a ScriptData file, if it is wrong, simply return
+%%%% check the file if it looks like a SCRIPTDATA file, if it is wrong, simply return
 [~, ~, ext]=fileparts(pathString);
 if ~strcmp('.mat',ext)
     errordlg('Not a  ''.mat'' file.')
@@ -852,15 +852,15 @@ else
     fn=fieldnames(metastruct);
 
     if length(fn) ~=1
-        errordlg('loaded ScriptData.mat file contains not just one variable')
+        errordlg('loaded SCRIPTDATA.mat file contains not just one variable')
         success = 0;
         return
     else
-        newScriptData=metastruct.(fn{1});
+        newSCRIPTDATA=metastruct.(fn{1});
         necFields = get_necFields;
         for p=1:3:length(necFields)
-            if ~isfield(newScriptData, necFields{p})
-                errormsg = sprintf('The choosen file doesn''t seem to be a ScriptData file. \n It doesn''t have the %s field.', necFields{p});
+            if ~isfield(newSCRIPTDATA, necFields{p})
+                errormsg = sprintf('The choosen file doesn''t seem to be a SCRIPTDATA file. \n It doesn''t have the %s field.', necFields{p});
                 errordlg(errormsg);
                 success = 0;
                 return
@@ -870,8 +870,8 @@ else
 end
     
 %%%%  change the global, convert newFormat if necessary
-ScriptData =  newScriptData;
-old2newScriptData
+SCRIPTDATA =  newSCRIPTDATA;
+old2newSCRIPTDATA
 
 
 
@@ -879,22 +879,22 @@ old2newScriptData
 pathTags = {'ACQDIR','MATODIR','CALIBRATIONFILE'};
 for p=1:length(pathTags)
     pathTag= pathTags{p};
-    path = ScriptData.(pathTag);
+    path = SCRIPTDATA.(pathTag);
     if ~exist(path,'dir') && ~exist(path,'file')
-        ScriptData.(pathTag) = '';
+        SCRIPTDATA.(pathTag) = '';
     end
 end
 % same for mapping files
-for p=1:length(ScriptData.RUNGROUPMAPPINGFILE)
-    if ~exist(ScriptData.RUNGROUPMAPPINGFILE{p},'file')
-        ScriptData.RUNGROUPMAPPINGFILE{p} = '';
+for p=1:length(SCRIPTDATA.RUNGROUPMAPPINGFILE)
+    if ~exist(SCRIPTDATA.RUNGROUPMAPPINGFILE{p},'file')
+        SCRIPTDATA.RUNGROUPMAPPINGFILE{p} = '';
     end
 end
 
 
 
 
-ScriptData.DATAFILE =  oldProcessingDataPath;
+SCRIPTDATA.DATAFILE =  oldPROCESSINGDATAPath;
 end
 
 
@@ -902,21 +902,21 @@ function save_create_callbacks(cbobj,inputForUnitTesting)
 % callback to the two save buttons
 % inputForUnitTesting is eventdata, if this is called by user. It is the selected file, if this function is called by Unit Test for testing
 
-global ScriptData ProcessingData      % ProcessingData must be loaded, too, in case it needs to be saved!
+global SCRIPTDATA PROCESSINGDATA      % PROCESSINGDATA must be loaded, too, in case it needs to be saved!
 
 if strcmp(cbobj.Tag, 'SAVESCRIPTDATA')
-    DialogTitle ='Save ScriptData';
-    if ~isempty(ScriptData.SCRIPTFILE)
-        FilterSpec = ScriptData.SCRIPTFILE;
+    DialogTitle ='Save SCRIPTDATA';
+    if ~isempty(SCRIPTDATA.SCRIPTFILE)
+        FilterSpec = SCRIPTDATA.SCRIPTFILE;
     else
-        FilterSpec ='ScriptData.mat';
+        FilterSpec ='SCRIPTDATA.mat';
     end
 else
-    DialogTitle = 'Save ProcessingData';
-    if ~isempty(ScriptData.DATAFILE)
-        FilterSpec = ScriptData.DATAFILE;
+    DialogTitle = 'Save PROCESSINGDATA';
+    if ~isempty(SCRIPTDATA.DATAFILE)
+        FilterSpec = SCRIPTDATA.DATAFILE;
     else
-        FilterSpec ='ProcessingData.mat';
+        FilterSpec ='PROCESSINGDATA.mat';
     end
 end
 
@@ -928,14 +928,14 @@ end
 
 if isequal(FileName,0), return, end  % if user selected 'cancel'
 
-%%%% save helper file,  save path in ScriptData
+%%%% save helper file,  save path in SCRIPTDATA
 fullFileName = fullfile(PathName,FileName);
 if strcmp(cbobj.Tag, 'SAVESCRIPTDATA')
-    ScriptData.SCRIPTFILE = fullFileName;
-    save(fullFileName,'ScriptData')
+    SCRIPTDATA.SCRIPTFILE = fullFileName;
+    save(fullFileName,'SCRIPTDATA')
 else
-    ScriptData.DATAFILE = fullFileName;
-    save(fullFileName, 'ProcessingData')
+    SCRIPTDATA.DATAFILE = fullFileName;
+    save(fullFileName, 'PROCESSINGDATA')
 end
 
 updateFigure(cbobj.Parent)
@@ -946,13 +946,13 @@ end
 
 function saveSettings()
 %callback function for Save Settings Button
-% save ScriptData as a matfile in the filename/path specified in
-% ScriptData.SCRIPTFILE
+% save SCRIPTDATA as a matfile in the filename/path specified in
+% SCRIPTDATA.SCRIPTFILE
 try
-    global ScriptData;
-    save(ScriptData.SCRIPTFILE,'ScriptData','-mat');
+    global SCRIPTDATA;
+    save(SCRIPTDATA.SCRIPTFILE,'SCRIPTDATA','-mat');
 catch
-    disp('tried to save settings (ScriptData.mat), but was not able to do so..')
+    disp('tried to save settings (SCRIPTDATA.mat), but was not able to do so..')
 end
 end
 
@@ -960,16 +960,16 @@ end
 function removeGroup(handle)
 %callback function to 'Remove this Group' button
 
-    global ScriptData;
-    groupIdx = ScriptData.GROUPSELECT;
+    global SCRIPTDATA;
+    groupIdx = SCRIPTDATA.GROUPSELECT;
     if groupIdx > 0
-       fn = fieldnames(ScriptData.TYPE);
+       fn = fieldnames(SCRIPTDATA.TYPE);
        for p=1:length(fn)
            if strncmp(fn{p},'GROUP',5) && ~strcmp('GROUPSELECT',fn{p})
-               ScriptData.(fn{p}){ScriptData.RUNGROUPSELECT}(groupIdx)=[];
+               SCRIPTDATA.(fn{p}){SCRIPTDATA.RUNGROUPSELECT}(groupIdx)=[];
            end
        end
-       ScriptData.GROUPSELECT =length(ScriptData.GROUPNAME{ScriptData.RUNGROUPSELECT});
+       SCRIPTDATA.GROUPSELECT =length(SCRIPTDATA.GROUPNAME{SCRIPTDATA.RUNGROUPSELECT});
    end
    updateFigure(findobj(allchild(0),'tag','PROCESSINGSCRIPTSETTINGS'));
 end
@@ -977,25 +977,25 @@ end
 
 function removeRunGroup(handle)
 %callback to 'remove this rungroup'
-    global ScriptData;
-    rungroup = ScriptData.RUNGROUPSELECT;
+    global SCRIPTDATA;
+    rungroup = SCRIPTDATA.RUNGROUPSELECT;
     if rungroup > 0
-       fn = fieldnames(ScriptData.TYPE);
+       fn = fieldnames(SCRIPTDATA.TYPE);
        for p=1:length(fn)
            if strncmp(fn{p},'RUNGROUP',8) && ~strcmp('RUNGROUPSELECT',fn{p})
-               ScriptData.(fn{p})(rungroup)=[];
+               SCRIPTDATA.(fn{p})(rungroup)=[];
            end
            if strncmp(fn{p},'GROUP',5) && ~strcmp('GROUPSELECT',fn{p})
-               ScriptData.(fn{p})(rungroup)=[];
+               SCRIPTDATA.(fn{p})(rungroup)=[];
            end
        end
-       ScriptData.RUNGROUPSELECT=length(ScriptData.RUNGROUPNAMES);
+       SCRIPTDATA.RUNGROUPSELECT=length(SCRIPTDATA.RUNGROUPNAMES);
        
-       rungroupselect=ScriptData.RUNGROUPSELECT;
+       rungroupselect=SCRIPTDATA.RUNGROUPSELECT;
        if rungroupselect > 0
-            ScriptData.GROUPSELECT = length(ScriptData.GROUPNAME{rungroupselect});
+            SCRIPTDATA.GROUPSELECT = length(SCRIPTDATA.GROUPNAME{rungroupselect});
        else
-           ScriptData.GROUPSELECT = 0;
+           SCRIPTDATA.GROUPSELECT = 0;
        end
  
    end
@@ -1005,28 +1005,28 @@ end
 
 function selectAllACQ(~)
 %callback function to "select all" button at file listbox
-    global ScriptData;
-    ScriptData.ACQFILES = ScriptData.ACQFILENUMBER;
+    global SCRIPTDATA;
+    SCRIPTDATA.ACQFILES = SCRIPTDATA.ACQFILENUMBER;
     updateFigure(findobj(allchild(0),'tag','PROCESSINGSCRIPTMENU'));
 end
 
 function selectNoneACQ(~)
 %callback to 'clear selection' button
-    global ScriptData;
-    ScriptData.ACQFILES = [];
+    global SCRIPTDATA;
+    SCRIPTDATA.ACQFILES = [];
     updateFigure(findobj(allchild(0),'tag','PROCESSINGSCRIPTMENU'));
 end
 
 function ACQselectLabel(~)
 %callback to 'select label containing..' 
     
-    global ScriptData;
-    pat = ScriptData.ACQPATTERN;
+    global SCRIPTDATA;
+    pat = SCRIPTDATA.ACQPATTERN;
     sel = [];
-    for p=1:length(ScriptData.ACQINFO)
-        if ~isempty(strfind(ScriptData.ACQINFO{p},pat)), sel = [sel ScriptData.ACQFILENUMBER(p)]; end
+    for p=1:length(SCRIPTDATA.ACQINFO)
+        if ~isempty(strfind(SCRIPTDATA.ACQINFO{p},pat)), sel = [sel SCRIPTDATA.ACQFILENUMBER(p)]; end
     end
-    ScriptData.ACQFILES = sel;
+    SCRIPTDATA.ACQFILES = sel;
     updateFigure(findobj(allchild(0),'tag','PROCESSINGSCRIPTMENU'));
 end
 
@@ -1045,7 +1045,7 @@ function runScript(~)
 %   - saves all settings in msd.SCRIPTFILE, just in case programm crashes
 %   - checks if all settings are correkt (in particular, if groups have
 %     been selected
-%   - loads ProcessingData
+%   - loads PROCESSINGDATA
 %   - calls PreLoopScript, which:
 %       - checks if mapfile etc exist (I do that already earlier?!)
 %       - generates a CALIBRATION file, if none is supplied but
@@ -1055,7 +1055,7 @@ function runScript(~)
 %   - starts the MAIN LOOP: for each file:  Process file
 %   - at very end when everything is processed: update figure 
 %       
-    global ScriptData
+    global SCRIPTDATA
     
     
     h = [];   %for waitbar
@@ -1064,63 +1064,63 @@ function runScript(~)
     if ~success, return, end
     
     %%%% make sure helper files are selected to save data
-    if isempty(ScriptData.DATAFILE)
+    if isempty(SCRIPTDATA.DATAFILE)
         errordlg('No Processing Data File given to save processing data. Provide a Processing Data File to run the script.')
         return
     end
-    if isempty(ScriptData.SCRIPTFILE)
+    if isempty(SCRIPTDATA.SCRIPTFILE)
         errordlg('No Script Data File given to save settings. Provide a Script Data File to run the script.')
         return
     end
     
     %%%% save helper files 
-    saveProcessingData;
+    savePROCESSINGDATA;
     saveSettings;
     
     
     %%%% make sure a rungroup is defined for each selected file
-    for rungroupIdx=1:length(ScriptData.RUNGROUPNAMES)
-        if isempty(ScriptData.GROUPNAME{rungroupIdx})
+    for rungroupIdx=1:length(SCRIPTDATA.RUNGROUPNAMES)
+        if isempty(SCRIPTDATA.GROUPNAME{rungroupIdx})
             errordlg('you need to define groups for each defined rungroup in order to  process the data.');
             return
         end
     end
 
     %%%% MAIN LOOP %%%
-    acqfiles = unique(ScriptData.ACQFILES);
+    acqfiles = unique(SCRIPTDATA.ACQFILES);
     h  = waitbar(0,'SCRIPT PROGRESS','Tag','waitbar'); drawnow;
     
     
     p = 1;
     while (p <= length(acqfiles))
 
-        ScriptData.ACQNUM = acqfiles(p);
-        ScriptData.NAVIGATION = 'apply';
+        SCRIPTDATA.ACQNUM = acqfiles(p);
+        SCRIPTDATA.NAVIGATION = 'apply';
         
         %%%% find the current rungroup of processed file
-        ScriptData.CURRENTRUNGROUP=[];
-        for rungroupIdx=1:length(ScriptData.RUNGROUPNAMES)
-            if ismember(acqfiles(p), ScriptData.RUNGROUPFILES{rungroupIdx})
-                ScriptData.CURRENTRUNGROUP=rungroupIdx;
+        SCRIPTDATA.CURRENTRUNGROUP=[];
+        for rungroupIdx=1:length(SCRIPTDATA.RUNGROUPNAMES)
+            if ismember(acqfiles(p), SCRIPTDATA.RUNGROUPFILES{rungroupIdx})
+                SCRIPTDATA.CURRENTRUNGROUP=rungroupIdx;
                 break
             end
         end
-        if isempty(ScriptData.CURRENTRUNGROUP)
-            msg=sprintf('No Rungroup specified for %s. You need to specify a Rungroup for each file that you want to process.',ScriptData.ACQFILENAME{acqfiles(p)});
+        if isempty(SCRIPTDATA.CURRENTRUNGROUP)
+            msg=sprintf('No Rungroup specified for %s. You need to specify a Rungroup for each file that you want to process.',SCRIPTDATA.ACQFILENAME{acqfiles(p)});
             errordlg(msg);
             return
         end
         
         
 %         try
-            success = ProcessACQFile(ScriptData.ACQFILENAME{acqfiles(p)},ScriptData.ACQDIR);
+            success = ProcessACQFile(SCRIPTDATA.ACQFILENAME{acqfiles(p)},SCRIPTDATA.ACQDIR);
 %         catch
-%             fprintf('ERROR: something went wrong procssing the file %s. Skipping this file...',ScriptData.ACQFILENAME{acqfiles(p)})
+%             fprintf('ERROR: something went wrong procssing the file %s. Skipping this file...',SCRIPTDATA.ACQFILENAME{acqfiles(p)})
 %         end
         
         if ~success, return, end
         
-        switch ScriptData.NAVIGATION
+        switch SCRIPTDATA.NAVIGATION
             case 'prev'
                 p = p-1; 
                 if p == 0, p = 1; end
@@ -1140,7 +1140,7 @@ function runScript(~)
 end
 
 function KeyPress(handle)
-    global ScriptData;
+    global SCRIPTDATA;
 
     key = real(handle.CurrentCharacter);
     
@@ -1166,14 +1166,14 @@ function success = PreLoopScript
 %       mpd.LI, ALIGNSTART, ALIGNSIZE
     
 success = 0;
-global ScriptData ProcessingData   
-ScriptData.ALIGNSTART = 'detect';
-ScriptData.ALIGNSIZE = 'detect';
+global SCRIPTDATA PROCESSINGDATA   
+SCRIPTDATA.ALIGNSTART = 'detect';
+SCRIPTDATA.ALIGNSIZE = 'detect';
 
 
 %%%% -create filenames, which holds all the filename-strings of only the files selected by user.  
 % -create index, which holds all the indexes of filenames, that contain '-acq' or '.ac2'
-filenames = ScriptData.ACQFILENAME(ScriptData.ACQFILES);    % only take es selected by the user
+filenames = SCRIPTDATA.ACQFILENAME(SCRIPTDATA.ACQFILES);    % only take es selected by the user
 index = [];
 for r=1:length(filenames)
     if ~isempty(strfind(filenames{r},'.acq')) || ~isempty(strfind(filenames{r}, '.ac2')), index = [index r]; end
@@ -1181,7 +1181,7 @@ end
 
 
 %%%% check if input directory is provided and valid
-if ~exist(ScriptData.MATODIR,'dir')
+if ~exist(SCRIPTDATA.MATODIR,'dir')
     errordlg('Provided output directory does not exist. Aborting...')
     return
 end
@@ -1189,9 +1189,9 @@ end
 
 
 %%%% check if at leat one lead is provided for each group
-for RGIdx=1:length(ScriptData.RUNGROUPNAMES)
-    for grIdx=1:length(ScriptData.GROUPNAME{RGIdx})
-        if isempty(ScriptData.GROUPLEADS{RGIdx}{grIdx})
+for RGIdx=1:length(SCRIPTDATA.RUNGROUPNAMES)
+    for grIdx=1:length(SCRIPTDATA.GROUPNAME{RGIdx})
+        if isempty(SCRIPTDATA.GROUPLEADS{RGIdx}{grIdx})
             success=0;
             errordlg('Not all groups in all Rungroups have their Lead Numbers specified.')
             return
@@ -1204,75 +1204,75 @@ end
 
 if ~isempty(index)
     %%%%%%  generate a calibration file if neccessary %%%%%%%%%%%%%%%
-    if ScriptData.DO_CALIBRATE == 1  % if 'calibrate Signall' button is on
+    if SCRIPTDATA.DO_CALIBRATE == 1  % if 'calibrate Signall' button is on
         %%% if no calibration file and no CALIBRATIONACQ is given: exit
         %%% and make error message
-        if isempty(ScriptData.CALIBRATIONACQ) && isempty(ScriptData.CALIBRATIONFILE)
+        if isempty(SCRIPTDATA.CALIBRATIONACQ) && isempty(SCRIPTDATA.CALIBRATIONFILE)
             errordlg('Specify the filenumbers of the calibration measurements or a calibration file to do calibration. Aborting...');
             return; 
         end   
 
         %%%% create a calfile if DO_CALIBRATE is on, but no calfile is
         %%%% given
-        if isempty(ScriptData.CALIBRATIONFILE) && ScriptData.DO_CALIBRATE
+        if isempty(SCRIPTDATA.CALIBRATIONFILE) && SCRIPTDATA.DO_CALIBRATE
                 % generate a cell array of the .ac2 files used for
                 % calibration
-                acqcalfiles=ScriptData.ACQFILENAME(ScriptData.CALIBRATIONACQ);
+                acqcalfiles=SCRIPTDATA.ACQFILENAME(SCRIPTDATA.CALIBRATIONACQ);
                 if ~iscell(acqcalfiles), acqcalfiles = {acqcalfiles}; end 
 
                 %find the mappingfile used for the acqcalfiles.
                 mappingfile=[];
-                for rg=1:length(ScriptData.RUNGROUPNAMES)
-                    if ismember(ScriptData.CALIBRATIONACQ,ScriptData.RUNGROUPFILES{rg})
-                        mappingfile=ScriptData.RUNGROUPMAPPINGFILE{rg};
+                for rg=1:length(SCRIPTDATA.RUNGROUPNAMES)
+                    if ismember(SCRIPTDATA.CALIBRATIONACQ,SCRIPTDATA.RUNGROUPFILES{rg})
+                        mappingfile=SCRIPTDATA.RUNGROUPMAPPINGFILE{rg};
                         break
                     end
                 end
-                if isempty(mappingfile) && ScriptData.USE_MAPPINGFILE
+                if isempty(mappingfile) && SCRIPTDATA.USE_MAPPINGFILE
                     errordlg('No mappingfile given for the files used to create the calibration file...');
                     return
                 end
 
 
                 for p=1:length(acqcalfiles)
-                    acqcalfiles{p} = fullfile(ScriptData.ACQDIR,acqcalfiles{p});
+                    acqcalfiles{p} = fullfile(SCRIPTDATA.ACQDIR,acqcalfiles{p});
                 end
 
                 pointer = get(gcf,'pointer'); set(gcf,'pointer','watch');
                 calfile='calibration.cal8';
-                if ScriptData.USE_MAPPINGFILE
+                if SCRIPTDATA.USE_MAPPINGFILE
                     sigCalibrate8(acqcalfiles{:},mappingfile,calfile,'displaybar');
                 else
                     sigCalibrate8(acqcalfiles{:},calfile,'displaybar');
                 end
                 set(gcf,'pointer',pointer);
 
-                ScriptData.CALIBRATIONFILE = fullfile(pwd,calfile);
+                SCRIPTDATA.CALIBRATIONFILE = fullfile(pwd,calfile);
         end 
     end
 end    
 
 %%%% RENDER A GLOBAL LIST OF ALL THE BADLEADS,  set msd.GBADLEADS%%%%
-ScriptData.GBADLEADS={};
-for rungroupIdx=1:length(ScriptData.RUNGROUPNAMES)
+SCRIPTDATA.GBADLEADS={};
+for rungroupIdx=1:length(SCRIPTDATA.RUNGROUPNAMES)
    badleads=[];
-   for p=1:length(ScriptData.GROUPBADLEADS{rungroupIdx})      
-        reference=ScriptData.GROUPLEADS{rungroupIdx}{p}(1)-1;    
+   for p=1:length(SCRIPTDATA.GROUPBADLEADS{rungroupIdx})      
+        reference=SCRIPTDATA.GROUPLEADS{rungroupIdx}{p}(1)-1;    
 
-        addBadleads = ScriptData.GROUPBADLEADS{rungroupIdx}{p} + reference;
+        addBadleads = SCRIPTDATA.GROUPBADLEADS{rungroupIdx}{p} + reference;
 
         %%%% check if user input for badleads is correct
-        diff=ScriptData.GROUPLEADS{rungroupIdx}{p}(end)-ScriptData.GROUPLEADS{rungroupIdx}{p}(1);
-        if any(ScriptData.GROUPBADLEADS{rungroupIdx}{p} < 1) || any(ScriptData.GROUPBADLEADS{rungroupIdx}{p} > diff+1)
-            msg=sprintf('Bad leads for the group %s in the rungroup %s are invalid. Bad leads must be between 1 and ( 1 + maxGrouplead - minGrouplead). Aborting...',ScriptData.GROUPNAME{rungroupIdx}{p}, ScriptData.RUNGROUPNAMES{rungroupIdx});
+        diff=SCRIPTDATA.GROUPLEADS{rungroupIdx}{p}(end)-SCRIPTDATA.GROUPLEADS{rungroupIdx}{p}(1);
+        if any(SCRIPTDATA.GROUPBADLEADS{rungroupIdx}{p} < 1) || any(SCRIPTDATA.GROUPBADLEADS{rungroupIdx}{p} > diff+1)
+            msg=sprintf('Bad leads for the group %s in the rungroup %s are invalid. Bad leads must be between 1 and ( 1 + maxGrouplead - minGrouplead). Aborting...',SCRIPTDATA.GROUPNAME{rungroupIdx}{p}, SCRIPTDATA.RUNGROUPNAMES{rungroupIdx});
             errordlg(msg);
             return
         end
 
 
         %%%% read in badleadsfile, if there is one
-%         if ~isempty(ScriptData.GROUPBADLEADSFILE{rungroupIdx}{rungroupIdx}) 
-%             bfile = load(ScriptData.GROUPBADLEADSFILE{rungroupIdx}{p},'-ASCII');
+%         if ~isempty(SCRIPTDATA.GROUPBADLEADSFILE{rungroupIdx}{rungroupIdx}) 
+%             bfile = load(SCRIPTDATA.GROUPBADLEADSFILE{rungroupIdx}{p},'-ASCII');
 %             badleads = union(bfile(:)',badleads);
 %         end
 
@@ -1285,19 +1285,19 @@ for rungroupIdx=1:length(ScriptData.RUNGROUPNAMES)
    end
 
 
-    ScriptData.GBADLEADS{rungroupIdx} = badleads;
+    SCRIPTDATA.GBADLEADS{rungroupIdx} = badleads;
 end
 % GBADLEADS is now a nRungroup x 1 cellarray with the following entries for each rungroup:
 % a nBadLeads x 1 array with the badleads in the "global frame" for the rungroup.
 
 %%%% FIND MAXIMUM LEAD for each rg
-ScriptData.MAXLEAD={};  %set to empty first, just in case
-for rg=1:length(ScriptData.RUNGROUPNAMES)  
+SCRIPTDATA.MAXLEAD={};  %set to empty first, just in case
+for rg=1:length(SCRIPTDATA.RUNGROUPNAMES)  
     maxlead = 1;
-    for p=1:length(ScriptData.GROUPLEADS{rg})
-        maxlead = max([maxlead ScriptData.GROUPLEADS{rg}{p}]);
+    for p=1:length(SCRIPTDATA.GROUPLEADS{rg})
+        maxlead = max([maxlead SCRIPTDATA.GROUPLEADS{rg}{p}]);
     end
-    ScriptData.MAXLEAD{rg} = maxlead;
+    SCRIPTDATA.MAXLEAD{rg} = maxlead;
 end
 success = 1;
 end
@@ -1309,7 +1309,7 @@ end
 function success = ProcessACQFile(inputfilename,inputfiledir)
 success = 0;
 olddir = pwd;
-global ScriptData TS
+global SCRIPTDATA TS
 
 %%%%% create cellaray files={full acqfilename, mappingfile, calibration file}, if the latter two are needed & exist    
 filename = fullfile(inputfiledir,inputfilename);
@@ -1318,22 +1318,22 @@ if contains(inputfilename,'.mat'), isMatFile=1; else, isMatFile=0; end
 
 
 % load & check mappinfile
-mappingfile = ScriptData.RUNGROUPMAPPINGFILE{ScriptData.CURRENTRUNGROUP};
+mappingfile = SCRIPTDATA.RUNGROUPMAPPINGFILE{SCRIPTDATA.CURRENTRUNGROUP};
 if isempty(mappingfile)
-    ScriptData.RUNGROUPMAPPINGFILE{ScriptData.CURRENTRUNGROUP} = '';
+    SCRIPTDATA.RUNGROUPMAPPINGFILE{SCRIPTDATA.CURRENTRUNGROUP} = '';
 end
-if ~exist(mappingfile,'file') && ScriptData.USE_MAPPINGFILE
-    msg=sprintf('The .mapping file for the Rungroup %s does not exist.',ScriptData.RUNGROUPNAMES{ScriptData.CURRENTRUNGROUP});
+if ~exist(mappingfile,'file') && SCRIPTDATA.USE_MAPPINGFILE
+    msg=sprintf('The .mapping file for the Rungroup %s does not exist.',SCRIPTDATA.RUNGROUPNAMES{SCRIPTDATA.CURRENTRUNGROUP});
     errordlg(msg);
     return
-elseif ScriptData.USE_MAPPINGFILE
+elseif SCRIPTDATA.USE_MAPPINGFILE
     files{end+1}=mappingfile;
 end    
 
-if ScriptData.DO_CALIBRATE == 1 && ~isMatFile     % mat.-files are already calibrated
-    if ~isempty(ScriptData.CALIBRATIONFILE)
-        if exist(ScriptData.CALIBRATIONFILE,'file')
-            files{end+1} = ScriptData.CALIBRATIONFILE;
+if SCRIPTDATA.DO_CALIBRATE == 1 && ~isMatFile     % mat.-files are already calibrated
+    if ~isempty(SCRIPTDATA.CALIBRATIONFILE)
+        if exist(SCRIPTDATA.CALIBRATIONFILE,'file')
+            files{end+1} = SCRIPTDATA.CALIBRATIONFILE;
         end
     end
 end
@@ -1358,31 +1358,31 @@ TS{index}.filename=[filename ext];
     
     
 %%%% check if dimensions of potvals are correct, issue error msg if not
-if size(TS{index}.potvals,1) < ScriptData.MAXLEAD{ScriptData.CURRENTRUNGROUP}
+if size(TS{index}.potvals,1) < SCRIPTDATA.MAXLEAD{SCRIPTDATA.CURRENTRUNGROUP}
     errordlg('Maximum lead in settings is greater than number of leads in file');
     cd(olddir);
     return
 end
     
 
-%%%% ImportUserSettings (put Data from ProcessingData in TS{currentTS} %%%%%%%%%%    
+%%%% ImportUserSettings (put Data from PROCESSINGDATA in TS{currentTS} %%%%%%%%%%    
 fieldstoload = {'SELFRAMES','AVERAGEMETHOD','AVERAGESTART','AVERAGECHANNEL','AVERAGERMSTYPE','AVERAGEEND','AVERAGEFRAMES','TEMPLATEFRAMES'};      
 ImportUserSettings(inputfilename,index,fieldstoload);
 
     
 %%%%  store the GBADLEADS also in the ts structure (in ts.leadinfo)%%%% 
-badleads=ScriptData.GBADLEADS{ScriptData.CURRENTRUNGROUP};
+badleads=SCRIPTDATA.GBADLEADS{SCRIPTDATA.CURRENTRUNGROUP};
 TS{index}.leadinfo(badleads) = 1;
 
 %%%%% do the temporal filter of current file %%%%%%%%%%%%%%%%
-if ScriptData.DO_FILTER      % if 'apply temporal filter' is selected
-    if isempty(ScriptData.FILTER_OPTIONS)
+if SCRIPTDATA.DO_FILTER      % if 'apply temporal filter' is selected
+    if isempty(SCRIPTDATA.FILTER_OPTIONS)
         errordlg('There are not filter functions in the TOOLS/temporal_filter folder. Could not filter data. Aborting...')
         return
     end
     
     %%%% get filterFunction (the function selected to do temporal filtering) and check if it is valid
-    filterFunctionString = ScriptData.FILTER_OPTIONS{ScriptData.FILTER_SELECTION};
+    filterFunctionString = SCRIPTDATA.FILTER_OPTIONS{SCRIPTDATA.FILTER_SELECTION};
     if nargin(filterFunctionString)~=1 || nargout(filterFunctionString)~=1
         msg=sprintf('the provided temporal filter function ''%s'' does not have the right number of input and output arguments. Cannot filter data. Aborting..',filterFunctionString);
         errordlg(msg)
@@ -1424,11 +1424,11 @@ end
 % -  does some upgrades to bad leads 
 % - calls sigSlice, which in this case:  updates TS{currentIndex} bei
 % keeping only the timeframe-window specified in ts.selframes
-if ScriptData.DO_SLICE_USER == 1  %if 'user interaction' button is pressed
+if SCRIPTDATA.DO_SLICE_USER == 1  %if 'user interaction' button is pressed
     handle = sliceDisplay(index); % this only changes selframes I think it also uses ts.averageframes (and all from export userlist bellow?)
     waitfor(handle);
 
-    switch ScriptData.NAVIGATION  % if any of these was clicked in sliceDisplay
+    switch SCRIPTDATA.NAVIGATION  % if any of these was clicked in sliceDisplay
         case {'prev','next','stop','back'}
             cd(olddir);
             tsClear(index);
@@ -1441,7 +1441,7 @@ end
 ExportUserSettings(inputfilename,index,{'SELFRAMES','AVERAGEMETHOD','AVERAGECHANNEL','AVERAGERMSTYPE','AVERAGESTART','AVERAGEEND','AVERAGEFRAMES','TEMPLATEFRAMES','LEADINFO'});
 
 %%%%%% if 'blank bad leads' button is selected,   set all values of the bad leads to 0   
-if ScriptData.DO_BLANKBADLEADS == 1
+if SCRIPTDATA.DO_BLANKBADLEADS == 1
     badleads = tsIsBad(index);
     TS{index}.potvals(badleads,:) = 0;
     tsSetBlank(index,badleads);
@@ -1449,22 +1449,22 @@ if ScriptData.DO_BLANKBADLEADS == 1
 end
 
 %%%% if autofid user interaction is activated, to autofidicializing
-if ScriptData.AUTOFID_USER_INTERACTION
-    ScriptData.DO_AUTOFIDUCIALISING = 1;
+if SCRIPTDATA.AUTOFID_USER_INTERACTION
+    SCRIPTDATA.DO_AUTOFIDUCIALISING = 1;
 end
 
 %%%% save the ts as it is now in TS{unslicedDataIndex} for autofiducialicing
-if ScriptData.DO_AUTOFIDUCIALISING
+if SCRIPTDATA.DO_AUTOFIDUCIALISING
     unslicedDataIndex=tsNew(1);
     TS{unslicedDataIndex}=TS{index};        
-    ScriptData.unslicedDataIndex=unslicedDataIndex;
+    SCRIPTDATA.unslicedDataIndex=unslicedDataIndex;
 end
 
 %%%% slice the current TS{index} and work with that one
 sigSlice(index);   % keeps only the selected timeframes in the potvals, using ts.selframes as start and endpoint
 
 
- %%%%%% import more Usersettings from ProcessingData into TS{index} %%%%
+ %%%%%% import more Usersettings from PROCESSINGDATA into TS{index} %%%%
 fieldstoload = {'FIDS','FIDSET','STARTFRAME'};
 ImportUserSettings(inputfilename,index,fieldstoload);
 
@@ -1472,14 +1472,14 @@ ImportUserSettings(inputfilename,index,fieldstoload);
 
 %%%%%%%%%% start baseline stuff %%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if ScriptData.DO_BASELINE_USER, ScriptData.DO_BASELINE = 1; end
-if (ScriptData.DO_BASELINE == 1)
+if SCRIPTDATA.DO_BASELINE_USER, SCRIPTDATA.DO_BASELINE = 1; end
+if (SCRIPTDATA.DO_BASELINE == 1)
 %%%% shift ficucials to the new local frame %%%%%%%%%%%%
 % fids are always in local frame, but because user selected new local
 % frame (the selframe), the local frame changed!
 
     if ~isfield(TS{index},'selframes')
-        msg=sprintf('Couldn''t find any selected start/end time frames for %s. Either provide one by using a ProcessingData file where this information has been saved previously or select ''User Interaction'' at the Slice/Average'' section to manually select a start/end time frame. Aborting...',TS{index}.filename);
+        msg=sprintf('Couldn''t find any selected start/end time frames for %s. Either provide one by using a PROCESSINGDATA file where this information has been saved previously or select ''User Interaction'' at the Slice/Average'' section to manually select a start/end time frame. Aborting...',TS{index}.filename);
         errordlg(msg)
         TS{index}=[];
         return
@@ -1494,7 +1494,7 @@ if (ScriptData.DO_BASELINE == 1)
     % and set that as new fiducial
     baseline = fidsFindFids(index,'baseline');
     framelength = size(TS{index}.potvals,2);
-    baselinewidth = ScriptData.BASELINEWIDTH;       % also upgrade baselinewidth
+    baselinewidth = SCRIPTDATA.BASELINEWIDTH;       % also upgrade baselinewidth
     TS{index}.baselinewidth = baselinewidth;
     if length(baseline) < 2
         fidsRemoveFiducial(index,'baseline');
@@ -1503,17 +1503,17 @@ if (ScriptData.DO_BASELINE == 1)
     end
     %%%% if 'Pre-RMS Baseline correction' button is pressed, do baseline
     %%%% corection of current index (before user selects anything..
-    if ScriptData.DO_BASELINE_RMS == 1
+    if SCRIPTDATA.DO_BASELINE_RMS == 1
         success = baseLineCorrectSignal(index);
         if ~success, return, end
     end
     
     %%%%   open Fidsdisplay in mode 2, (baseline mode)
-    if ScriptData.DO_BASELINE_USER == 1
+    if SCRIPTDATA.DO_BASELINE_USER == 1
         handle = fidsDisplay(index,2);    % this changes fids, but nothing else
         waitfor(handle);
 
-        switch ScriptData.NAVIGATION
+        switch SCRIPTDATA.NAVIGATION
             case {'prev','next','stop','back'}
                 cd(olddir);
                 tsClear(index);
@@ -1521,11 +1521,11 @@ if (ScriptData.DO_BASELINE == 1)
                 return; 
         end     
     end
-    %%%% and save user selections in ProcessingData    
+    %%%% and save user selections in PROCESSINGDATA    
     ExportUserSettings(inputfilename,index,{'SELFRAMES','AVERAGEMETHOD','AVERAGECHANNEL','AVERAGERMSTYPE','AVERAGESTART','AVERAGEEND','AVERAGEFRAMES','TEMPLATEFRAMES','LEADINFO','FIDS','FIDSET','STARTFRAME'});
      
     %%%% now do the final baseline correction
-    if ScriptData.DO_BASELINE == 1
+    if SCRIPTDATA.DO_BASELINE == 1
         if length(fidsFindFids(index,'baseline')) < 2 
             han = errordlg('At least two baseline points need to be specified, skipping baseline correction');
             waitfor(han);
@@ -1540,15 +1540,15 @@ end
 
 
 %%%%%%%% now detect the rest of fiducials, if 'detect fids' was selected   
-if ScriptData.DO_DETECT_USER, ScriptData.DO_DETECT=1; end
-if ScriptData.DO_DETECT == 1
+if SCRIPTDATA.DO_DETECT_USER, SCRIPTDATA.DO_DETECT=1; end
+if SCRIPTDATA.DO_DETECT == 1
     fieldstoload = {'FIDS','FIDSET','STARTFRAME'};
     ImportUserSettings(inputfilename,index,fieldstoload);
 
 
     %%% fids shift, same as in baseline stuff, to get to local frame?!
     if ~isfield(TS{index},'selframes')
-        msg=sprintf('Couldn''t find any selected start/end time frames for %s. Either provide one by using a ProcessingData file where this information has been saved previously or select ''User Interaction'' at the Slice/Average'' section to manually select a start/end time frame. Aborting...',TS{index}.filename);
+        msg=sprintf('Couldn''t find any selected start/end time frames for %s. Either provide one by using a PROCESSINGDATA file where this information has been saved previously or select ''User Interaction'' at the Slice/Average'' section to manually select a start/end time frame. Aborting...',TS{index}.filename);
         errordlg(msg)
         TS{index}=[];
         return
@@ -1564,7 +1564,7 @@ if ScriptData.DO_DETECT == 1
     %%% lastframe] (why is this here again?)
     baseline = fidsFindFids(index,'baseline');
     framelength = size(TS{index}.potvals,2);
-    baselinewidth = ScriptData.BASELINEWIDTH;
+    baselinewidth = SCRIPTDATA.BASELINEWIDTH;
     if length(baseline) < 2
         fidsRemoveFiducial(index,'baseline');
         fidsAddFiducial(index,1,'baseline');
@@ -1574,25 +1574,25 @@ if ScriptData.DO_DETECT == 1
 
     %%%%%% open FidsDisplay again, this time to select fiducials
 
-    if ScriptData.DO_DETECT_USER == 1
+    if SCRIPTDATA.DO_DETECT_USER == 1
         handle = fidsDisplay(index);    
 
         waitfor(handle);
-        switch ScriptData.NAVIGATION
+        switch SCRIPTDATA.NAVIGATION
             case {'prev','next','stop','redo','back'}, cd(olddir); tsClear(index); success = 1; return; 
         end     
     end    
-    % save the user selections (stored in ts) in ProcessingData
+    % save the user selections (stored in ts) in PROCESSINGDATA
     ExportUserSettings(inputfilename,index,{'SELFRAMES','AVERAGEMETHOD','AVERAGERMSTYPE','AVERAGECHANNEL','AVERAGESTART','AVERAGEEND','AVERAGEFRAMES','TEMPLATEFRAMES','LEADINFO','FIDS','FIDSET','STARTFRAME'});
 end
 
 %%%% now we have a fiducialed beat - use it as template to autoprocess the rest of the data in TS{unslicedDataIndex}
-if ScriptData.DO_AUTOFIDUCIALISING
-    ScriptData.CURRENTTS = index;
+if SCRIPTDATA.DO_AUTOFIDUCIALISING
+    SCRIPTDATA.CURRENTTS = index;
     success = autoProcessSignal;
     if ~success, return, end
     
-    switch ScriptData.NAVIGATION
+    switch SCRIPTDATA.NAVIGATION
         case {'prev','next','stop','back'}
             success = 1;
             return; 
@@ -1603,7 +1603,7 @@ end
 %%%% this part does the splitting. In detail it
 % - creates numgroups new ts structures (one for each group) using
 % tsSplitTS
-% - it sets ts.'tsdfcfilename' to ScriptData.GROUPTSDFC(splitgroup)
+% - it sets ts.'tsdfcfilename' to SCRIPTDATA.GROUPTSDFC(splitgroup)
 % - it sets ts.filename to  exact the same..  'including some tsdf
 % stuff
 % - original ts (the one thats splittet) is cleared
@@ -1611,34 +1611,34 @@ end
 
 %%%% split TS{index} into numGroups smaller ts
 splitgroup = [];
-for p=1:length(ScriptData.GROUPNAME{ScriptData.CURRENTRUNGROUP})
-    if ScriptData.GROUPDONOTPROCESS{ScriptData.CURRENTRUNGROUP}{p} == 0, splitgroup = [splitgroup p]; end
+for p=1:length(SCRIPTDATA.GROUPNAME{SCRIPTDATA.CURRENTRUNGROUP})
+    if SCRIPTDATA.GROUPDONOTPROCESS{SCRIPTDATA.CURRENTRUNGROUP}{p} == 0, splitgroup = [splitgroup p]; end
 end
 % splitgroup is now eg [1 3] if there are 3 groups but the 2 should
 % not be processed
-channels=ScriptData.GROUPLEADS{ScriptData.CURRENTRUNGROUP}(splitgroup);
+channels=SCRIPTDATA.GROUPLEADS{SCRIPTDATA.CURRENTRUNGROUP}(splitgroup);
 splittedTSindices = tsSplitTS(index, channels);    
-tsDeal(splittedTSindices,'filename',ioUpdateFilename('.mat',inputfilename,ScriptData.GROUPEXTENSION{ScriptData.CURRENTRUNGROUP}(splitgroup))); 
+tsDeal(splittedTSindices,'filename',ioUpdateFilename('.mat',inputfilename,SCRIPTDATA.GROUPEXTENSION{SCRIPTDATA.CURRENTRUNGROUP}(splitgroup))); 
 tsClear(index);        
 
 
 
 %%%% save the new ts structures
 
-tsDeal(splittedTSindices,'filename',ioUpdateFilename('.mat',inputfilename,ScriptData.GROUPEXTENSION{ScriptData.CURRENTRUNGROUP}(splitgroup)));
+tsDeal(splittedTSindices,'filename',ioUpdateFilename('.mat',inputfilename,SCRIPTDATA.GROUPEXTENSION{SCRIPTDATA.CURRENTRUNGROUP}(splitgroup)));
 
 %%%% save the group ts structures
 for splitIdx=splittedTSindices
     ts=TS{splitIdx};
-    fullFilename=fullfile(ScriptData.MATODIR, ts.filename);
+    fullFilename=fullfile(SCRIPTDATA.MATODIR, ts.filename);
     fprintf('Saving file: %s\n',ts.filename)
     save(fullFilename,'ts','-v6')
 end    
 
 
 %%%% do integral maps and save them  
-if ScriptData.DO_INTEGRALMAPS == 1
-    if ScriptData.DO_DETECT == 0
+if SCRIPTDATA.DO_INTEGRALMAPS == 1
+    if SCRIPTDATA.DO_DETECT == 0
         msg=sprintf('Need fiducials (at least QRS wave or T wave) to do integral maps for %s. Aborting', inputfilename);
         errordlg(msg)
         return
@@ -1649,14 +1649,14 @@ if ScriptData.DO_INTEGRALMAPS == 1
         errordlg(msg)
         return
     end
-    fnames=ioUpdateFilename('.mat',inputfilename,ScriptData.GROUPEXTENSION{ScriptData.CURRENTRUNGROUP}(splitgroup),'-itg');
+    fnames=ioUpdateFilename('.mat',inputfilename,SCRIPTDATA.GROUPEXTENSION{SCRIPTDATA.CURRENTRUNGROUP}(splitgroup),'-itg');
     tsDeal(mapindices,'filename',fnames); 
     tsSet(mapindices,'newfileext','');
     
     %%%% save integral maps  and clear them
     for mapIdx=mapindices
         ts=TS{mapIdx};
-        fullFilename=fullfile(ScriptData.MATODIR, ts.filename);
+        fullFilename=fullfile(SCRIPTDATA.MATODIR, ts.filename);
         fprintf('Saving file: %s\n',ts.filename)
         save(fullFilename,'ts','-v6')
     end    
@@ -1665,8 +1665,8 @@ end
     
  %%%%% Do activation maps   
     
-if ScriptData.DO_ACTIVATIONMAPS == 1
-    if ScriptData.DO_DETECT == 0 % 'Detect fiducials must be selected'
+if SCRIPTDATA.DO_ACTIVATIONMAPS == 1
+    if SCRIPTDATA.DO_DETECT == 0 % 'Detect fiducials must be selected'
         errordlg('Fiducials needed to do Activationsmaps! Select the ''Do Fiducials'' button to do Activationmaps. Aborting...')
         return;
     end
@@ -1676,13 +1676,13 @@ if ScriptData.DO_ACTIVATIONMAPS == 1
     [mapindices, success] = sigActRecMap(splittedTSindices);   
     if ~success,return, end
     
-    tsDeal(mapindices,'filename',ioUpdateFilename('.mat',inputfilename,ScriptData.GROUPEXTENSION{ScriptData.CURRENTRUNGROUP}(splitgroup),'-ari')); 
+    tsDeal(mapindices,'filename',ioUpdateFilename('.mat',inputfilename,SCRIPTDATA.GROUPEXTENSION{SCRIPTDATA.CURRENTRUNGROUP}(splitgroup),'-ari')); 
     tsSet(mapindices,'newfileext','');
     
     %%%% save integral maps  and clear them
     for mapIdx=mapindices
         ts=TS{mapIdx};
-        fullFilename=fullfile(ScriptData.MATODIR, ts.filename);
+        fullFilename=fullfile(SCRIPTDATA.MATODIR, ts.filename);
         fprintf('Saving file: %s\n',ts.filename)
         save(fullFilename,'ts','-v6')
     end    
@@ -1690,12 +1690,12 @@ if ScriptData.DO_ACTIVATIONMAPS == 1
 end
 
 %%%%% save everything and clear TS
-saveProcessingData;
+savePROCESSINGDATA;
 saveSettings;
 tsClear(splittedTSindices);
-if ScriptData.DO_AUTOFIDUCIALISING
-    tsClear(ScriptData.unslicedDataIndex);
-    ScriptData.unslicedDataIndex=[];
+if SCRIPTDATA.DO_AUTOFIDUCIALISING
+    tsClear(SCRIPTDATA.unslicedDataIndex);
+    SCRIPTDATA.unslicedDataIndex=[];
 end
 
 success = 1;
@@ -1774,7 +1774,7 @@ end
 
 
 function necFields = get_necFields
-% whenever a ScriptData file is loaded, it is checked if these fields are in the loaded ScriptData struct
+% whenever a SCRIPTDATA file is loaded, it is checked if these fields are in the loaded SCRIPTDATA struct
 % if any of these necFields is missing, a warning is issued and the file is not loaded
 necFields = {'SCRIPTFILE','','file',...
                 'DATAFILE','','file',...
@@ -1799,7 +1799,7 @@ end
 
 function   success = checkNewInput(handle, tag)
 success = 0;
-global ScriptData
+global SCRIPTDATA
 switch tag
     case {'ACQDIR', 'MATODIR'}
         pathstring=handle.String;
@@ -1817,9 +1817,9 @@ switch tag
         end
     case 'GROUPNAME'
         newGroupName=handle.String;
-        existingGroups=ScriptData.GROUPNAME{ScriptData.RUNGROUPSELECT};
+        existingGroups=SCRIPTDATA.GROUPNAME{SCRIPTDATA.RUNGROUPSELECT};
 
-        existingGroups(ScriptData.GROUPSELECT)=[];
+        existingGroups(SCRIPTDATA.GROUPSELECT)=[];
         if ~isempty(find(ismember(existingGroups,newGroupName), 1))
             errordlg('A group with the same groupname already exists.')
             updateFigure(findobj(allchild(0),'tag','PROCESSINGSCRIPTSETTINGS'));
@@ -1834,39 +1834,39 @@ end
 success = 1;
 end
 
-function old2newScriptData()
-%convert old ScriptData without rungroups to the new format
+function old2newSCRIPTDATA()
+%convert old SCRIPTDATA without rungroups to the new format
 
-    global ScriptData
+    global SCRIPTDATA
     defaultsettings=getDefaultSettings;
 
-    %%%%% remove unnecesary fields in the ScriptData file, that are not in the defaultsettings..
+    %%%%% remove unnecesary fields in the SCRIPTDATA file, that are not in the defaultsettings..
     mappingfile='';
-    if isfield(ScriptData,'MAPPINGFILE'), mappingfile=ScriptData.MAPPINGFILE; end  %remember the mappingfile, before that information is deleted
-    oldfields=fieldnames(ScriptData);
+    if isfield(SCRIPTDATA,'MAPPINGFILE'), mappingfile=SCRIPTDATA.MAPPINGFILE; end  %remember the mappingfile, before that information is deleted
+    oldfields=fieldnames(SCRIPTDATA);
     fields2beRemoved=setdiff(oldfields,defaultsettings(1:3:end));
-    ScriptData=rmfield(ScriptData,fields2beRemoved);
+    SCRIPTDATA=rmfield(SCRIPTDATA,fields2beRemoved);
     
     
     %%%% now set .DEFAULT and TYPE and set/add missing fields with default values for all fields exept the ones related to (run)groups
-    ScriptData.DEFAULT=struct();
-    ScriptData.TYPE=struct();
+    SCRIPTDATA.DEFAULT=struct();
+    SCRIPTDATA.TYPE=struct();
     for p=1:3:length(defaultsettings)
-        ScriptData.DEFAULT.(defaultsettings{p})=defaultsettings{p+1};
-        ScriptData.TYPE.(defaultsettings{p})=defaultsettings{p+2};
-        if ~isfield(ScriptData,defaultsettings{p}) && ~(strncmp(defaultsettings{p+2},'group',5) || strncmp(defaultsettings{p+2},'rungroup',8))
-            ScriptData.(defaultsettings{p})=defaultsettings{p+1};
+        SCRIPTDATA.DEFAULT.(defaultsettings{p})=defaultsettings{p+1};
+        SCRIPTDATA.TYPE.(defaultsettings{p})=defaultsettings{p+2};
+        if ~isfield(SCRIPTDATA,defaultsettings{p}) && ~(strncmp(defaultsettings{p+2},'group',5) || strncmp(defaultsettings{p+2},'rungroup',8))
+            SCRIPTDATA.(defaultsettings{p})=defaultsettings{p+1};
         end
     end
     
     
-    %%%% fix some problems with old ScriptData: in some cases there where e.g. 5 groups, but not all group related entries hat 5 entries.  This is fixed here by giving each group default values, if no values are provided yet
-    if ~isempty(ScriptData.GROUPNAME)
-        if ~iscell(ScriptData.GROUPNAME{1})  % if it is an old ScriptData
-            len=length(ScriptData.GROUPNAME);
+    %%%% fix some problems with old SCRIPTDATA: in some cases there where e.g. 5 groups, but not all group related entries hat 5 entries.  This is fixed here by giving each group default values, if no values are provided yet
+    if ~isempty(SCRIPTDATA.GROUPNAME)
+        if ~iscell(SCRIPTDATA.GROUPNAME{1})  % if it is an old SCRIPTDATA
+            len=length(SCRIPTDATA.GROUPNAME);
             for p=1:3:length(defaultsettings)
-                if strncmp(ScriptData.TYPE.(defaultsettings{p}),'group',5) && (length(ScriptData.(defaultsettings{p})) < len)
-                    ScriptData.defaultsettings{p}(1:len)=defaultsettings{p+1};
+                if strncmp(SCRIPTDATA.TYPE.(defaultsettings{p}),'group',5) && (length(SCRIPTDATA.(defaultsettings{p})) < len)
+                    SCRIPTDATA.defaultsettings{p}(1:len)=defaultsettings{p+1};
                 end
             end
         end
@@ -1874,13 +1874,13 @@ function old2newScriptData()
                     
  
     %%%% convert 'GROUP..' fields into new format
-    fn=fieldnames(ScriptData.TYPE);
+    fn=fieldnames(SCRIPTDATA.TYPE);
     rungroupAdded=0;
     for p=1:length(fn)                                    % for each group
-        if strncmp(ScriptData.TYPE.(fn{p}),'group',5)          % if it is a group field  
-            if ~isempty(ScriptData.(fn{p}))       % if there is an entry for it
-                if ~iscell(ScriptData.(fn{p}){1}) % if old format
-                    ScriptData.(fn{p})={ScriptData.(fn{p})};  % make it a cell  -> new ScriptData format
+        if strncmp(SCRIPTDATA.TYPE.(fn{p}),'group',5)          % if it is a group field  
+            if ~isempty(SCRIPTDATA.(fn{p}))       % if there is an entry for it
+                if ~iscell(SCRIPTDATA.(fn{p}){1}) % if old format
+                    SCRIPTDATA.(fn{p})={SCRIPTDATA.(fn{p})};  % make it a cell  -> new SCRIPTDATA format
                     if ~rungroupAdded, rungroupAdded=1; end
                 end
             end
@@ -1891,40 +1891,40 @@ function old2newScriptData()
     %%%% create the 'RUNGROUP..'  fields, if they aren't there yet.
     for p=1:3:length(defaultsettings)
         if strncmp(defaultsettings{p+2},'rungroup',8)
-            if ~isfield(ScriptData, defaultsettings{p})
+            if ~isfield(SCRIPTDATA, defaultsettings{p})
                 if rungroupAdded
-                    ScriptData.(defaultsettings{p})={defaultsettings{p+1}};
+                    SCRIPTDATA.(defaultsettings{p})={defaultsettings{p+1}};
                 else
-                    ScriptData.(defaultsettings{p})={};
+                    SCRIPTDATA.(defaultsettings{p})={};
                 end
             end   
         end
     end
     
-    if ~isempty(mappingfile) %if ScriptData.MAPPINFILE existed, make that mappinfile the mappinfile for all rungroups
-            ScriptData.RUNGROUPMAPPINGFILE=cell(1,length(ScriptData.RUNGROUPNAMES));
-            [ScriptData.RUNGROUPMAPPINGFILE{:}]=deal(mappingfile);
+    if ~isempty(mappingfile) %if SCRIPTDATA.MAPPINFILE existed, make that mappinfile the mappinfile for all rungroups
+            SCRIPTDATA.RUNGROUPMAPPINGFILE=cell(1,length(SCRIPTDATA.RUNGROUPNAMES));
+            [SCRIPTDATA.RUNGROUPMAPPINGFILE{:}]=deal(mappingfile);
             
-            ScriptData.RUNGROUPCALIBRATIONMAPPINGUSED=cell(1,length(ScriptData.RUNGROUPNAMES));
-            [ScriptData.RUNGROUPCALIBRATIONMAPPINGUSED{:}]=deal('');
+            SCRIPTDATA.RUNGROUPCALIBRATIONMAPPINGUSED=cell(1,length(SCRIPTDATA.RUNGROUPNAMES));
+            [SCRIPTDATA.RUNGROUPCALIBRATIONMAPPINGUSED{:}]=deal('');
     end
     
     
     
-    %%%% if there are no rungroups in old ScriptData, set all selected acq
+    %%%% if there are no rungroups in old SCRIPTDATA, set all selected acq
     %%%% files as default for a newly created rungroup.
     if rungroupAdded
-        ScriptData.RUNGROUPFILES={ScriptData.ACQFILES};
+        SCRIPTDATA.RUNGROUPFILES={SCRIPTDATA.ACQFILES};
     end
     
 
     
     
-    ScriptData.RUNGROUPSELECT=length(ScriptData.RUNGROUPNAMES);
-    if ScriptData.RUNGROUPSELECT > 0
-        ScriptData.GROUPSELECT=length(ScriptData.GROUPNAME{ScriptData.RUNGROUPSELECT});
+    SCRIPTDATA.RUNGROUPSELECT=length(SCRIPTDATA.RUNGROUPNAMES);
+    if SCRIPTDATA.RUNGROUPSELECT > 0
+        SCRIPTDATA.GROUPSELECT=length(SCRIPTDATA.GROUPNAME{SCRIPTDATA.RUNGROUPSELECT});
     else
-        ScriptData.GROUPSELECT=0;
+        SCRIPTDATA.GROUPSELECT=0;
     end  
 
 end

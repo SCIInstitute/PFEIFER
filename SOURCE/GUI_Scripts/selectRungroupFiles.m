@@ -39,16 +39,16 @@ end
 
 function setUpDisplay(handle)
 % set up all objects of the display
-global ScriptData
-rungroupselection=ScriptData.RUNGROUPSELECT;
+global SCRIPTDATA
+rungroupselection=SCRIPTDATA.RUNGROUPSELECT;
 
 
 
 %%%% set up the listbox
 obj=findobj(allchild(handle),'tag','RUNGROUPLISTBOX');
-cellarray = ScriptData.('ACQLISTBOX');
+cellarray = SCRIPTDATA.('ACQLISTBOX');
 if ~isempty(cellarray) 
-    values = intersect(ScriptData.ACQFILENUMBER,ScriptData.RUNGROUPFILES{rungroupselection});
+    values = intersect(SCRIPTDATA.ACQFILENUMBER,SCRIPTDATA.RUNGROUPFILES{rungroupselection});
     set(obj,'string',cellarray,'max',length(cellarray),'value',values,'enable','on');
 else
     set(obj,'string',{'NO ACQ or AC2 FILES FOUND','',''},'max',3,'value',[],'enable','off');
@@ -58,20 +58,20 @@ end
 
 %%%% set up the title
 obj=findobj(allchild(handle),'tag','RUNGROUPTITLE');
-title=sprintf('Select Files For The Rungroup ''%s''.',ScriptData.RUNGROUPNAMES{rungroupselection});
+title=sprintf('Select Files For The Rungroup ''%s''.',SCRIPTDATA.RUNGROUPNAMES{rungroupselection});
 set(obj,'string',title)
 
 %%%% set up 'selected files'
 
 obj=findobj(allchild(handle),'tag','RGFILESELECTION');
-set(obj,'string',mynum2str(ScriptData.RUNGROUPFILES{rungroupselection}));
+set(obj,'string',mynum2str(SCRIPTDATA.RUNGROUPFILES{rungroupselection}));
 
 
 
 
 %%%% set up 'select label containing'
 obj=findobj(allchild(handle),'tag','RUNGROUPFILECONTAIN');
-set(obj,'string',ScriptData.RUNGROUPFILECONTAIN{rungroupselection});
+set(obj,'string',SCRIPTDATA.RUNGROUPFILECONTAIN{rungroupselection});
 
 
 end
@@ -82,26 +82,26 @@ end
 
 
 function rungrouplistbox_Callback(handle)
-global ScriptData
-ScriptData.RUNGROUPFILES{ScriptData.RUNGROUPSELECT}=get(handle,'value');
+global SCRIPTDATA
+SCRIPTDATA.RUNGROUPFILES{SCRIPTDATA.RUNGROUPSELECT}=get(handle,'value');
 parent=get(handle,'parent');
 setUpDisplay(parent)
 end
 
 
 function selectAll_callback(handle)
-global ScriptData
+global SCRIPTDATA
 
-ScriptData.RUNGROUPFILES{ScriptData.RUNGROUPSELECT}=ScriptData.ACQFILENUMBER;
+SCRIPTDATA.RUNGROUPFILES{SCRIPTDATA.RUNGROUPSELECT}=SCRIPTDATA.ACQFILENUMBER;
 
 parent=get(handle,'parent');
 setUpDisplay(parent)
 end
 
 function clearSelection_callback(handle)
-global ScriptData
+global SCRIPTDATA
 
-ScriptData.RUNGROUPFILES{ScriptData.RUNGROUPSELECT}=[];
+SCRIPTDATA.RUNGROUPFILES{SCRIPTDATA.RUNGROUPSELECT}=[];
 
 parent=get(handle,'parent');
 setUpDisplay(parent)
@@ -109,13 +109,13 @@ end
 
 
 function selectLabel_callback(handle)
-global ScriptData
-pat = ScriptData.RUNGROUPFILECONTAIN{ScriptData.RUNGROUPSELECT};
+global SCRIPTDATA
+pat = SCRIPTDATA.RUNGROUPFILECONTAIN{SCRIPTDATA.RUNGROUPSELECT};
 sel = [];
-for p=1:length(ScriptData.ACQINFO)
-    if ~isempty(strfind(ScriptData.ACQINFO{p},pat)), sel = [sel ScriptData.ACQFILENUMBER(p)]; end
+for p=1:length(SCRIPTDATA.ACQINFO)
+    if ~isempty(strfind(SCRIPTDATA.ACQINFO{p},pat)), sel = [sel SCRIPTDATA.ACQFILENUMBER(p)]; end
 end
-ScriptData.RUNGROUPFILES{ScriptData.RUNGROUPSELECT} = sel;
+SCRIPTDATA.RUNGROUPFILES{SCRIPTDATA.RUNGROUPSELECT} = sel;
 
 
 parent=get(handle,'parent');
@@ -123,16 +123,16 @@ setUpDisplay(parent)
 end
 
 function labelEditText_callback(handle)
-global ScriptData
-ScriptData.RUNGROUPFILECONTAIN{ScriptData.RUNGROUPSELECT}=get(handle,'string');
+global SCRIPTDATA
+SCRIPTDATA.RUNGROUPFILECONTAIN{SCRIPTDATA.RUNGROUPSELECT}=get(handle,'string');
 parent=get(handle,'parent');
 setUpDisplay(parent)
 end
 
 function selectedFiles_callback(handle)
-global ScriptData
+global SCRIPTDATA
 
-ScriptData.RUNGROUPFILES{ScriptData.RUNGROUPSELECT}=mystr2num(get(handle,'string'));
+SCRIPTDATA.RUNGROUPFILES{SCRIPTDATA.RUNGROUPSELECT}=mystr2num(get(handle,'string'));
 
 parent=get(handle,'parent');
 setUpDisplay(parent)
