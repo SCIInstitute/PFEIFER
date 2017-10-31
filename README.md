@@ -1,11 +1,11 @@
 
 ![Pfeifer](DOC/Figures/pfeifer_logo.png)
 
-#PFIEFER: Preprocessing Framework of Electrograms Intermittently Fiducialized from Experimental Recordings
+# PFEIFER: Preprocessing Framework of Electrograms Intermittently Fiducialized from Experimental Recordings
 
 PFEIFER is an open source software for processing of cardiac electrogram signals. 
 
-#Installation Instructions
+# Installation Instructions
 
 ## Requirements
 - CPU: Core Duo or higher, recommended i5 or i7 
