@@ -47,9 +47,10 @@ bibliography: josspaper.bib
 
 Preprocessing Framework for Electrograms Intermittently Fiducialized from
 Experimental Recordings (PFEIFER) is a MATLAB Graphical User Interface designed
-to process bioelectric signals
-acquired from experiments that include recording electrodes placed on or
-around the heart or on the body surface.  Specific steps included in
+to process bioelectric signals acquired from experiments.  
+PFEIFER was specifically designed to process electrocardiographic
+recordings from electrodes placed on or around the heart or on the body
+surface.  Specific steps included in
 PFEIFER allow the user to remove some forms of noise, correct for
 signal drift, and mark specific instants or intervals in time
 (fiducialize) within all of the time sampled
