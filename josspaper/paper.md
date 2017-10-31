@@ -100,8 +100,7 @@ ideal toolkit for researchers processing cardiac electrical signals.
 
 
 ---
-nocite: | 
-  @Good2016, @MacLeod2005, @Swenson2011, @Aras2014, @Aras2016
+nocite:[ @Good2016, @MacLeod2005, @Swenson2011, @Aras2014, @Aras2016]
 ---
 
 # References
