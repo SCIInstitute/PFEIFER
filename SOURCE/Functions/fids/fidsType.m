@@ -1,3 +1,26 @@
+% MIT License
+% 
+% Copyright (c) 2017 The Scientific Computing and Imaging Institute
+% 
+% Permission is hereby granted, free of charge, to any person obtaining a copy
+% of this software and associated documentation files (the "Software"), to deal
+% in the Software without restriction, including without limitation the rights
+% to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+% copies of the Software, and to permit persons to whom the Software is
+% furnished to do so, subject to the following conditions:
+% 
+% The above copyright notice and this permission notice shall be included in all
+% copies or substantial portions of the Software.
+% 
+% THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+% IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+% FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+% AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+% LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+% OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+% SOFTWARE.
+
+
 function typenum = fidsType(typestr)
 % FUNCTION fidtype = fidsType(typestr)
 % OR       typestr  = fidsType(fidtype)
@@ -41,7 +64,7 @@ function typenum = fidsType(typestr)
 typenum = -1; % default error
 
 if ischar(typestr)
-    switch lower(typestr),
+    switch lower(typestr)
     case {'pon','pstart'}
         typenum = 0;
     case {'poff','pend'}
@@ -76,9 +99,9 @@ if ischar(typestr)
         typenum = 15;    
     case {'baseline'}
         typenum = 16;
-    %% NEWLY DEFINED FIDUCIALS
-    %% MY NEWLY DEFINED FIDUCIAL TYPES START
-    %% AT 30
+    % NEWLY DEFINED FIDUCIALS
+    % MY NEWLY DEFINED FIDUCIAL TYPES START
+    % AT 30
     case {'pacing'}
         typenum = 30;
         
@@ -86,42 +109,42 @@ if ischar(typestr)
 end
 
 if  isnumeric(typestr)
-    switch typestr,
-        case 0,
+    switch typestr
+        case 0
             typenum = 'pon';
-        case 1,
+        case 1
             typenum = 'poff';
-        case 2,
+        case 2
             typenum = 'qrson';
-        case 3,
+        case 3
             typenum = 'rpeak';
-        case 4,
+        case 4
             typenum = 'qrsoff';
-        case 5,
+        case 5
             typenum = 'ton';
-        case 6,
+        case 6
             typenum = 'tpeak';
-        case 7,
+        case 7
             typenum = 'toff';
-        case 8,
+        case 8
             typenum = 'actplus';
-        case 9,
+        case 9
             typenum = 'actminus';
-        case 10,
+        case 10
             typenum = 'act';
-        case 11,
+        case 11
             typenum = 'recplus';
-        case 12,
+        case 12
             typenum = 'recminus';
-        case 13,
+        case 13
             typenum = 'rec';
-        case 14,
+        case 14
             typenum = 'reference';
-        case 15,
+        case 15
             typenum = 'jpt';
-        case 16,
+        case 16
             typenum = 'baseline';
-        case 30,
+        case 30
             typenum = 'pacing';
         otherwise
             fprintf(1,'Fiducial type unknown\n');

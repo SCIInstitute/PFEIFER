@@ -1,10 +1,36 @@
+
+% MIT License
+% 
+% Copyright (c) 2017 The Scientific Computing and Imaging Institute
+% 
+% Permission is hereby granted, free of charge, to any person obtaining a copy
+% of this software and associated documentation files (the "Software"), to deal
+% in the Software without restriction, including without limitation the rights
+% to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+% copies of the Software, and to permit persons to whom the Software is
+% furnished to do so, subject to the following conditions:
+% 
+% The above copyright notice and this permission notice shall be included in all
+% copies or substantial portions of the Software.
+% 
+% THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+% IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+% FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+% AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+% LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+% OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+% SOFTWARE.
+
+
+
+
 function selectSplitfiles(varargin)
 if nargin > 0 && ischar(varargin{1})    % if callback is called
     feval(varargin{1},varargin{2:end});
     return
 end
 
-handle=winSelectSplitting;
+handle=FileSplitting;
 setUpDisplay(handle)
 
 end
@@ -13,15 +39,20 @@ end
 function setUpDisplay(guiFigureObj)
 % set up all objects of the  split display
 
-global ScriptData
-files2split=ScriptData.FILES2SPLIT;
+global SCRIPTDATA
+files2split=SCRIPTDATA.FILES2SPLIT;
 
 %%%% set up the listbox
 obj=findobj(allchild(guiFigureObj),'tag','SPLITFILELISTBOX');
-cellarray = ScriptData.('ACQLISTBOX');
+cellarray = SCRIPTDATA.('ACQLISTBOX');
 if ~isempty(cellarray) 
-    values = intersect(ScriptData.ACQFILENUMBER,files2split);
-    set(obj,'string',cellarray,'max',length(cellarray),'value',values,'enable','on');
+    values = intersect(SCRIPTDATA.ACQFILENUMBER,files2split);
+    if length(cellarray) == 1   % make sure maxValue is not 1, even if there is only one file in directory. If listboxObj.Max == 1, it is not possible to have 'nothing' selected..
+        maxVal=3;
+    else
+        maxVal = length(cellarray);
+    end
+    set(obj,'string',cellarray,'max',maxVal,'value',values,'enable','on');
 else
     set(obj,'string',{'NO ACQ or AC2 FILES FOUND','',''},'max',3,'value',[],'enable','off');
 end
@@ -33,21 +64,21 @@ set(obj,'string',mynum2str(files2split));
 
 %%%% set up 'select label containing'
 obj=findobj(allchild(guiFigureObj),'tag','SPLITFILECONTAIN');
-obj.String=ScriptData.SPLITFILECONTAIN;
+obj.String=SCRIPTDATA.SPLITFILECONTAIN;
 
 %%%% output directory
 obj=findobj(allchild(guiFigureObj),'tag','SPLITDIR');
-set(obj,'string',ScriptData.SPLITDIR);
+set(obj,'string',SCRIPTDATA.SPLITDIR);
 
 
 %%%% split interval
 obj=findobj(allchild(guiFigureObj),'tag','SPLITINTERVAL');
-obj.String=num2str(ScriptData.SPLITINTERVAL);
+obj.String=num2str(SCRIPTDATA.SPLITINTERVAL);
 
 
 %%%% calibrate splitfiles
 obj=findobj(allchild(guiFigureObj),'tag','CALIBRATE_SPLIT');
-set(obj,'value',ScriptData.CALIBRATE_SPLIT);
+set(obj,'value',SCRIPTDATA.CALIBRATE_SPLIT);
 
 end
 
@@ -56,7 +87,7 @@ end
 
 
 function setValues(cbObj)
-global ScriptData
+global SCRIPTDATA
 
 %%%% first check input
 switch cbObj.Tag
@@ -74,57 +105,57 @@ switch cbObj.Tag
         end
 end
 
-%%%% now set ScriptData with new user input
+%%%% now set SCRIPTDATA with new user input
 switch cbObj.Tag
     case {'CALIBRATE_SPLIT'}
-        ScriptData.(cbObj.Tag) = cbObj.Value;
+        SCRIPTDATA.(cbObj.Tag) = cbObj.Value;
     case {'SPLITFILECONTAIN','SPLITDIR'}
-        ScriptData.(cbObj.Tag)=cbObj.String;
+        SCRIPTDATA.(cbObj.Tag)=cbObj.String;
     case {'FILES2SPLIT'}
-        ScriptData.(cbObj.Tag)=mystr2num(cbObj.String);
+        SCRIPTDATA.(cbObj.Tag)=mystr2num(cbObj.String);
     case {'SPLITFILELISTBOX'}
-        ScriptData.FILES2SPLIT=cbObj.Value;
+        SCRIPTDATA.FILES2SPLIT=cbObj.Value;
     case {'SPLITINTERVAL'}
-        ScriptData.(cbObj.Tag)=str2double(cbObj.String);
+        SCRIPTDATA.(cbObj.Tag)=str2double(cbObj.String);
 end
 setUpDisplay(cbObj.Parent)
 end
 
 function selectAll_callback(handle)
-global ScriptData
+global SCRIPTDATA
 
-ScriptData.FILES2SPLIT=ScriptData.ACQFILENUMBER;
+SCRIPTDATA.FILES2SPLIT=SCRIPTDATA.ACQFILENUMBER;
 setUpDisplay(handle.Parent)
 end
 
 function clearSelection_callback(handle)
-global ScriptData
-ScriptData.FILES2SPLIT=[];
+global SCRIPTDATA
+SCRIPTDATA.FILES2SPLIT=[];
 setUpDisplay(handle.Parent)
 end
 
 
 function selectLabel_callback(handle)
-global ScriptData
-pat = ScriptData.SPLITFILECONTAIN;
+global SCRIPTDATA
+pat = SCRIPTDATA.SPLITFILECONTAIN;
 sel = [];
-for p=1:length(ScriptData.ACQINFO)
-    if ~isempty(strfind(ScriptData.ACQINFO{p},pat))
-       sel(end+1)=ScriptData.ACQFILENUMBER(p); 
+for p=1:length(SCRIPTDATA.ACQINFO)
+    if ~isempty(strfind(SCRIPTDATA.ACQINFO{p},pat))
+       sel(end+1)=SCRIPTDATA.ACQFILENUMBER(p); 
     end
 end
-ScriptData.FILES2SPLIT= sel;
+SCRIPTDATA.FILES2SPLIT= sel;
 
 setUpDisplay(handle.Parent)
 end
 
 function Browse(cbObj)
 disp('ja')
-global ScriptData
+global SCRIPTDATA
 
 pathstring  = uigetdir(pwd,'SELECT DIRECTORY');
 if (pathstring == 0), return; end
-ScriptData.SPLITDIR=pathstring;
+SCRIPTDATA.SPLITDIR=pathstring;
 
 setUpDisplay(cbObj.Parent);
 end
@@ -136,14 +167,14 @@ function splitFiles(handle)
 
 
 %%%% get all necessary inputs. If you plan to use this function outside of PFEIFER, this (and 'frames', see getFrames function) is all you need to change:
-global ScriptData
-inputdir=ScriptData.ACQDIR;
-outputdir=ScriptData.SPLITDIR;
-allInputFiles=ScriptData.ACQFILENAME; %cell array of all files that are converted into .mat files, not just the ones to be splitted
-calfile=ScriptData.CALIBRATIONFILE;  % path to .cal8 file
-DO_CALIBRATION=ScriptData.CALIBRATE_SPLIT;  % do you want to calibrate files as you convert them into .mat files?
-idx2beSplitted=ScriptData.FILES2SPLIT;  % indices of the files in allInputFiles, that will be splitted..
-intervalLength=ScriptData.SAMPLEFREQ*ScriptData.SPLITINTERVAL;
+global SCRIPTDATA
+inputdir=SCRIPTDATA.ACQDIR;
+outputdir=SCRIPTDATA.SPLITDIR;
+allInputFiles=SCRIPTDATA.ACQFILENAME; %cell array of all files that are converted into .mat files, not just the ones to be splitted
+calfile=SCRIPTDATA.CALIBRATIONFILE;  % path to .cal8 file
+DO_CALIBRATION=SCRIPTDATA.CALIBRATE_SPLIT;  % do you want to calibrate files as you convert them into .mat files?
+idx2beSplitted=SCRIPTDATA.FILES2SPLIT;  % indices of the files in allInputFiles, that will be splitted..
+intervalLength=SCRIPTDATA.SAMPLEFREQ*SCRIPTDATA.SPLITINTERVAL;
 
 %%%% start here, first check input:
 if isempty(outputdir)
@@ -152,7 +183,7 @@ if isempty(outputdir)
 elseif DO_CALIBRATION && isempty(calfile)
     errordlg('No calfile for calibration provided.')
     return
-elseif isempty(ScriptData.SPLITINTERVAL)
+elseif isempty(SCRIPTDATA.SPLITINTERVAL)
     errordlg('The length of a splitted file was not given.')
     return
 end

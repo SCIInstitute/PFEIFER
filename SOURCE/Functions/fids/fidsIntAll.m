@@ -1,3 +1,26 @@
+% MIT License
+% 
+% Copyright (c) 2017 The Scientific Computing and Imaging Institute
+% 
+% Permission is hereby granted, free of charge, to any person obtaining a copy
+% of this software and associated documentation files (the "Software"), to deal
+% in the Software without restriction, including without limitation the rights
+% to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+% copies of the Software, and to permit persons to whom the Software is
+% furnished to do so, subject to the following conditions:
+% 
+% The above copyright notice and this permission notice shall be included in all
+% copies or substantial portions of the Software.
+% 
+% THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+% IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+% FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+% AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+% LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+% OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+% SOFTWARE.
+
+
 function TSmapindices = fidsIntAll(TSindices)
 % FUNCTION TSmapindices = fidsIntAll(TSindices)
 %
@@ -24,7 +47,6 @@ global TS
 for q=1:length(TSindices)
     index = [];
     audit = '|';
-    
     startframe = fidsFindGlobalFids(TSindices(q),'qrson');
     endframe = fidsFindGlobalFids(TSindices(q),'qrsoff');
     if (~isempty(startframe)) && (~isempty(endframe))
@@ -34,6 +56,7 @@ for q=1:length(TSindices)
         end
     end
     
+
     startframe = fidsGetGlobalFids(TSindices(q),'qrson');
     endframe = fidsGetGlobalFids(TSindices(q),'toff');
     if (~isempty(startframe)) && (~isempty(endframe))
@@ -42,7 +65,8 @@ for q=1:length(TSindices)
             audit = [audit 'QRST/'];
         end
     end
-        
+    
+
     startframe = fidsGetGlobalFids(TSindices(q),'qrsoff');
     endframe = fidsGetGlobalFids(TSindices(q),'toff');
     if (~isempty(startframe)) && (~isempty(endframe))
@@ -52,10 +76,11 @@ for q=1:length(TSindices)
             audit = [audit 'ST/'];
         end
     end
-
-    qrsstart = fidsGetGlobalFids(TSindices(q),'qrsoff');
-    if ~isempty(qrsstart)
-        st80 = qrsstart(1)+80;
+    
+    
+    qrsoff = fidsGetGlobalFids(TSindices(q),'qrsoff'); 
+    if ~isempty(qrsoff)
+        st80 = qrsoff(1)+80;
         startframe = st80-4;   
         endframe = st80+4;
         
@@ -70,20 +95,26 @@ for q=1:length(TSindices)
         end
     end
     
+    
+    
     startframe = fidsGetGlobalFids(TSindices(q),'qrsoff');
     endframe = fidsGetGlobalFids(TSindices(q),'toff');
+    
+    
+    
     if (~isempty(startframe)) && (~isempty(endframe))
         if (isfinite(startframe(1)) && isfinite(endframe(1)))
             index = fidsIntegralMap(index,TSindices(q),startframe(1),endframe(1));
             audit = [audit 'STT/'];
         end
     end
+
     
     if ~isempty(index)
         TSmapindices(q) = index;
      
          % now just change some of the text fields
-        TS{TSmapindices(q)}.newfileext = ['-itg'];
+        TS{TSmapindices(q)}.newfileext = '-itg';
         TS{TSmapindices(q)}.audit = [ TS{TSmapindices(q)}.audit audit ' integration'];
         TS{TSmapindices(q)}.label = [TS{TSmapindices(q)}.label audit ' Integralmap'];   
     else

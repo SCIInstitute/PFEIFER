@@ -1,4 +1,27 @@
-function values = fidsFindGlobalFids(TSindex,type,fidset)
+% MIT License
+% 
+% Copyright (c) 2017 The Scientific Computing and Imaging Institute
+% 
+% Permission is hereby granted, free of charge, to any person obtaining a copy
+% of this software and associated documentation files (the "Software"), to deal
+% in the Software without restriction, including without limitation the rights
+% to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+% copies of the Software, and to permit persons to whom the Software is
+% furnished to do so, subject to the following conditions:
+% 
+% The above copyright notice and this permission notice shall be included in all
+% copies or substantial portions of the Software.
+% 
+% THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+% IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+% FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+% AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+% LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+% OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+% SOFTWARE.
+
+
+function values = fidsFindGlobalFids(TSindex,type,~)
 % FUNCTION values = fidsFindGlobalFids(TSindex,type,[fidset])
 % OR       values = fidsFindGlobalFids(TSdata,type,[fidset])
 %
@@ -22,19 +45,7 @@ fids = [];
 fidset = {};
 values = [];
 
-if iscell(TSindex),
-    if length(TSindex) > 1, msgError('This function only works with one timeseries only',5); return; end
-    TSindex = TSindex{1};
-end
-
-if isstruct(TSindex),
-    if isfield(TSindex,'fids'), fids  = TSindex.fids; end
-    if isfield(TSindex,'fidset'), fidset = TSindex.fidset; end
-end
-
 if isnumeric(TSindex)
-    
-    if TSindex > length(TS), msgError('TSindex out of range',5); return; end
     if isfield(TS{TSindex},'fids'), fids  = TS{TSindex}.fids; end
     if isfield(TS{TSindex},'fidset'), fidset = TS{TSindex}.fidset; end
 end

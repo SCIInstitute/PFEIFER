@@ -1,4 +1,27 @@
-function resize(handle,~)
+% MIT License
+% 
+% Copyright (c) 2017 The Scientific Computing and Imaging Institute
+% 
+% Permission is hereby granted, free of charge, to any person obtaining a copy
+% of this software and associated documentation files (the "Software"), to deal
+% in the Software without restriction, including without limitation the rights
+% to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+% copies of the Software, and to permit persons to whom the Software is
+% furnished to do so, subject to the following conditions:
+% 
+% The above copyright notice and this permission notice shall be included in all
+% copies or substantial portions of the Software.
+% 
+% THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+% IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+% FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+% AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+% LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+% OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+% SOFTWARE.
+
+
+function resize(figObj,~)
 %this is the SizeChangedFcn callback for all windows of the gui.
 %It adjust the fontsize of all the windows whenever the windows are resized
 %so everything still looks nice..
@@ -10,15 +33,19 @@ function resize(handle,~)
 % - set figure.Units = 'characters'
 % - set the 'Units' property of all children to 'normalized'
 
+% - the first Object with textproperties in figure is used to determine fontsize.
+%  => use its innerPosition property to control FontSize.  A heigth of 0.026145 results in FontSize = 13;
 
 
-objects=allchild(handle);  
+
+
+objects=allchild(figObj);  
 
 newFontsize=5;
 %%%% first find the default fontsize
 for p=1:length(objects)
     obj=objects(p);
-    if isStaticTextObject(obj)
+    if isSuitableStaticTextObject(obj)
         obj.Units='pixel';
         avail_widht=obj.Position(3);
         avail_height=obj.Position(4);
@@ -49,13 +76,21 @@ end
 
 
 
-function tf=isStaticTextObject(obj)
+function tf=isSuitableStaticTextObject(obj)
 tf=false;
+
+tagsOfNotSuitableTextObjs = {'multilinetext'};
+if ismember(obj.Tag,tagsOfNotSuitableTextObjs)
+    return
+end
+
+
 if isprop(obj,'Style')
     if strcmp(obj.Style,'text')
         tf=true;
     end
 end
+
 
     
     

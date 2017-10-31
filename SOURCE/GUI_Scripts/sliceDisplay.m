@@ -1,4 +1,29 @@
-function handle = SliceDisplay(varargin)
+% MIT License
+% 
+% Copyright (c) 2017 The Scientific Computing and Imaging Institute
+% 
+% Permission is hereby granted, free of charge, to any person obtaining a copy
+% of this software and associated documentation files (the "Software"), to deal
+% in the Software without restriction, including without limitation the rights
+% to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+% copies of the Software, and to permit persons to whom the Software is
+% furnished to do so, subject to the following conditions:
+% 
+% The above copyright notice and this permission notice shall be included in all
+% copies or substantial portions of the Software.
+% 
+% THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+% IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+% FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+% AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+% LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+% OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+% SOFTWARE.
+
+
+
+
+function handle = sliceDisplay(varargin)
 
 % FUNCTION SliceDisplay()
 %
@@ -31,22 +56,22 @@ function handle = SliceDisplay(varargin)
 
 function Navigation(figHandle,mode)
     %callback to all navigation buttons (including apply)
-    global ScriptData
+    global SCRIPTDATA
     
     switch mode
     case {'prev','next','stop'}
-        ScriptData.NAVIGATION = mode;
+        SCRIPTDATA.NAVIGATION = mode;
         figHandle.DeleteFcn = '';
         delete(figHandle);
     case {'apply'}
         global TS;
-        tsindex = ScriptData.CURRENTTS;
+        tsindex = SCRIPTDATA.CURRENTTS;
         if ~isfield(TS{tsindex},'selframes')
             errordlg('No selection has been made; use the mouse to select a piece of signal');
         elseif isempty(TS{tsindex}.selframes)
             errordlg('No selection has been made; use the mouse to select a piece of signal');
         else
-            ScriptData.NAVIGATION = 'apply';
+            SCRIPTDATA.NAVIGATION = 'apply';
             figHandle.DeleteFcn = '';
             delete(figHandle);
         end
@@ -59,8 +84,8 @@ function Navigation(figHandle,mode)
 function SetupNavigationBar(handle)
     % sets up Filename, Filelabel etc in the top bar (right to navigation
     % bar)
-    global ScriptData TS;
-    tsindex = ScriptData.CURRENTTS;
+    global SCRIPTDATA TS;
+    tsindex = SCRIPTDATA.CURRENTTS;
     
     t = findobj(allchild(handle),'tag','NAVFILENAME');
     t.String=['FILENAME: ' TS{tsindex}.filename];
@@ -78,7 +103,7 @@ function SetupNavigationBar(handle)
     t.Units='normalize';
     
     t = findobj(allchild(handle),'tag','NAVACQNUM');
-    t.String=sprintf('ACQNUM: %d',ScriptData.ACQNUM);
+    t.String=sprintf('ACQNUM: %d',SCRIPTDATA.ACQNUM);
     t.Units='character';
     needed_length=t.Extent(3);
     t.Position(3)=needed_length+0.001;
@@ -101,13 +126,13 @@ function SetupNavigationBar(handle)
 function handle = Init(tsindex)
 
 if nargin == 1
-    global ScriptData;
-    ScriptData.CURRENTTS = tsindex;
+    global SCRIPTDATA;
+    SCRIPTDATA.CURRENTTS = tsindex;
 end
 
 clear global SLICEDISPLAY;  % just in case.. 
 
-handle = winSliceDisplay;
+handle = BeatIsolator;
 InitDisplayButtons(handle);
 InitMouseFunctions(handle);
 
@@ -151,27 +176,27 @@ set(handle,'WindowButtonDownFcn','sliceDisplay(''ButtonDown'',gcbf)',...
         
 function InitDisplayButtons(handle)
 
-global ScriptData SLICEDISPLAY;
+global SCRIPTDATA SLICEDISPLAY;
 
 button = findobj(allchild(handle),'tag','DISPLAYTYPE');
-set(button,'string',{'Global RMS','Group RMS','Individual'},'value',ScriptData.DISPLAYTYPE);
+set(button,'string',{'Global RMS','Group RMS','Individual'},'value',SCRIPTDATA.DISPLAYTYPE);
 
 button = findobj(allchild(handle),'tag','DISPLAYOFFSET');
-set(button,'string',{'Offset ON','Offset OFF'},'value',ScriptData.DISPLAYOFFSET);
+set(button,'string',{'Offset ON','Offset OFF'},'value',SCRIPTDATA.DISPLAYOFFSET);
 
 button = findobj(allchild(handle),'tag','DISPLAYLABEL');
-set(button,'string',{'Label ON','Label OFF'},'value',ScriptData.DISPLAYLABEL);
+set(button,'string',{'Label ON','Label OFF'},'value',SCRIPTDATA.DISPLAYLABEL);
 
 button = findobj(allchild(handle),'tag','DISPLAYGRID');
-set(button,'string',{'No Grid','Coarse Grid','Fine Grid'},'value',ScriptData.DISPLAYGRID);
+set(button,'string',{'No Grid','Coarse Grid','Fine Grid'},'value',SCRIPTDATA.DISPLAYGRID);
 
 button = findobj(allchild(handle),'tag','DISPLAYSCALING');
-set(button,'string',{'Local','Global','Group'},'value',ScriptData.DISPLAYSCALING);
+set(button,'string',{'Local','Global','Group'},'value',SCRIPTDATA.DISPLAYSCALING);
 
 button = findobj(allchild(handle),'tag','DISPLAYGROUP');
-group = ScriptData.GROUPNAME{ScriptData.CURRENTRUNGROUP};
-ScriptData.DISPLAYGROUP = 1:length(group);
-set(button,'string',group,'max',length(group),'value',ScriptData.DISPLAYGROUP);
+group = SCRIPTDATA.GROUPNAME{SCRIPTDATA.CURRENTRUNGROUP};
+SCRIPTDATA.DISPLAYGROUP = 1:length(group);
+set(button,'string',group,'max',length(group),'value',SCRIPTDATA.DISPLAYGROUP);
 
 if ~isfield(SLICEDISPLAY,'XWIN'), SLICEDISPLAY.XWIN = []; end
 if ~isfield(SLICEDISPLAY,'YWIN'), SLICEDISPLAY.YWIN = []; end
@@ -187,17 +212,17 @@ addlistener(slidery,'ContinuousValueChange',@UpdateSlider);
 function DisplayButton(handle)
 %callback to all the display buttons
 
-global ScriptData;
+global SCRIPTDATA;
 
 tag = handle.Tag;
 switch tag
     case {'DISPLAYTYPE','DISPLAYOFFSET','DISPLAYSCALING','DISPLAYGROUP'}  % in case display needs to be reinitialised
-        ScriptData.(tag) = handle.Value;
+        SCRIPTDATA.(tag) = handle.Value;
         parent = handle.Parent;
         SetupDisplay(parent);
         UpdateDisplay(parent);       
     case {'DISPLAYLABEL','DISPLAYGRID'}
-        ScriptData.(tag) = handle.Value;  % display needs only updating. no recomputing of signal
+        SCRIPTDATA.(tag) = handle.Value;  % display needs only updating. no recomputing of signal
         parent = handle.Parent;
         UpdateDisplay(parent); 
 end
@@ -208,17 +233,17 @@ function SetupDisplay(handle)
 
 pointer = handle.Pointer;
 handle.Pointer = 'watch';
-global TS ScriptData SLICEDISPLAY;
+global TS SCRIPTDATA SLICEDISPLAY;
 
-tsindex = ScriptData.CURRENTTS;
+tsindex = SCRIPTDATA.CURRENTTS;
 
 numframes = size(TS{tsindex}.potvals,2);
-SLICEDISPLAY.TIME = [1:numframes]/ScriptData.SAMPLEFREQ;
-SLICEDISPLAY.XLIM = [1 numframes]/ScriptData.SAMPLEFREQ;
+SLICEDISPLAY.TIME = [1:numframes]/SCRIPTDATA.SAMPLEFREQ;
+SLICEDISPLAY.XLIM = [1 numframes]/SCRIPTDATA.SAMPLEFREQ;
 
 if isempty(SLICEDISPLAY.XWIN)
 
-    SLICEDISPLAY.XWIN = [median([0 SLICEDISPLAY.XLIM]) median([3000/ScriptData.SAMPLEFREQ SLICEDISPLAY.XLIM])];
+    SLICEDISPLAY.XWIN = [median([0 SLICEDISPLAY.XLIM]) median([3000/SCRIPTDATA.SAMPLEFREQ SLICEDISPLAY.XLIM])];
 else
     SLICEDISPLAY.XWIN = [median([SLICEDISPLAY.XWIN(1) SLICEDISPLAY.XLIM]) median([SLICEDISPLAY.XWIN(2) SLICEDISPLAY.XLIM])];
 end
@@ -229,18 +254,18 @@ SLICEDISPLAY.XSLIDER = findobj(allchild(handle),'tag','SLIDERX');
 SLICEDISPLAY.YSLIDER = findobj(allchild(handle),'tag','SLIDERY');
 
 
-groups = ScriptData.DISPLAYGROUP;
+groups = SCRIPTDATA.DISPLAYGROUP;
 numgroups = length(groups);
 
 SLICEDISPLAY.NAME ={};
 SLICEDISPLAY.GROUPNAME = {};
 SLICEDISPLAY.GROUP = [];
 
-switch ScriptData.DISPLAYTYPE
+switch SCRIPTDATA.DISPLAYTYPE
     case 1
         ch  = []; 
         for p=groups
-            leads = ScriptData.GROUPLEADS{ScriptData.CURRENTRUNGROUP}{p};
+            leads = SCRIPTDATA.GROUPLEADS{SCRIPTDATA.CURRENTRUNGROUP}{p};
             index = TS{tsindex}.leadinfo(leads)==0;   
             ch = [ch leads(index)]; 
         end 
@@ -256,11 +281,11 @@ switch ScriptData.DISPLAYTYPE
     case 2
         SLICEDISPLAY.SIGNAL = zeros(numgroups,numframes);
         for p=1:numgroups 
-            leads = ScriptData.GROUPLEADS{ScriptData.CURRENTRUNGROUP}{groups(p)};
+            leads = SCRIPTDATA.GROUPLEADS{SCRIPTDATA.CURRENTRUNGROUP}{groups(p)};
             index = TS{tsindex}.leadinfo(leads)==0;
             SLICEDISPLAY.SIGNAL(p,:) = sqrt(mean(TS{tsindex}.potvals(leads(index),:).^2)); 
             SLICEDISPLAY.SIGNAL(p,:) = SLICEDISPLAY.SIGNAL(p,:)-min(SLICEDISPLAY.SIGNAL(p,:));
-            SLICEDISPLAY.NAME{p} = [ScriptData.GROUPNAME{ScriptData.CURRENTRUNGROUP}{groups(p)} ' RMS']; 
+            SLICEDISPLAY.NAME{p} = [SCRIPTDATA.GROUPNAME{SCRIPTDATA.CURRENTRUNGROUP}{groups(p)} ' RMS']; 
         end
         SLICEDISPLAY.GROUPNAME = SLICEDISPLAY.NAME;
         SLICEDISPLAY.GROUP = 1:numgroups;
@@ -272,19 +297,19 @@ switch ScriptData.DISPLAYTYPE
         SLICEDISPLAY.LEAD = [];
         ch  = []; 
         for p=groups
-            ch = [ch ScriptData.GROUPLEADS{ScriptData.CURRENTRUNGROUP}{p}]; 
-            SLICEDISPLAY.GROUP = [SLICEDISPLAY.GROUP p*ones(1,length(ScriptData.GROUPLEADS{ScriptData.CURRENTRUNGROUP}{p}))]; 
-            SLICEDISPLAY.LEAD = [SLICEDISPLAY.LEAD ScriptData.GROUPLEADS{ScriptData.CURRENTRUNGROUP}{p}];
-            for q=1:length(ScriptData.GROUPLEADS{ScriptData.CURRENTRUNGROUP}{p}), SLICEDISPLAY.NAME{end+1} = sprintf('%s # %d',ScriptData.GROUPNAME{ScriptData.CURRENTRUNGROUP}{p},q); end 
+            ch = [ch SCRIPTDATA.GROUPLEADS{SCRIPTDATA.CURRENTRUNGROUP}{p}]; 
+            SLICEDISPLAY.GROUP = [SLICEDISPLAY.GROUP p*ones(1,length(SCRIPTDATA.GROUPLEADS{SCRIPTDATA.CURRENTRUNGROUP}{p}))]; 
+            SLICEDISPLAY.LEAD = [SLICEDISPLAY.LEAD SCRIPTDATA.GROUPLEADS{SCRIPTDATA.CURRENTRUNGROUP}{p}];
+            for q=1:length(SCRIPTDATA.GROUPLEADS{SCRIPTDATA.CURRENTRUNGROUP}{p}), SLICEDISPLAY.NAME{end+1} = sprintf('%s # %d',SCRIPTDATA.GROUPNAME{SCRIPTDATA.CURRENTRUNGROUP}{p},q); end 
         end
         for p=1:length(groups)
-            SLICEDISPLAY.GROUPNAME{p} = [ScriptData.GROUPNAME{ScriptData.CURRENTRUNGROUP}{groups(p)}]; 
+            SLICEDISPLAY.GROUPNAME{p} = [SCRIPTDATA.GROUPNAME{SCRIPTDATA.CURRENTRUNGROUP}{groups(p)}]; 
         end 
         SLICEDISPLAY.SIGNAL = TS{tsindex}.potvals(ch,:);
         SLICEDISPLAY.LEADINFO = TS{tsindex}.leadinfo(ch);
 end
 
-switch ScriptData.DISPLAYSCALING
+switch SCRIPTDATA.DISPLAYSCALING
     case 1
         k = max(abs(SLICEDISPLAY.SIGNAL),[],2);
         [m,~] = size(SLICEDISPLAY.SIGNAL);
@@ -309,12 +334,12 @@ switch ScriptData.DISPLAYSCALING
         SLICEDISPLAY.SIGNAL = s*SLICEDISPLAY.SIGNAL;
 end
 
-if ScriptData.DISPLAYTYPE == 3
+if SCRIPTDATA.DISPLAYTYPE == 3
     SLICEDISPLAY.SIGNAL = 0.5*SLICEDISPLAY.SIGNAL+0.5;
 end
 
 numsignal = size(SLICEDISPLAY.SIGNAL,1);
-switch ScriptData.DISPLAYOFFSET
+switch SCRIPTDATA.DISPLAYOFFSET
     case 1
         for p=1:numsignal
             SLICEDISPLAY.SIGNAL(p,:) = SLICEDISPLAY.SIGNAL(p,:)+(numsignal-p);
@@ -387,7 +412,7 @@ function UpdateSlider(handle,~)
     
 function UpdateDisplay(handle)
 
-global SLICEDISPLAY ScriptData TS;
+global SLICEDISPLAY SCRIPTDATA TS;
 
 ax=findobj(allchild(handle),'tag','AXES');
 
@@ -405,12 +430,12 @@ ylim = SLICEDISPLAY.YLIM;
 
 
 numframes = size(SLICEDISPLAY.SIGNAL,2);
-startframe = max([floor(ScriptData.SAMPLEFREQ*xwin(1)) 1]);
-endframe = min([ceil(ScriptData.SAMPLEFREQ*xwin(2)) numframes]);
+startframe = max([floor(SCRIPTDATA.SAMPLEFREQ*xwin(1)) 1]);
+endframe = min([ceil(SCRIPTDATA.SAMPLEFREQ*xwin(2)) numframes]);
 
 
 numchannels = size(SLICEDISPLAY.SIGNAL,1);
-if ScriptData.DISPLAYOFFSET == 1
+if SCRIPTDATA.DISPLAYOFFSET == 1
     chend = numchannels - max([floor(ywin(1)) 0]);
     chstart = numchannels - min([ceil(ywin(2)) numchannels])+1;
 else
@@ -421,8 +446,8 @@ end
 
 % DRAW THE GRID
 
-if ScriptData.DISPLAYGRID > 1
-    if ScriptData.DISPLAYGRID > 2
+if SCRIPTDATA.DISPLAYGRID > 1
+    if SCRIPTDATA.DISPLAYGRID > 2
         clines = 0.04*[floor(xwin(1)/0.04):ceil(xwin(2)/0.04)];
         X = [clines; clines]; Y = ywin'*ones(1,length(clines));
         line(X,Y,'color',[0.9 0.9 0.9],'hittest','off');
@@ -443,12 +468,12 @@ for p=chstart:chend
     end
 
     plot(ax,SLICEDISPLAY.TIME(k),SLICEDISPLAY.SIGNAL(p,k),'color',color,'hittest','off');
-    if (ScriptData.DISPLAYOFFSET == 1) && (ScriptData.DISPLAYLABEL == 1)&&(chend-chstart < 30) && (SLICEDISPLAY.YWIN(2) >= numchannels-p+1)
+    if (SCRIPTDATA.DISPLAYOFFSET == 1) && (SCRIPTDATA.DISPLAYLABEL == 1)&&(chend-chstart < 30) && (SLICEDISPLAY.YWIN(2) >= numchannels-p+1)
         text(ax,SLICEDISPLAY.XWIN(1),numchannels-p+1,SLICEDISPLAY.NAME{p},'color',color,'VerticalAlignment','top','hittest','off'); 
     end
 end
 
-if (ScriptData.DISPLAYOFFSET == 2) && (ScriptData.DISPLAYLABEL ==1)
+if (SCRIPTDATA.DISPLAYOFFSET == 2) && (SCRIPTDATA.DISPLAYLABEL ==1)
     for q=1:length(SLICEDISPLAY.GROUPNAME)
         color = SLICEDISPLAY.COLORLIST{q};
         text(ax,SLICEDISPLAY.XWIN(1),SLICEDISPLAY.YWIN(2)-(q*0.05*(SLICEDISPLAY.YWIN(2)-SLICEDISPLAY.YWIN(1))),SLICEDISPLAY.GROUPNAME{q},'color',color,'VerticalAlignment','top','hittest','off'); 
@@ -459,21 +484,21 @@ end
 set(SLICEDISPLAY.AXES,'YTick',[],'YLim',ywin,'XLim',xwin);
 
 xlen = (xlim(2)-xlim(1)-xwin(2)+xwin(1));
-if xlen < (1/ScriptData.SAMPLEFREQ), xslider = 0.999; else xslider = xwin(1)/xlen; end
+if xlen < (1/SCRIPTDATA.SAMPLEFREQ), xslider = 0.999; else xslider = xwin(1)/xlen; end
 xredlen = (xlim(2)-xlim(1)-xwin(2)+xwin(1));
-if xredlen ~= 0, xfill = (xwin(2)-xwin(1))/xredlen; else xfill = ScriptData.SAMPLEFREQ; end
+if xredlen ~= 0, xfill = (xwin(2)-xwin(1))/xredlen; else xfill = SCRIPTDATA.SAMPLEFREQ; end
 xinc = median([0.01 xfill 0.999]);
-xfill = median([0.01 xfill ScriptData.SAMPLEFREQ]);
-xslider = median([1/ScriptData.SAMPLEFREQ xslider 0.999]);
+xfill = median([0.01 xfill SCRIPTDATA.SAMPLEFREQ]);
+xslider = median([1/SCRIPTDATA.SAMPLEFREQ xslider 0.999]);
 set(SLICEDISPLAY.XSLIDER,'value',xslider,'sliderstep',[xinc xfill]);
 
 ylen = (ylim(2)-ylim(1)-ywin(2)+ywin(1));
-if ylen < (1/ScriptData.SAMPLEFREQ), yslider = 0.999; else yslider = ywin(1)/ylen; end
+if ylen < (1/SCRIPTDATA.SAMPLEFREQ), yslider = 0.999; else yslider = ywin(1)/ylen; end
 yredlen = (ylim(2)-ylim(1)-ywin(2)+ywin(1));
-if yredlen ~= 0, yfill = (ywin(2)-ywin(1))/yredlen; else yfill =ScriptData.SAMPLEFREQ; end
+if yredlen ~= 0, yfill = (ywin(2)-ywin(1))/yredlen; else yfill =SCRIPTDATA.SAMPLEFREQ; end
 yinc = median([0.0002 yfill 0.999]);
-yfill = median([0.0002 yfill ScriptData.SAMPLEFREQ]);
-yslider = median([(1/ScriptData.SAMPLEFREQ) yslider 0.999]);
+yfill = median([0.0002 yfill SCRIPTDATA.SAMPLEFREQ]);
+yslider = median([(1/SCRIPTDATA.SAMPLEFREQ) yslider 0.999]);
 set(SLICEDISPLAY.YSLIDER,'value',yslider,'sliderstep',[yinc yfill]);
 
 events.box = [];
@@ -488,8 +513,8 @@ events.color = 'b'; SLICEDISPLAY.EVENTS{1} = events;
 events.color = 'g'; SLICEDISPLAY.EVENTS{2} = events;
 events.color = 'r'; SLICEDISPLAY.EVENTS{3} = events;
 
-if isfield(TS{ScriptData.CURRENTTS},'selframes')
-    events = SLICEDISPLAY.EVENTS{1}; events = AddEvent(events,(TS{ScriptData.CURRENTTS}.selframes/ScriptData.SAMPLEFREQ)); events.selected = 0; SLICEDISPLAY.EVENTS{1} = events;
+if isfield(TS{SCRIPTDATA.CURRENTTS},'selframes')
+    events = SLICEDISPLAY.EVENTS{1}; events = AddEvent(events,(TS{SCRIPTDATA.CURRENTTS}.selframes/SCRIPTDATA.SAMPLEFREQ)); events.selected = 0; SLICEDISPLAY.EVENTS{1} = events;
 end   
 
 function Zoom(handle,mode)
@@ -576,15 +601,15 @@ function ZoomUp(handle)
 
 function SetBadLead(handle,lead)
     
-    global SLICEDISPLAY ScriptData TS;
+    global SLICEDISPLAY SCRIPTDATA TS;
     
-    if (ScriptData.DISPLAYTYPE == 3)&&(ScriptData.DISPLAYOFFSET==1)
+    if (SCRIPTDATA.DISPLAYTYPE == 3)&&(SCRIPTDATA.DISPLAYOFFSET==1)
         m = size(SLICEDISPLAY.SIGNAL,1);
         n = median([1 ceil(m-lead) m]);
         state = SLICEDISPLAY.LEADINFO(n);
         state = bitset(state,1,xor(bitget(state,1),1));
         SLICEDISPLAY.LEADINFO(n) = state;
-        TS{ScriptData.CURRENTTS}.leadinfo(SLICEDISPLAY.LEAD(n)) = state;
+        TS{SCRIPTDATA.CURRENTTS}.leadinfo(SLICEDISPLAY.LEAD(n)) = state;
         UpdateDisplay(handle);
     end
     
@@ -649,7 +674,7 @@ function ButtonUp(handle)
 
 
 
-global SLICEDISPLAY TS ScriptData;
+global SLICEDISPLAY TS SCRIPTDATA;
 
 events = SLICEDISPLAY.EVENTS{1};  
 if events.selected > 0
@@ -659,7 +684,7 @@ if events.selected > 0
     events.selected = 0;
 
     SLICEDISPLAY.EVENTS{1} = events;
-    TS{ScriptData.CURRENTTS}.selframes = sort(round(events.timepos*ScriptData.SAMPLEFREQ)); 
+    TS{SCRIPTDATA.CURRENTTS}.selframes = sort(round(events.timepos*SCRIPTDATA.SAMPLEFREQ)); 
 end
 
 drawnow;
@@ -743,7 +768,7 @@ end
 
 function KeyPress(handle)
 
-global ScriptData SLICEDISPLAY TS;
+global SCRIPTDATA SLICEDISPLAY TS;
 
 key = real(handle.CurrentCharacter);
 
@@ -765,7 +790,7 @@ switch key(1)
                 events = FindClosestEvent(events,t);
                 events = DeleteEvent(events);   
                 SLICEDISPLAY.EVENTS{1} = events;
-                TS{ScriptData.CURRENTTS}.selframes = []; 
+                TS{SCRIPTDATA.CURRENTTS}.selframes = []; 
             end    
         end
     case {28,29}  %left and right arrow
@@ -779,9 +804,9 @@ switch key(1)
                 end
 
                 if key(1)==28
-                    t=t-(1/ScriptData.SAMPLEFREQ);
+                    t=t-(1/SCRIPTDATA.SAMPLEFREQ);
                 else
-                    t=t+(1/ScriptData.SAMPLEFREQ);
+                    t=t+(1/SCRIPTDATA.SAMPLEFREQ);
                 end
                 t = median([SLICEDISPLAY.XLIM t]);
 
@@ -789,7 +814,7 @@ switch key(1)
                 events.selected=0;
 
                 SLICEDISPLAY.EVENTS{1} = events;
-                TS{ScriptData.CURRENTTS}.selframes = sort(round(events.timepos*ScriptData.SAMPLEFREQ)); 
+                TS{SCRIPTDATA.CURRENTTS}.selframes = sort(round(events.timepos*SCRIPTDATA.SAMPLEFREQ)); 
             end
 
             drawnow;

@@ -1,3 +1,29 @@
+% MIT License
+% 
+% Copyright (c) 2017 The Scientific Computing and Imaging Institute
+% 
+% Permission is hereby granted, free of charge, to any person obtaining a copy
+% of this software and associated documentation files (the "Software"), to deal
+% in the Software without restriction, including without limitation the rights
+% to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+% copies of the Software, and to permit persons to whom the Software is
+% furnished to do so, subject to the following conditions:
+% 
+% The above copyright notice and this permission notice shall be included in all
+% copies or substantial portions of the Software.
+% 
+% THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+% IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+% FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+% AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+% LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+% OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+% SOFTWARE.
+
+
+
+
+
 function matches=findMatches(signal, kernel, accuracy)
 % finds kernel in signal.  retuns matches={[s_1,e_1], [s_2,e_2], ..[s_n,e_n]} so that 
 %  m=signal(s_i:e_i) matches kernel for all i, "matches" means:  xcorr(signal(s_i:e_i),kernel,0,'coeff') has a maximum peak value (at least accuracy)  (and matches dont overlap)
@@ -120,7 +146,7 @@ for pl = estimatedPeakLags  % for each "estimated" peak
         continue
     else
         matches{count} = [sl+1, sl+kernelLength] ;
-        start_values(count) = sl+1;
+        start_values(count) = sl+1;  % for sorting
     end
 end
 
@@ -176,9 +202,11 @@ pause(0.3)
 
 
 function plotEstiPeak(plag)
-global aaa
-xccoef = aaa.xc_coef;
-xval= 1:length(xccoef);
+
+load('xc_coef')    % run the plottAllEstimatedPeaks function to get 'xc_coeff'
+
+
+xval= 1:length(xc_coef);
 
 idx=plag + 1;
 
@@ -202,19 +230,20 @@ pause(0.5)
 
 
 function plotBlankedSteppedXcor(stepXCs,stepLags)
-s=25000;
-e=30000;
+s=1;
+e=3000;
 
 figure
 idx=find( and(stepLags < e, stepLags > s));
 
 plot(stepLags(idx),stepXCs(idx))
 title('plotBlankedSteppedXcor')
+pause(1)
 
 function plotAllEstimatedPeaks(estimatedPeakLags, kernel, signal)
 
-[xc_coef, ~] = coef_xcorr(signal,kernel);
-save('xc_coef','xc_coef');
+% [xc_coef, ~] = coef_xcorr(signal,kernel);
+% save('xc_coef','xc_coef');
 
 load('xc_coef','xc_coef')
 
@@ -238,6 +267,8 @@ for xval = estimatedPeakLags
     end
 end
 title('plotAllExtimatedPeaks')
+xlabel('lag')
+ylabel('cross correlation')
 
 
 

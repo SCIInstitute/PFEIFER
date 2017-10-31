@@ -3,5 +3,11 @@
 *.asv
 .DS_Store
 *.m~
-*test*
+test*
+
+!*ProcessingDataNoUserInteractionPreprocessed.mat
+!*ScriptDataNoUserInteractionPreprocessed.mat
+!*Run*.mat
+
+!*fileSplittingUnitTestScriptData.mat
 

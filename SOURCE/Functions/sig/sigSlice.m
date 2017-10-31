@@ -1,3 +1,26 @@
+% MIT License
+% 
+% Copyright (c) 2017 The Scientific Computing and Imaging Institute
+% 
+% Permission is hereby granted, free of charge, to any person obtaining a copy
+% of this software and associated documentation files (the "Software"), to deal
+% in the Software without restriction, including without limitation the rights
+% to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+% copies of the Software, and to permit persons to whom the Software is
+% furnished to do so, subject to the following conditions:
+% 
+% The above copyright notice and this permission notice shall be included in all
+% copies or substantial portions of the Software.
+% 
+% THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+% IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+% FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+% AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+% LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+% OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+% SOFTWARE.
+
+
 function newTSindices = tsSliceTS(TSindices,fstart,fend)
 % FUNCTION [newTSindices] = tsSliceTS(TSindices,fstart,fend)
 %          [newTSindices] = tsSliceTS(TSindices,[fstart:fend])
@@ -23,154 +46,61 @@ function newTSindices = tsSliceTS(TSindices,fstart,fend)
 %   
 % SEE ALSO tsSplitTS
 
-    if nargin == 2
-        fend = fstart(end);
-        fstart = fstart(1);
-    end
-    if nargin < 1
-       msgError('You need to enter the frames you want to keep',5);
-       return;
-    end
+if nargin == 2
+    fend = fstart(end);
+    fstart = fstart(1);
+end
 
-    if isnumeric(TSindices)
-        global TS;
-        if nargout == 1
-            newTSindices = tsNew(length(TSindices));
-            for p=1:length(TSindices)
-                TS{newTSindices(p)} = TS{TSindices(p)};  
-            end
-            TSindices = newTSindices;
-        end
-        
-        for p=1:length(TSindices)
-            if nargin == 1
-                if isfield(TS{TSindices(p)},'selframes')
-                    frames = TS{TSindices(p)}.selframes;
-                    fstart = frames(1);
-                    fend   = frames(end);
-                else
-                    fstart = 1;
-                    fend = TS{TSindices(p)}.numframes;
-                end
-                if isfield(TS{TSindices(p)},'averagestart')
-                    if ~isempty(TS{TSindices(p)}.averagestart)&&(TS{TSindices(p)}.averagemethod > 1)
-                        fstart = TS{TSindices(p)}.averagestart;
-                        fend   = TS{TSindices(p)}.averageend;
-                    end
-                end
-            end
-            
-            if isempty(fstart)||isempty(fend)||(length(fstart)~=length(fend))
-                msgError('The framestart and frameend do not have the same dimensions',5);
-                return
-            end
-            
-            numframes = fend(1)-fstart(1)+1;
-            numleads = size(TS{TSindices(p)}.potvals,1);
-            data = zeros(numleads,numframes);
-            for q=1:length(fstart)
-                if (fend(q)-fstart(q)+1) ~= numframes
-                     msgError('Number of frames for averaging is NOT the same',5);
-                    return
-                end
-                data = data+TS{TSindices(p)}.potvals(:,fstart(q):fend(q));
-            end
-            if length(fstart) > 1, data = data*(1/length(fstart)); end
-            
-            TS{TSindices(p)}.potvals = data;
-            TS{TSindices(p)}.numframes = numframes;
-            audit = [sprintf('|sigSlice Slice/Average data, startframe: ') sprintf('%d ',fstart) 'endframe: ' sprintf('%d ',fend)];
-            TS{TSindices(p)}.audit = [TS{TSindices(p)}.audit audit];
-            
-            if isfield(TS{TSindices(p)},'fids')
-                fids = TS{TSindices(p)}.fids;
-                keep = [];
-                for q=1:length(fids)
-                    if (fids(q).value >= fstart(1)) && (fids(q).value <= fend(1))
-                        keep = [keep q];
-                        fids(q).value = fids(q).value - fstart(1)+1;
-                    end
-                end
-                TS{TSindices(p)}.fids = fids(keep);
-            end
-            if isfield(TS{TSindices(p)},'pacing')
-                pacing = TS{TSindices(p)}.pacing;
-                pacing = pacing(find((pacing>=fstart(1))&(pacing<=fend(1))));
-                pacing = pacing -fstart(1)+1;
-                TS{TSindices(p)}.pacing = pacing;
-            end
-              
+global TS;
+if nargout == 1
+    newTSindices = tsNew(length(TSindices));
+    for p=1:length(TSindices)
+        TS{newTSindices(p)} = TS{TSindices(p)};  
+    end
+    TSindices = newTSindices;
+end
+
+for p=1:length(TSindices)
+    if nargin == 1
+        if isfield(TS{TSindices(p)},'selframes')
+            frames = TS{TSindices(p)}.selframes;
+            fstart = frames(1);
+            fend   = frames(end);
+        else
+            fstart = 1;
+            fend = TS{TSindices(p)}.numframes;
         end
     end
 
-    
-    if isstruct(TSindices)
-        nTSindices{1} = TSindices;
-        TSindices = nTSindices;
-        clear nTSindices;
+    numframes = fend(1)-fstart(1)+1;
+    numleads = size(TS{TSindices(p)}.potvals,1);
+    data = zeros(numleads,numframes);
+    for q=1:length(fstart)
+        data = data+TS{TSindices(p)}.potvals(:,fstart(q):fend(q));
     end
-   
-    if iscell(TSindices)
-       for p=1:length(TSindices)
-            if nargin == 1
-                if isfield(TSindices{p},'selframes')
-                    frames = TSindices{p}.selframes;
-                    fstart = frames(1);
-                    fend   = frames(end);
-                else
-                    msgError('You need to enter the frames you want to keep',5);
-                    return;
-                end
-                if isfield(TSindices{p},'averagestart')
-                    if ~isempty(TSindices{p}.averagestart)&&(TSindices{p}.averagemethod > 1)
-                        fstart = TSindices{p}.averagestart;
-                        fend   = TSindices{p}.averageend;
-                    end
-                end
-            end
-            
-            if isempty(fstart)||isempty(fend)||(length(fstart)~=length(fend))
-                msgError('The framestart and frameend do not have the same dimensions',5);
-                return
-            end
-            
-            numframes = fend(1)-fstart(1)+1;
-            numleads = size(TS{TSindices(p)}.potvals,1);
-            data = zeros(numleads,numframes);
-            for q=1:length(fstart)
-                if (fend(q)-fstart(q)+1) ~= numframes
-                     msgError('Number of frames for averaging is NOT the same',5);
-                    return
-                end
-                data = data+TSindices{p}.potvals(:,fstart(q):fend(q));
-            end
-            if length(fstart) > 1, data = data*(1/length(fstart)); end
-            
-            TSindices{p}.potvals = data;
-            TSindices{p}.numframes = numframes;
-            audit = [sprintf('|sigSlice Slice/Average data, startframe: ') sprintf('%d ',fstart) 'endframe: ' sprintf('%d ',fend)];
-            TSindices{p}.audit = [TSindices{p}.audit audit];
-            
-            if isfield(TSindices{p},'fids')
-                fids = TSindices{p}.fids;
-                keep = [];
-                for q=1:length(fids)
-                    if (fids(q).value >= fstart(1)) && (fids(q).value <= fend(1))
-                        keep = [keep q];
-                        fids(q).value = fids(q).value - fstart(1)+1;
-                    end
-                end
-                TSindices{p}.fids = fids(keep);
-            end
-            if isfield(TSindices{p},'pacing')
-                pacing = TSindices{p}.pacing;
-                pacing = pacing(find((pacing>=fstart(1))&(pacing<=fend(1))));
-                pacing = pacing -fstart(1)+1;
-                TSindices{p}.pacing = pacing;
+    if length(fstart) > 1, data = data*(1/length(fstart)); end
+
+    TS{TSindices(p)}.potvals = data;
+    TS{TSindices(p)}.numframes = numframes;
+    audit = [sprintf('|sigSlice Slice/Average data, startframe: ') sprintf('%d ',fstart) 'endframe: ' sprintf('%d ',fend)];
+    TS{TSindices(p)}.audit = [TS{TSindices(p)}.audit audit];
+
+    if isfield(TS{TSindices(p)},'fids')
+        fids = TS{TSindices(p)}.fids;
+        keep = [];
+        for q=1:length(fids)
+            if and((fids(q).value >= fstart(1)),(fids(q).value <= fend(1)))
+                keep = [keep q];
+                fids(q).value = fids(q).value - fstart(1)+1;
             end
         end
+        TS{TSindices(p)}.fids = fids(keep);
     end
-    newTSindices = TSindices;
-       
 
-    return
+
+end
+
+
+newTSindices = TSindices;
+
+
