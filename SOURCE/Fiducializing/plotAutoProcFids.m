@@ -479,7 +479,7 @@ for beatNumber=1:length(AUTOPROCESSING.EVENTS)   %for each beat
                 events.handle(1,p) = line('parent',events.axes,'Xdata',[v v],'Ydata',ywin,'Color',colorlist{events.type(p)},'hittest','off','linewidth',events.linewidth{events.type(p)},'linestyle',events.linestyle{events.type(p)});
             case {2,3} % interval fiducial/ fixed intereval fiducial
                 v = events.value(1,p,1);
-                v2 = events.value(1,p,2);
+                v2 = events.value(1,p,2);                             
                 events.handle(1,p) = patch('parent',events.axes,'Xdata',[v v v2 v2],'Ydata',[ywin ywin([2 1])],'FaceColor',colorlist{events.type(p)},'hittest','off','FaceAlpha', 0.4,'linewidth',events.linewidth{events.type(p)},'linestyle',events.linestyle{events.type(p)});
         end
     end
@@ -487,8 +487,9 @@ for beatNumber=1:length(AUTOPROCESSING.EVENTS)   %for each beat
 
     if SCRIPTDATA.DISPLAYTYPEA == 1, continue; end
 
+    
+    
     %%%% GROUP FIDUCIALS
-
     events = AUTOPROCESSING.EVENTS{beatNumber}{2};
     if ~isempty(events.handle), index = find(ishandle(events.handle(:)) & (events.handle(:) ~= 0)); delete(events.handle(index)); end
     events.handle = [];
@@ -842,7 +843,6 @@ function ButtonUp(handle)
 % - get the current event
 % - if some event is selected (sel>0): SetClosestEvent
 % - set sel=sel2=sel3=0
-% - do some Activation/Recovery stuff (TODO: remove this?)
 
 global AUTOPROCESSING  SCRIPTDATA;
 if isempty(AUTOPROCESSING.CurrentEventIdx), return, end % if nothing selected, return..   

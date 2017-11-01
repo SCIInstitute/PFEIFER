@@ -1438,7 +1438,7 @@ if SCRIPTDATA.DO_SLICE_USER == 1  %if 'user interaction' button is pressed
 end
 
 %%%% store all the SETTINGS/CHANGES done by the user
-ExportUserSettings(inputfilename,index,{'SELFRAMES','AVERAGEMETHOD','AVERAGECHANNEL','AVERAGERMSTYPE','AVERAGESTART','AVERAGEEND','AVERAGEFRAMES','TEMPLATEFRAMES','LEADINFO'});
+ExportUserSettings(inputfilename,index,{'SELFRAMES','LEADINFO'});
 
 %%%%%% if 'blank bad leads' button is selected,   set all values of the bad leads to 0   
 if SCRIPTDATA.DO_BLANKBADLEADS == 1
@@ -1522,7 +1522,7 @@ if (SCRIPTDATA.DO_BASELINE == 1)
         end     
     end
     %%%% and save user selections in PROCESSINGDATA    
-    ExportUserSettings(inputfilename,index,{'SELFRAMES','AVERAGEMETHOD','AVERAGECHANNEL','AVERAGERMSTYPE','AVERAGESTART','AVERAGEEND','AVERAGEFRAMES','TEMPLATEFRAMES','LEADINFO','FIDS','FIDSET','STARTFRAME'});
+    ExportUserSettings(inputfilename,index,{'SELFRAMES','LEADINFO','FIDS','STARTFRAME'});
      
     %%%% now do the final baseline correction
     if SCRIPTDATA.DO_BASELINE == 1
@@ -1583,7 +1583,7 @@ if SCRIPTDATA.DO_DETECT == 1
         end     
     end    
     % save the user selections (stored in ts) in PROCESSINGDATA
-    ExportUserSettings(inputfilename,index,{'SELFRAMES','AVERAGEMETHOD','AVERAGERMSTYPE','AVERAGECHANNEL','AVERAGESTART','AVERAGEEND','AVERAGEFRAMES','TEMPLATEFRAMES','LEADINFO','FIDS','FIDSET','STARTFRAME'});
+    ExportUserSettings(inputfilename,index,{'SELFRAMES','LEADINFO','FIDS','STARTFRAME'});
 end
 
 %%%% now we have a fiducialed beat - use it as template to autoprocess the rest of the data in TS{unslicedDataIndex}
@@ -1598,7 +1598,14 @@ if SCRIPTDATA.DO_AUTOFIDUCIALISING
             return; 
     end  
 end
-    
+
+
+
+
+
+
+
+
 
 %%%% this part does the splitting. In detail it
 % - creates numgroups new ts structures (one for each group) using

@@ -525,154 +525,155 @@ function SetupDisplay(handle)
 %         - sets up some start values for xlim, ylim, sets up axes and slider handles
 %         - makes the FD.SIGNAL values,   (RMS and scaling of potvals)
 
-    pointer = handle.Pointer;
-    handle.Pointer = 'watch';
-    global TS SCRIPTDATA FIDSDISPLAY;
-    
-    tsindex = SCRIPTDATA.CURRENTTS;
-    
-    numframes = size(TS{tsindex}.potvals,2);
-    FIDSDISPLAY.TIME = [1:numframes]*(1/SCRIPTDATA.SAMPLEFREQ);
-    FIDSDISPLAY.XLIM = [1 numframes]*(1/SCRIPTDATA.SAMPLEFREQ);
+pointer = handle.Pointer;
+handle.Pointer = 'watch';
+global TS SCRIPTDATA FIDSDISPLAY;
+
+tsindex = SCRIPTDATA.CURRENTTS;
+
+numframes = size(TS{tsindex}.potvals,2);
+FIDSDISPLAY.TIME = [1:numframes]*(1/SCRIPTDATA.SAMPLEFREQ);
+FIDSDISPLAY.XLIM = [1 numframes]*(1/SCRIPTDATA.SAMPLEFREQ);
 
 %    if isempty(FIDSDISPLAY.XWIN);
-        FIDSDISPLAY.XWIN = [median([0 FIDSDISPLAY.XLIM]) median([3000/SCRIPTDATA.SAMPLEFREQ FIDSDISPLAY.XLIM])];
-        %    else
-        %FIDSDISPLAY.XWIN = [median([FIDSDISPLAY.XWIN(1) FIDSDISPLAY.XLIM]) median([FIDSDISPLAY.XWIN(2) FIDSDISPLAY.XLIM])];
-        %end
-    
-    FIDSDISPLAY.AXES = findobj(allchild(handle),'tag','AXES');
-    FIDSDISPLAY.XSLIDER = findobj(allchild(handle),'tag','SLIDERX');
-    FIDSDISPLAY.YSLIDER = findobj(allchild(handle),'tag','SLIDERY');
-    
+    FIDSDISPLAY.XWIN = [median([0 FIDSDISPLAY.XLIM]) median([3000/SCRIPTDATA.SAMPLEFREQ FIDSDISPLAY.XLIM])];
+    %    else
+    %FIDSDISPLAY.XWIN = [median([FIDSDISPLAY.XWIN(1) FIDSDISPLAY.XLIM]) median([FIDSDISPLAY.XWIN(2) FIDSDISPLAY.XLIM])];
+    %end
 
-    groups = SCRIPTDATA.DISPLAYGROUPF;
-    numgroups = length(groups);
-    
-    FIDSDISPLAY.NAME ={};
-    FIDSDISPLAY.GROUPNAME = {};
-    FIDSDISPLAY.GROUP = [];
-    FIDSDISPLAY.COLORLIST = {[1 0 0],[0 0.7 0],[0 0 1],[0.5 0 0],[0 0.3 0],[0 0 0.5],[1 0.3 0.3],[0.3 0.7 0.3],[0.3 0.3 1],[0.75 0 0],[0 0.45 0],[0 0 0.75]};
-    
-    if FIDSDISPLAY.MODE == 1
-        SCRIPTDATA.DISPLAYTYPEF1 = SCRIPTDATA.DISPLAYTYPEF;
-    else
-        SCRIPTDATA.DISPLAYTYPEF2 = SCRIPTDATA.DISPLAYTYPEF;
-    end    
-    
-    switch SCRIPTDATA.DISPLAYTYPEF
-        case 1   % show global RMS
-            ch  = []; 
-            for p=groups 
-                leads = SCRIPTDATA.GROUPLEADS{SCRIPTDATA.CURRENTRUNGROUP}{p};
-                index = TS{tsindex}.leadinfo(leads)==0;  % index of only the 'good' leads, filter out badleads
-                ch = [ch leads(index)];   % ch is leads only of the leads of the groubs selected, not of all leads
-            end
-            
-            FIDSDISPLAY.SIGNAL = sqrt(mean(TS{tsindex}.potvals(ch,:).^2));
-            FIDSDISPLAY.SIGNAL = FIDSDISPLAY.SIGNAL-min(FIDSDISPLAY.SIGNAL);
-            FIDSDISPLAY.LEADINFO = 0;
-            FIDSDISPLAY.GROUP = 1;
-            FIDSDISPLAY.LEAD = 0;
-            FIDSDISPLAY.LEADGROUP = 0;
-            FIDSDISPLAY.NAME = {'Global RMS'};
-            FIDSDISPLAY.GROUPNAME = {'Global RMS'};
-            set(findobj(allchild(handle),'tag','FIDSGLOBAL'),'enable','on');
-            set(findobj(allchild(handle),'tag','FIDSGROUP'),'enable','off');
-            set(findobj(allchild(handle),'tag','FIDSLOCAL'),'enable','off');
-            if FIDSDISPLAY.SELFIDS > 1
-                FIDSDISPLAY.SELFIDS = 1;
-                set(findobj(allchild(handle),'tag','FIDSGLOBAL'),'value',1);
-                set(findobj(allchild(handle),'tag','FIDSGROUP'),'value',0);
-                set(findobj(allchild(handle),'tag','FIDSLOCAL'),'value',0);
-            end
-            
-        case 2
-            FIDSDISPLAY.SIGNAL = zeros(numgroups,numframes);
-            for p=1:numgroups
-                leads = SCRIPTDATA.GROUPLEADS{SCRIPTDATA.CURRENTRUNGROUP}{groups(p)};
-                index = find(TS{tsindex}.leadinfo(leads)==0);
-                FIDSDISPLAY.SIGNAL(p,:) = sqrt(mean(TS{tsindex}.potvals(leads(index),:).^2)); 
-                FIDSDISPLAY.SIGNAL(p,:) = FIDSDISPLAY.SIGNAL(p,:)-min(FIDSDISPLAY.SIGNAL(p,:));
-                FIDSDISPLAY.NAME{p} = [SCRIPTDATA.GROUPNAME{SCRIPTDATA.CURRENTRUNGROUP}{groups(p)} ' RMS']; 
-            end
-            FIDSDISPLAY.GROUPNAME = FIDSDISPLAY.NAME;
-            FIDSDISPLAY.GROUP = 1:numgroups;
-            FIDSDISPLAY.LEAD = 0*FIDSDISPLAY.GROUP;
-            FIDSDISPLAY.LEADGROUP = groups;
-            FIDSDISPLAY.LEADINFO = zeros(numgroups,1);
-            set(findobj(allchild(handle),'tag','FIDSGLOBAL'),'enable','on');
-            set(findobj(allchild(handle),'tag','FIDSGROUP'),'enable','on');
-            set(findobj(allchild(handle),'tag','FIDSLOCAL'),'enable','off');
-            if FIDSDISPLAY.SELFIDS > 2
-                FIDSDISPLAY.SELFIDS = 1;
-                set(findobj(allchild(handle),'tag','FIDSGLOBAL'),'value',1);
-                set(findobj(allchild(handle),'tag','FIDSGROUP'),'value',0);
-                set(findobj(allchild(handle),'tag','FIDSLOCAL'),'value',0);
-            end
-            
-        case 3
-            FIDSDISPLAY.GROUP =[];
-            FIDSDISPLAY.NAME = {};
-            FIDSDISPLAY.LEAD = [];
-            FIDSDISPLAY.LEADGROUP = [];
-            ch  = []; 
-            for p=groups
-                ch = [ch SCRIPTDATA.GROUPLEADS{SCRIPTDATA.CURRENTRUNGROUP}{p}]; 
-                FIDSDISPLAY.GROUP = [FIDSDISPLAY.GROUP p*ones(1,length(SCRIPTDATA.GROUPLEADS{SCRIPTDATA.CURRENTRUNGROUP}{p}))];
-                FIDSDISPLAY.LEADGROUP = [FIDSDISPLAY.GROUP SCRIPTDATA.GROUPLEADS{SCRIPTDATA.CURRENTRUNGROUP}{p}];
-                FIDSDISPLAY.LEAD = [FIDSDISPLAY.LEAD SCRIPTDATA.GROUPLEADS{SCRIPTDATA.CURRENTRUNGROUP}{p}];
-                for q=1:length(SCRIPTDATA.GROUPLEADS{SCRIPTDATA.CURRENTRUNGROUP}{p}), FIDSDISPLAY.NAME{end+1} = sprintf('%s # %d',SCRIPTDATA.GROUPNAME{SCRIPTDATA.CURRENTRUNGROUP}{p},q); end 
-            end
-            for p=1:length(groups)
-                FIDSDISPLAY.GROUPNAME{p} = [SCRIPTDATA.GROUPNAME{SCRIPTDATA.CURRENTRUNGROUP}{groups(p)}]; 
-            end 
-            FIDSDISPLAY.SIGNAL = TS{tsindex}.potvals(ch,:);
-            FIDSDISPLAY.LEADINFO = TS{tsindex}.leadinfo(ch);
-            set(findobj(allchild(handle),'tag','FIDSGLOBAL'),'enable','on');
-            set(findobj(allchild(handle),'tag','FIDSGROUP'),'enable','on');
-            set(findobj(allchild(handle),'tag','FIDSLOCAL'),'enable','on');
-    end
-        
-    switch SCRIPTDATA.DISPLAYSCALINGF
-        case 1
-            k = max(abs(FIDSDISPLAY.SIGNAL),[],2);
-            [m,~] = size(FIDSDISPLAY.SIGNAL);
-            k(k==0) = 1;
-            s = sparse(1:m,1:m,1./k,m,m);
+FIDSDISPLAY.AXES = findobj(allchild(handle),'tag','AXES');
+FIDSDISPLAY.XSLIDER = findobj(allchild(handle),'tag','SLIDERX');
+FIDSDISPLAY.YSLIDER = findobj(allchild(handle),'tag','SLIDERY');
+
+
+groups = SCRIPTDATA.DISPLAYGROUPF;
+numgroups = length(groups);
+
+FIDSDISPLAY.NAME ={};
+FIDSDISPLAY.GROUPNAME = {};
+FIDSDISPLAY.GROUP = [];
+FIDSDISPLAY.COLORLIST = {[1 0 0],[0 0.7 0],[0 0 1],[0.5 0 0],[0 0.3 0],[0 0 0.5],[1 0.3 0.3],[0.3 0.7 0.3],[0.3 0.3 1],[0.75 0 0],[0 0.45 0],[0 0 0.75]};
+
+if FIDSDISPLAY.MODE == 1
+    SCRIPTDATA.DISPLAYTYPEF1 = SCRIPTDATA.DISPLAYTYPEF;
+else
+    SCRIPTDATA.DISPLAYTYPEF2 = SCRIPTDATA.DISPLAYTYPEF;
+end    
+
+switch SCRIPTDATA.DISPLAYTYPEF
+    case 1   % show global RMS
+        ch  = []; 
+        for p=groups 
+            leads = SCRIPTDATA.GROUPLEADS{SCRIPTDATA.CURRENTRUNGROUP}{p};
+            index = TS{tsindex}.leadinfo(leads)==0;  % index of only the 'good' leads, filter out badleads
+            ch = [ch leads(index)];   % ch is leads only of the leads of the groubs selected, not of all leads
+        end
+
+        FIDSDISPLAY.SIGNAL = sqrt(mean(TS{tsindex}.potvals(ch,:).^2));
+        FIDSDISPLAY.SIGNAL = FIDSDISPLAY.SIGNAL-min(FIDSDISPLAY.SIGNAL);
+        FIDSDISPLAY.LEADINFO = 0;
+        FIDSDISPLAY.GROUP = 1;
+        FIDSDISPLAY.LEAD = 0;
+        FIDSDISPLAY.LEADGROUP = 0;
+        FIDSDISPLAY.NAME = {'Global RMS'};
+        FIDSDISPLAY.GROUPNAME = {'Global RMS'};
+        set(findobj(allchild(handle),'tag','FIDSGLOBAL'),'enable','on');
+        set(findobj(allchild(handle),'tag','FIDSGROUP'),'enable','off');
+        set(findobj(allchild(handle),'tag','FIDSLOCAL'),'enable','off');
+        if FIDSDISPLAY.SELFIDS > 1
+            FIDSDISPLAY.SELFIDS = 1;
+            set(findobj(allchild(handle),'tag','FIDSGLOBAL'),'value',1);
+            set(findobj(allchild(handle),'tag','FIDSGROUP'),'value',0);
+            set(findobj(allchild(handle),'tag','FIDSLOCAL'),'value',0);
+        end
+
+    case 2
+        FIDSDISPLAY.SIGNAL = zeros(numgroups,numframes);
+        for p=1:numgroups
+            leads = SCRIPTDATA.GROUPLEADS{SCRIPTDATA.CURRENTRUNGROUP}{groups(p)};
+            index = find(TS{tsindex}.leadinfo(leads)==0);
+            FIDSDISPLAY.SIGNAL(p,:) = sqrt(mean(TS{tsindex}.potvals(leads(index),:).^2)); 
+            FIDSDISPLAY.SIGNAL(p,:) = FIDSDISPLAY.SIGNAL(p,:)-min(FIDSDISPLAY.SIGNAL(p,:));
+            FIDSDISPLAY.NAME{p} = [SCRIPTDATA.GROUPNAME{SCRIPTDATA.CURRENTRUNGROUP}{groups(p)} ' RMS']; 
+        end
+        FIDSDISPLAY.GROUPNAME = FIDSDISPLAY.NAME;
+        FIDSDISPLAY.GROUP = 1:numgroups;
+        FIDSDISPLAY.LEAD = 0*FIDSDISPLAY.GROUP;
+        FIDSDISPLAY.LEADGROUP = groups;
+        FIDSDISPLAY.LEADINFO = zeros(numgroups,1);
+        set(findobj(allchild(handle),'tag','FIDSGLOBAL'),'enable','on');
+        set(findobj(allchild(handle),'tag','FIDSGROUP'),'enable','on');
+        set(findobj(allchild(handle),'tag','FIDSLOCAL'),'enable','off');
+        if FIDSDISPLAY.SELFIDS > 2
+            FIDSDISPLAY.SELFIDS = 1;
+            set(findobj(allchild(handle),'tag','FIDSGLOBAL'),'value',1);
+            set(findobj(allchild(handle),'tag','FIDSGROUP'),'value',0);
+            set(findobj(allchild(handle),'tag','FIDSLOCAL'),'value',0);
+        end
+
+    case 3
+        FIDSDISPLAY.GROUP =[];
+        FIDSDISPLAY.NAME = {};
+        FIDSDISPLAY.LEAD = [];
+        FIDSDISPLAY.LEADGROUP = [];
+        ch  = []; 
+        for p=groups
+            ch = [ch SCRIPTDATA.GROUPLEADS{SCRIPTDATA.CURRENTRUNGROUP}{p}]; 
+            FIDSDISPLAY.GROUP = [FIDSDISPLAY.GROUP p*ones(1,length(SCRIPTDATA.GROUPLEADS{SCRIPTDATA.CURRENTRUNGROUP}{p}))];
+            FIDSDISPLAY.LEADGROUP = [FIDSDISPLAY.GROUP SCRIPTDATA.GROUPLEADS{SCRIPTDATA.CURRENTRUNGROUP}{p}];
+            FIDSDISPLAY.LEAD = [FIDSDISPLAY.LEAD SCRIPTDATA.GROUPLEADS{SCRIPTDATA.CURRENTRUNGROUP}{p}];
+            for q=1:length(SCRIPTDATA.GROUPLEADS{SCRIPTDATA.CURRENTRUNGROUP}{p}), FIDSDISPLAY.NAME{end+1} = sprintf('%s # %d',SCRIPTDATA.GROUPNAME{SCRIPTDATA.CURRENTRUNGROUP}{p},q); end 
+        end
+        for p=1:length(groups)
+            FIDSDISPLAY.GROUPNAME{p} = [SCRIPTDATA.GROUPNAME{SCRIPTDATA.CURRENTRUNGROUP}{groups(p)}]; 
+        end 
+
+        FIDSDISPLAY.SIGNAL = TS{tsindex}.potvals(ch,:);
+        FIDSDISPLAY.LEADINFO = TS{tsindex}.leadinfo(ch);
+        set(findobj(allchild(handle),'tag','FIDSGLOBAL'),'enable','on');
+        set(findobj(allchild(handle),'tag','FIDSGROUP'),'enable','on');
+        set(findobj(allchild(handle),'tag','FIDSLOCAL'),'enable','on');
+end
+
+switch SCRIPTDATA.DISPLAYSCALINGF
+    case 1
+        k = max(abs(FIDSDISPLAY.SIGNAL),[],2);
+        [m,~] = size(FIDSDISPLAY.SIGNAL);
+        k(k==0) = 1;
+        s = sparse(1:m,1:m,1./k,m,m);
+        FIDSDISPLAY.SIGNAL = s*FIDSDISPLAY.SIGNAL;
+    case 2
+        k = max(abs(FIDSDISPLAY.SIGNAL(:)));
+        [m,~] = size(FIDSDISPLAY.SIGNAL);
+        if k > 0
+            s = sparse(1:m,1:m,1/k*ones(1,m),m,m);
             FIDSDISPLAY.SIGNAL = s*FIDSDISPLAY.SIGNAL;
-        case 2
-            k = max(abs(FIDSDISPLAY.SIGNAL(:)));
-            [m,~] = size(FIDSDISPLAY.SIGNAL);
-            if k > 0
-                s = sparse(1:m,1:m,1/k*ones(1,m),m,m);
-                FIDSDISPLAY.SIGNAL = s*FIDSDISPLAY.SIGNAL;
-            end
-        case 3
-            [m,~] = size(FIDSDISPLAY.SIGNAL);
-            k = ones(m,1);
-            for p=groups
-                ind = find(FIDSDISPLAY.GROUP == p);
-                k(ind) = max(max(abs(FIDSDISPLAY.SIGNAL(ind,:)),[],2));
-            end
-            s = sparse(1:m,1:m,1./k,m,m);
-            FIDSDISPLAY.SIGNAL = s*FIDSDISPLAY.SIGNAL;
-    end
-    
-    if SCRIPTDATA.DISPLAYTYPEF == 3
-        FIDSDISPLAY.SIGNAL = 0.5*FIDSDISPLAY.SIGNAL+0.5;
-    end
-    
-    numsignal = size(FIDSDISPLAY.SIGNAL,1);
-    for p=1:numsignal
-        FIDSDISPLAY.SIGNAL(p,:) = FIDSDISPLAY.SIGNAL(p,:)+(numsignal-p);
-    end
-    
-    
-    FIDSDISPLAY.YLIM = [0 numsignal];
-    FIDSDISPLAY.YWIN = [max([0 numsignal-6]) numsignal];
-    
-    handle.Pointer = pointer;
+        end
+    case 3
+        [m,~] = size(FIDSDISPLAY.SIGNAL);
+        k = ones(m,1);
+        for p=groups
+            ind = find(FIDSDISPLAY.GROUP == p);
+            k(ind) = max(max(abs(FIDSDISPLAY.SIGNAL(ind,:)),[],2));
+        end
+        s = sparse(1:m,1:m,1./k,m,m);
+        FIDSDISPLAY.SIGNAL = s*FIDSDISPLAY.SIGNAL;
+end
+
+if SCRIPTDATA.DISPLAYTYPEF == 3
+    FIDSDISPLAY.SIGNAL = 0.5*FIDSDISPLAY.SIGNAL+0.5;
+end
+
+numsignal = size(FIDSDISPLAY.SIGNAL,1);
+for p=1:numsignal
+    FIDSDISPLAY.SIGNAL(p,:) = FIDSDISPLAY.SIGNAL(p,:)+(numsignal-p);
+end
+
+
+FIDSDISPLAY.YLIM = [0 numsignal];
+FIDSDISPLAY.YWIN = [max([0 numsignal-6]) numsignal];
+
+handle.Pointer = pointer;
     
 end
 
@@ -782,7 +783,7 @@ function UpdateDisplay(handle)
     FIDSDISPLAY.EVENTS{1}.handle = [];
     FIDSDISPLAY.EVENTS{2}.handle = [];
     FIDSDISPLAY.EVENTS{3}.handle = [];
-    
+
     DisplayFiducials;
     
 end
@@ -922,7 +923,6 @@ function ButtonUp(handle)
    % - get the current event
    % - if some event is selected (sel>0): SetClosestEvent
    % - set sel=sel2=sel3=0
-   % - do some Activation/Recovery stuff (TODO: remove this?)
    % - Set the 'Choose Fiducials' listbox to NEWFIDSTYPE (necessary if
    % looping is activated)
     global FIDSDISPLAY  SCRIPTDATA;

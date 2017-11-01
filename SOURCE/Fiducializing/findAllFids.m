@@ -33,15 +33,13 @@ function [allFidsGlFr, success] = findAllFids(potvals,signal)
 
 allFidsGlFr = 'dummyValue'; % to make sure this function has a value to return, even if function returns earlier as planned due to error
 %%%%% get paramters from SCRIPTDATA
-global SCRIPTDATA AUTOPROCESSING TS
+global SCRIPTDATA AUTOPROCESSING 
 accuracy=SCRIPTDATA.ACCURACY;  % abort condition5
 fidsKernelLength=SCRIPTDATA.FIDSKERNELLENGTH;  % the kernel indices will be from fidsValue-fidsKernelLength  until fidsValue+fidsKernelLength
-kernel_shift=0;       % a "kernel shift", to shift the kernel by kernel_shift   % not used, just here as placeholder..
-% reminder: it is kernel_idx=fid_start-fidsKernelLength+kernel_shift:fid_start+fidsKernelLength+kernel_shift
+% reminder: it is kernel_idx=fid_start-fidsKernelLength:fid_start+fidsKernelLength
 window_width=SCRIPTDATA.WINDOW_WIDTH;   % dont search complete beat, but only a window with width window_width,
 % ws=bs+loc_fidsValues(fidNumber)-window_width;  
 % we=bs+loc_fidsValues(fidNumber)+window_width;
-
 totalKernelLength = 2*fidsKernelLength +1;   % the length of a kernel
 
 
@@ -67,6 +65,7 @@ oriFids(toBeCleared)=[];
 % these are the possible fiducials that might be done by the user
 % corresponds to wave:   p    qrs   t     X               
 possibleWaves =       [ 0 1   2 4  5 7  26 27 ];
+
 % corresponds to peak: qrs    t    X
 possiblePeaks =       [ 3     6    25 ];
 
@@ -102,13 +101,26 @@ end
 
 %%%% get the globFidsValues, the fids in the "global complete signal frame"
 globFrFidsValues = locFrFidsValues+bsk-1;
+
 nFids=length(fidsTypes);
-
-%%%% set up the fsk and fek and get the first kernels based on the user fiducialized beat
-fsk=globFrFidsValues - fidsKernelLength + kernel_shift;   % fiducial start kernel,  the index in potvals where the kernel for fiducials starts
-fek=globFrFidsValues + fidsKernelLength + kernel_shift;   % analog to fsk, but 'end'
-
 nLeads=size(potvals,1);
+
+%%%% set up the fsk and fek 
+fsk=globFrFidsValues - fidsKernelLength;   % fiducial start kernel,  the index in potvals where the kernel for fiducials starts
+fek=globFrFidsValues + fidsKernelLength;   % analog to fsk, but 'end'
+
+
+
+%%%% make sure there are no bad leads in the potvals..
+for leadNumber=1:nLeads
+    if nnz(potvals(leadNumber,fsk(1):fek(1))) == 0
+        success = 0;
+        errordlg('At least one of the leads used for autofiducializing contains only zeros!! Leads that contain only zeros should be marked bad leads, otherwise they mess with the autofiducializing algorithm.')
+        return
+    end
+end
+
+%%%% get the first kernels based on the user fiducialized beat
 kernels = zeros(nLeads,totalKernelLength, nFids);
 for fidNumber = 1:nFids
     kernels(:,:,fidNumber) = potvals(:,fsk(fidNumber):fek(fidNumber));
@@ -128,8 +140,9 @@ for beatNumber=1:length(beats)
     end
 end
 
-if isempty(oriBeatIdx)
-    oriBeatEnvelope=[bsk,bek];
+if isempty(oriBeatIdx)   
+    disp('beat issue')
+    oriBeatEnvelope = [bsk,bek];
     AUTOPROCESSING.beats=[oriBeatEnvelope beats];
 else
     AUTOPROCESSING.beats = beats(oriBeatIdx:end);   % get rid if beats occuring before the user fiducialized beat
@@ -167,23 +180,32 @@ for beatNumber=1:nBeats %for each beat
         
         
         
+        
         windows=potvals(:,ws:we);
         
         %%%% find fids
-        [globFid, indivFids, variance] = findFid(windows,kernels(:,:,fidNumber));
+        [winFrGlobFid, winFrIndivFids, variance] = findFid(windows,kernels(:,:,fidNumber));
         
 
 
         %put them in global frame
-        indivFids=indivFids+fidsKernelLength-kernel_shift+bs-1+locFrFidsValues(fidNumber)-window_width;  % now  newIndivFids is in "complete potvals" frame.
-        globFid=globFid+fidsKernelLength-kernel_shift+bs-1+locFrFidsValues(fidNumber)-window_width;      % put it into "complete potvals" frame
+        indivFids=winFrIndivFids+fidsKernelLength+bs-1+locFrFidsValues(fidNumber)-window_width;  % now  newIndivFids is in "complete potvals" frame.
+        glFrGlobFid=winFrGlobFid+fidsKernelLength+bs-1+locFrFidsValues(fidNumber)-window_width;      % put it into "complete potvals" frame
 
         
+%         if beatNumber==1 && fidNumber ==1
+%             winFrIndivFids
+%             winFrGlobFid
+%             error('end it here')
+%         end
+        
+        
+        
         %%%% if globFids are outside of beat, make beat larger to fit fiducial
-        if globFid > be
-            AUTOPROCESSING.beats{beatNumber}(2)=globFid;
-        elseif globFid < bs
-            AUTOPROCESSING.beats{beatNumber}(1)=globFid;
+        if glFrGlobFid > be
+            AUTOPROCESSING.beats{beatNumber}(2)=glFrGlobFid;
+        elseif glFrGlobFid < bs
+            AUTOPROCESSING.beats{beatNumber}(1)=glFrGlobFid;
         end
         
 
@@ -195,7 +217,7 @@ for beatNumber=1:nBeats %for each beat
 
         %%%% add the global fid to allFids
         allFidsGlFr{beatNumber}(nFids+fidNumber).type=fidsTypes(fidNumber);
-        allFidsGlFr{beatNumber}(nFids+fidNumber).value=globFid; 
+        allFidsGlFr{beatNumber}(nFids+fidNumber).value=glFrGlobFid;         
     end
     if isgraphics(h), waitbar(beatNumber/nBeats,h), end
 end
@@ -213,7 +235,7 @@ function kernels = getNewKernels(lastFoundFids,potvals, lastFoundBeats)
 % - lastFoundFids: the subset of the last nBeats2avrg beats in allFids:    allFids(currentBeat-mBeats2avrg : currentBeat)
 % - lastFoundBeats:  the subset of .beats of the last nBeat2avrg:  beats(currentBeat-mBeats2avrg : currentBeat)
 % - potvals:  the complete potential values of the whole range of .beats
-global SCRIPTDATA AUTOPROCESSING
+global  AUTOPROCESSING
 
 
 %%%% set up some stuff
@@ -246,8 +268,8 @@ avrgdPotvalsOfBeat = mean(allBeatsToAvrg, 3);
 
 
 %%%% now that we have avrgdPtovalsOfBeat and locAvrgdFids, get the new kernels
-fsk=locAvrgdFids-fidsKernelLength+kernel_shift;   % fiducial start kernel,  the index in avrgdPotvalsOfBeat where the kernel for fiducials starts
-fek=locAvrgdFids+fidsKernelLength+kernel_shift;   % analog to fsk, but 'end'
+fsk=locAvrgdFids-fidsKernelLength;   % fiducial start kernel,  the index in avrgdPotvalsOfBeat where the kernel for fiducials starts
+fek=locAvrgdFids+fidsKernelLength;   % analog to fsk, but 'end'
 
 
 kernels = zeros(nLeads,totalKernelLength, nFids);
