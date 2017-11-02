@@ -315,17 +315,17 @@ end
 
 switch SCRIPTDATA.DISPLAYSCALING
     case 1
-%         k = max(abs(SLICEDISPLAY.SIGNAL),[],2);
-%         [m,~] = size(SLICEDISPLAY.SIGNAL);
-%         k(k==0) = 1;
-%         s = sparse(1:m,1:m,1./k,m,m);
-%         SLICEDISPLAY.SIGNAL = s*SLICEDISPLAY.SIGNAL;
+        k = max(abs(SLICEDISPLAY.SIGNAL),[],2);
+        [m,~] = size(SLICEDISPLAY.SIGNAL);
+        k(k==0) = 1;
+        s = sparse(1:m,1:m,1./k,m,m);
+        SLICEDISPLAY.SIGNAL = s*SLICEDISPLAY.SIGNAL;
             
-        SLICEDISPLAY.SIGNAL=SLICEDISPLAY.SIGNAL-min(SLICEDISPLAY.SIGNAL,[],2);
-
-        for p=1:size(SLICEDISPLAY.SIGNAL,1)
-            SLICEDISPLAY.SIGNAL(p,:)=SLICEDISPLAY.SIGNAL(p,:)/max(SLICEDISPLAY.SIGNAL(p,:));
-        end
+%         SLICEDISPLAY.SIGNAL=SLICEDISPLAY.SIGNAL-min(SLICEDISPLAY.SIGNAL,[],2);
+% 
+%         for p=1:size(SLICEDISPLAY.SIGNAL,1)
+%             SLICEDISPLAY.SIGNAL(p,:)=SLICEDISPLAY.SIGNAL(p,:)/max(SLICEDISPLAY.SIGNAL(p,:));
+%         end
     case 2
         k = max(abs(SLICEDISPLAY.SIGNAL(:)));
         [m,~] = size(SLICEDISPLAY.SIGNAL);
