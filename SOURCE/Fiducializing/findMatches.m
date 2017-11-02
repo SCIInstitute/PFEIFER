@@ -29,6 +29,7 @@ function matches=findMatches(signal, kernel, accuracy)
 %  m=signal(s_i:e_i) matches kernel for all i, "matches" means:  xcorr(signal(s_i:e_i),kernel,0,'coeff') has a maximum peak value (at least accuracy)  (and matches dont overlap)
 % it also:
 % - sorts the matches in order they appear in signal (s1 < s2 < .. < si)
+global AUTOPROCESSING
 
 %%%% hardcoded:
 stepSize  = 20;
@@ -63,10 +64,18 @@ count=1;
 pval = 1;  %peak value
 while pval > accuracyForFirstEstimate
     %get max val and corresponding lag
-    [pval, pidx] = max(stepXCs);
-    plag =  stepLags(pidx);
+    if count == 1  % if first peak, make sure this one is the actual peak, this is to make sure the actual peak is not "planked out"
+        difLag = abs(stepLags - AUTOPROCESSING.bsk);
+        [~,pidx] = min(difLag);
+        pval = stepXCs(pidx);
+        plag = stepLags(pidx);
+    else
+        [pval, pidx] = max(stepXCs);
+        plag =  stepLags(pidx);
+    end
+        
     
-    % clear valus around pidx
+    % clear valus around pidx  ("blank out values")
     s = pidx - 13;
     e = pidx + 13;
     if s < 1, s=1; end
@@ -79,10 +88,10 @@ while pval > accuracyForFirstEstimate
     
 %    plotEstiPeak(plag)               % for testing only
 
+%    plotBlankedSteppedXcor(stepXCs,stepLags)                     % for testing only
+
     count = count +1;
 end
-
-%plotBlankedSteppedXcor(stepXCs,stepLags)                     % for testing only
 
 % get rid of zeros at the end of peakLags and peakXCs  (in case estNumBeats was to high)
 idx=find(estimatedPeakXCVals == 0);
@@ -142,6 +151,7 @@ for pl = estimatedPeakLags  % for each "estimated" peak
     
     
     %%%% check if peak value is higher than accuracy. Only then put found match in matches
+    
     if sv < accuracy
         continue
     else
@@ -165,9 +175,7 @@ matches(toBeDeleted)=[];
 
 
 %%%% optional: testing..  plot results, see if they look good
-
 % plotFoundMatches(signal, matches)
-
 
 
 %%%%%%%%%%%%%%%%%%%%% functions %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -273,7 +281,7 @@ ylabel('cross correlation')
 
 
 function plotFoundMatches(signal, matches)
-title('all found matches in signal')
+
 time=1:length(signal);
 
 figure
@@ -287,7 +295,21 @@ for p=1:length(matches)
     plot(time(idx),signal(idx)+1+yshift, 'r')
     yshift=-yshift;
 end
+
+
+% plot the real kernel
+global AUTOPROCESSING
+bsk=AUTOPROCESSING.bsk;   %start and end of beat
+bek=AUTOPROCESSING.bek;
+kernelTime=bsk:bek;
+kernel = signal(kernelTime);
+plot(kernelTime,kernel,'color','k')
+
 hold off
+
+title('all found beats (in red ) in signal (blue) and the actual original beat (black)')
+ylabel('potvals')
+xlabel('timeframe')
 
 
 
