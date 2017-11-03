@@ -159,8 +159,8 @@ end
 
 
 %%%%%%%%%%%%% fill AllFids with values %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 h=waitbar(0/nBeats,'Autofiducializing Beats..');
+beatToBeRemoved = [];
 for beatNumber=1:nBeats %for each beat
     bs=AUTOPROCESSING.beats{beatNumber}(1);  % start of beat
     be=AUTOPROCESSING.beats{beatNumber}(2);  % end of beat
@@ -172,10 +172,13 @@ for beatNumber=1:nBeats %for each beat
         ws=bs+locFrFidsValues(fidNumber)-window_width;  % dont search complete beat, only around fid
         we=bs+locFrFidsValues(fidNumber)+window_width;
         
-        
-        
-        
-        windows=potvals(:,ws:we);
+        if we > size(potvals,2)
+            beatToBeRemoved(end+1) = beatNumber;  % the fiducial might be out of range here, so better skip this beat..
+            break
+        else
+            windows=potvals(:,ws:we);
+        end
+
         
         %%%% find fids
         [winFrGlobFid, winFrIndivFids, variance] = findFid(windows,kernels(:,:,fidNumber));
@@ -214,6 +217,10 @@ for beatNumber=1:nBeats %for each beat
         allFidsGlFr{beatNumber}(nFids+fidNumber).value=glFrGlobFid;         
     end
     if isgraphics(h), waitbar(beatNumber/nBeats,h), end
+end
+if ~isempty(beatToBeRemoved)
+    AUTOPROCESSING.beats(beatToBeRemoved)=[];
+    allFidsGlFr(beatToBeRemoved) = [];
 end
 
 if isgraphics(h), delete(h), end
