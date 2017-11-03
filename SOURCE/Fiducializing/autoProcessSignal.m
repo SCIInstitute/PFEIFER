@@ -49,6 +49,16 @@ idxs=round(linspace(1,length(leadsOfAllGroups),nToBeFiducialised));
 
 AUTOPROCESSING.leadsToAutoprocess=leadsOfAllGroups(idxs);
 
+
+
+
+
+
+
+
+
+
+
 %%%% get info from  already processed beat
 AUTOPROCESSING.bsk=TS{SCRIPTDATA.CURRENTTS}.selframes(1);    % "beat start kernel"
 AUTOPROCESSING.bek=TS{SCRIPTDATA.CURRENTTS}.selframes(2);  %beat end kernel

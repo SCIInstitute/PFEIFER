@@ -43,6 +43,20 @@ window_width=SCRIPTDATA.WINDOW_WIDTH;   % dont search complete beat, but only a 
 totalKernelLength = 2*fidsKernelLength +1;   % the length of a kernel
 
 
+
+
+
+
+
+%%%% add the RMS to potvals, if USE_RMS is checked
+
+if SCRIPTDATA.USE_RMS
+    potvals(end+1,:) = signal;
+end
+
+
+
+
 %%%% beat kernel
 bsk=AUTOPROCESSING.bsk;   %start and end of beat
 bek=AUTOPROCESSING.bek;
