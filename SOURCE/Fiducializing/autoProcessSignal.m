@@ -22,9 +22,6 @@
 
 
 
-
-
-
 function success = autoProcessSignal()
 % do all the autoprocessing.  Use the fiducials in the fiducialed beat to find all other beats of 
 % that run and fiducialise those beats, too. Handle & save the autoprocessed beats just like the 
@@ -33,45 +30,30 @@ function success = autoProcessSignal()
 %set up globals
 clear global AUTOPROCESSING  % just in case, so previous stuff doesnt mess anything up
 global TS SCRIPTDATA AUTOPROCESSING
-crg=SCRIPTDATA.CURRENTRUNGROUP;
+
 unslicedDataIndex=SCRIPTDATA.unslicedDataIndex;
-nToBeFiducialised=SCRIPTDATA.NTOBEFIDUCIALISED;    % nToBeFiducialised  evenly spread leads from leadsOfAllGroups will be chosen for autoprocessing
 
 
-%%%% get the leadsOfAllGroups and filter out badleads
-badleads=find(TS{SCRIPTDATA.unslicedDataIndex}.leadinfo > 0);     % the global indices of bad leads
-leadsOfAllGroups=[SCRIPTDATA.GROUPLEADS{crg}{:}];
-leadsOfAllGroups=setdiff(leadsOfAllGroups,badleads);  %signal (where the beat is found) will constitute of those.  got rid of badleads
-
-%%%% set leadsToAutoprocess, the leads to find fiducials for and plot.  Only these leads will be used to compute the global fids
-idxs=round(linspace(1,length(leadsOfAllGroups),nToBeFiducialised));
-%idxs=randi([1,length(leadsOfAllGroups)],1,nToBeFiducialised); % this is wrong, since it may create dublicates
-
-AUTOPROCESSING.leadsToAutoprocess=leadsOfAllGroups(idxs);
-
-
-
-
-
-
-
-
-
-
+%%%% get the leadsToAutoprocess
+AUTOPROCESSING.leadsToAutoprocess = getLeadsToAutoprocess;
 
 %%%% get info from  already processed beat
 AUTOPROCESSING.bsk=TS{SCRIPTDATA.CURRENTTS}.selframes(1);    % "beat start kernel"
 AUTOPROCESSING.bek=TS{SCRIPTDATA.CURRENTTS}.selframes(2);  %beat end kernel
 AUTOPROCESSING.oriFids=TS{SCRIPTDATA.CURRENTTS}.fids;
 
+
 %%%% get signal, the RMS needed to find beats
+leadsOfAllGroups=[SCRIPTDATA.GROUPLEADS{SCRIPTDATA.CURRENTRUNGROUP}{:}];
+badLeads=find(TS{SCRIPTDATA.unslicedDataIndex}.leadinfo > 0);
+leadsOfAllGroups = setdiff(leadsOfAllGroups, badLeads);
 signal = preprocessPotvals(TS{unslicedDataIndex}.potvals(leadsOfAllGroups,:));   % make signal out of leadsOfAllGroups
+
 
 %%%% find allFids based on oriFids and signal
 [AUTOPROCESSING.allFids, success]=findAllFids(TS{unslicedDataIndex}.potvals(AUTOPROCESSING.leadsToAutoprocess,:),signal);
-
-
 if ~success, return, end
+
 %%%% find AUTOPROCESSING.faultyBeatsIndeces and AUTOPROCESSING.faultyBeatInfo
 getFaultyBeats;
 
@@ -275,7 +257,6 @@ times(times(1).count).d_BaselineCorrection=t;
 
 
 %%%%% do activation and deactivation
-
 a=tic;
 if SCRIPTDATA.FIDSAUTOACT == 1
     success = DetectActivation(newBeatIdx); 
@@ -550,5 +531,39 @@ end
 
 
 
+function leadsToAutoprocess = getLeadsToAutoprocess
+% get leadsToAutoprocess, the leads to find fiducials for and plot.  Only these leads will be used to compute the global fids
+global SCRIPTDATA TS
+
+%%%% get some basics
+numLeadsToBeFiducialised=SCRIPTDATA.NTOBEFIDUCIALISED;    % nToBeFiducialised  evenly spread leads from leadsOfAllGroups will be chosen for autoprocessing
+leadsOfAllGroups=[SCRIPTDATA.GROUPLEADS{SCRIPTDATA.CURRENTRUNGROUP}{:}];
+demandedLeads = SCRIPTDATA.LEADS_FOR_AUTOFIDUCIALIZING;
+badLeads=(find(TS{SCRIPTDATA.unslicedDataIndex}.leadinfo > 0))';
 
 
+%%%% find the blankedLeads, the leads that contain only zeros, we don't want those!!
+potvals = TS{SCRIPTDATA.CURRENTTS}.potvals;
+blankedLeads = [];
+for leadIdx = 1:size(potvals,1)
+    if nnz(potvals(leadIdx,1:20:end)) == 0
+        blankedLeads(end+1) = leadIdx;
+    end
+end
+
+%%%% filter out the bad leads and blankedLeads from leadsOfAllGroups and demandedLeads
+unwantedLeads = [blankedLeads, badLeads];
+demandedLeads = setdiff(demandedLeads, unwantedLeads);
+leadsOfAllGroups = setdiff(leadsOfAllGroups, unwantedLeads);
+
+
+%%%% now get nToBeFiducialised beats, if there are not enoug demandedLeads
+numDemandedLeads = length(demandedLeads);
+numStillNeededLeads = numLeadsToBeFiducialised - numDemandedLeads;
+
+leadsOfAllGroups = setdiff(leadsOfAllGroups, demandedLeads);
+idxs = round(linspace(1,length(leadsOfAllGroups),numStillNeededLeads));
+
+leadsToAutoprocess = [leadsOfAllGroups(idxs), demandedLeads];
+
+end

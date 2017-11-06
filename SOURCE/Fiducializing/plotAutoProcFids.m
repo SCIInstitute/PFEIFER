@@ -162,7 +162,7 @@ global TS SCRIPTDATA AUTOPROCESSING;
 
 tsindex = SCRIPTDATA.unslicedDataIndex;
 numframes = size(TS{tsindex}.potvals,2);
-AUTOPROCESSING.TIME = [1:numframes]*(1/SCRIPTDATA.SAMPLEFREQ);
+AUTOPROCESSING.TIME = (1:numframes)*(1/SCRIPTDATA.SAMPLEFREQ);
 
 
 %%%% set x and y axes limits in plot if this has not been done yet
@@ -292,8 +292,7 @@ switch SCRIPTDATA.DISPLAYSCALINGA
         AUTOPROCESSING.SIGNAL = s*AUTOPROCESSING.SIGNAL;
 end
 
-% if individuals are displayed, give signals an offset, so they dont touch
-% in plot
+% if individuals are displayed, give signals an offset, so they dont touch in plot
 if SCRIPTDATA.DISPLAYTYPEA == 3
     AUTOPROCESSING.SIGNAL = 0.5*AUTOPROCESSING.SIGNAL+0.5;
 end
