@@ -120,17 +120,25 @@ else
 end
 
 
+%%%% reduce potvals, add rms 
+unslicedReducedPotvals = unslicedComplPotvals(leadsToAutofiducialize,:);
+clear unslicedComplPotvals
+if settings.USE_RMS
+    unslicedReducedPotvals(end+1,:) = rmsSignal;
+    nLeadsToAutofiducialize = nLeadsToAutofiducialize +1;
+end
+
+
+
 %%%% set up the kernels
 totalKernelLength = 2 * settings.fidsKernelLength +1;
 kernels = zeros(nLeadsToAutofiducialize, totalKernelLength, nFids);
 for fidIdx = 1:nFids
-    kernels(:,:,fidIdx) = unslicedComplPotvals(leadsToAutofiducialize,fsk(fidIdx):fek(fidIdx));
+    kernels(:,:,fidIdx) = unslicedReducedPotvals(:,fsk(fidIdx):fek(fidIdx));
 end
 
 
-%%%% reduce potvals
-unslicedReducedPotvals = unslicedComplPotvals(leadsToAutofiducialize,:);
-clear unslicedComplPotvals
+
 
 
 %%%% initialize/preallocate allFidsAbsFrame

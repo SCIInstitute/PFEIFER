@@ -72,11 +72,6 @@ if ~strcmp(feedbackMsg,'foldersAreEqual')
 end
 
 
-
-disp('remove this')
-return
-
-
 %%%% clear output folder
 clearFolder(testOutputDir)
 

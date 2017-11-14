@@ -45,7 +45,7 @@ settings.nToBeFiducialized = SCRIPTDATA.NTOBEFIDUCIALISED;
 settings.leadsOfAllGroups = [SCRIPTDATA.GROUPLEADS{SCRIPTDATA.CURRENTRUNGROUP}{:}];
 settings.demandedLeads = SCRIPTDATA.LEADS_FOR_AUTOFIDUCIALIZING;
 settings.accuracy = SCRIPTDATA.ACCURACY;
-% TO DO:  USE_RMS ??
+settings.USE_RMS = SCRIPTDATA.USE_RMS;
 
 SCRIPTDATA.DoIndivFids = 0;
 % TO DO: implement this
