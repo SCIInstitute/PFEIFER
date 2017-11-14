@@ -232,10 +232,10 @@ switch SCRIPTDATA.DISPLAYTYPEA
     case 3   % indiv fids
         
         
-        %%%% only for autoprocessing, make copy of GROUPLEADS, where the groupleads, that are not in leadsToAutoprocess, are filtered out. Only work with the copies here       
+        %%%% only for autoprocessing, make copy of GROUPLEADS, where the groupleads, that are not in leadsToAutofiducialize, are filtered out. Only work with the copies here       
         GROUPLEADS=SCRIPTDATA.GROUPLEADS{SCRIPTDATA.CURRENTRUNGROUP};   %the copy
         for group=groups
-            GROUPLEADS{group}=intersect(AUTOPROCESSING.leadsToAutoprocess, GROUPLEADS{group});
+            GROUPLEADS{group}=intersect(AUTOPROCESSING.leadsToAutofiducialize, GROUPLEADS{group});
         end
         
         
@@ -1051,10 +1051,10 @@ for beatNumber=1:length(AUTOPROCESSING.allFids)  %for each beat
         % eg. mtype=3 means it's a T-wave, because fidslist{3}='T-Wave'
         
         %%%% now check if it is global or local fid and put the values of start_value/end_value in events.value
-        numLeadsToAutoprocess = length(AUTOPROCESSING.leadsToAutoprocess);
-        if (length(start_value) == numLeadsToAutoprocess)&&(length(end_value) == numLeadsToAutoprocess) % if individual value for each lead
-            AUTOPROCESSING.EVENTS{beatNumber}{3}.value(AUTOPROCESSING.leadsToAutoprocess,end+1,1) = start_value;
-            AUTOPROCESSING.EVENTS{beatNumber}{3}.value(AUTOPROCESSING.leadsToAutoprocess,end,2) = end_value;
+        nLeadsToAutofiducialize = length(AUTOPROCESSING.leadsToAutofiducialize);
+        if (length(start_value) == nLeadsToAutofiducialize)&&(length(end_value) == nLeadsToAutofiducialize) % if individual value for each lead
+            AUTOPROCESSING.EVENTS{beatNumber}{3}.value(AUTOPROCESSING.leadsToAutofiducialize,end+1,1) = start_value;
+            AUTOPROCESSING.EVENTS{beatNumber}{3}.value(AUTOPROCESSING.leadsToAutofiducialize,end,2) = end_value;
             AUTOPROCESSING.EVENTS{beatNumber}{3}.type(end+1) = mtype;
         elseif (length(start_value) ==1)&&(length(end_value) == 1) % if global fiducials
             AUTOPROCESSING.EVENTS{beatNumber}{1}.value(:,end+1,1) = start_value;

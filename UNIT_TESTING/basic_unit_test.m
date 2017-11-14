@@ -11,6 +11,10 @@ testInputDir = fullfile(pathToUNIT_TESTING_folder,'BASIC_UNIT_TEST','inputFolder
 pathToMappingFile = fullfile(pathToUNIT_TESTING_folder, 'mapping_calibration','mapping.mapping');
 
 
+%%%% clear output folder
+clearFolder(testOutputDir)
+
+
 %%%% start PFEIFER and get the figure objects
 try
     PFEIFER
@@ -27,11 +31,6 @@ try
     executeCallback(settingsFigure,'DATAFILE',pathToProcDataFile)
     executeCallback(settingsFigure,'SCRIPTFILE',pathToSCRIPTDATAFile)
 catch
-    
-    executeCallback(settingsFigure,'DATAFILE',pathToProcDataFile)
-    executeCallback(settingsFigure,'SCRIPTFILE',pathToSCRIPTDATAFile)
-    
-    
     disp('-----UNIT TEST: basic_unit_test --------')
     disp('ERROR: Could not load helper files')
 end
@@ -49,7 +48,7 @@ PFEIFER('updateFigure',mainFigure)
 %%%% simulate user pressing the 'RUN SCRIPT' button
 try
     PFEIFER('runScript',mainFigure)
-catch
+catch  
     disp('-----UNIT TEST: basic_unit_test --------')
     disp('ERROR: pressing apply button lead to an error')
 end
@@ -71,6 +70,12 @@ if ~strcmp(feedbackMsg,'foldersAreEqual')
     disp('ERROR: The PFEIFER output folder looked different than the template folder. This is the feedbackMsg msg:')
     fprintf(feedbackMsg);
 end
+
+
+
+disp('remove this')
+return
+
 
 %%%% clear output folder
 clearFolder(testOutputDir)

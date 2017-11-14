@@ -1589,7 +1589,10 @@ end
 %%%% now we have a fiducialed beat - use it as template to autoprocess the rest of the data in TS{unslicedDataIndex}
 if SCRIPTDATA.DO_AUTOFIDUCIALISING
     SCRIPTDATA.CURRENTTS = index;
+
     success = autoProcessSignal;
+    
+    
     if ~success, return, end
     
     switch SCRIPTDATA.NAVIGATION

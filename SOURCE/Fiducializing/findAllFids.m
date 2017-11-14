@@ -46,8 +46,6 @@ totalKernelLength = 2*fidsKernelLength +1;   % the length of a kernel
 
 
 
-
-
 %%%% add the RMS to potvals, if USE_RMS is checked
 
 if SCRIPTDATA.USE_RMS
@@ -86,7 +84,7 @@ possiblePeaks =       [ 3     6    25 ];
 
 % loop through possible Waves and see if the user did them. If yes, get their values from oriFids and add them to locFrFidsValues
 fidsTypes = [];       % these will be the fid types... 
-locFrFidsValues = []; % ...and corresponding fiducials that will be auto-fiducialised
+relFrFidsValues = []; % ...and corresponding fiducials that will be auto-fiducialised
 for waveStartTypeIdx = 1:2:length(possibleWaves)
     waveStartType = possibleWaves(waveStartTypeIdx);
     waveEndType = possibleWaves(waveStartTypeIdx+1);
@@ -98,7 +96,7 @@ for waveStartTypeIdx = 1:2:length(possibleWaves)
         waveStartValue = round(oriFids(startOriFidsIdx(1)).value);  % get fids value
         waveEndValue = round(oriFids(endOriFidsIdx(1)).value);  
         fidsTypes = [fidsTypes waveStartType waveEndType];               % and put them in fidsTypes and locFrFidsValues
-        locFrFidsValues = [locFrFidsValues waveStartValue waveEndValue];
+        relFrFidsValues = [relFrFidsValues waveStartValue waveEndValue];
     end
 end
 % now loop through possible peaks and do the same like with waves
@@ -107,21 +105,21 @@ for peakType = possiblePeaks
     if ~isempty(peakOriFidsIdx)   % if peak is in oriFids (ergo, was done by user)
         peakValue = round(oriFids(peakOriFidsIdx(1)).value);  % get peak value
         fidsTypes = [fidsTypes peakType];               % and put them in fidsTypes and locFrFidsValues
-        locFrFidsValues = [locFrFidsValues peakValue];
+        relFrFidsValues = [relFrFidsValues peakValue];
     end
 end
 
 
 
-%%%% get the globFidsValues, the fids in the "global complete signal frame"
-globFrFidsValues = locFrFidsValues+bsk-1;
+%%%% get the globFidsValues, the fids in the "absolute complete signal frame"
+absFrFidsValues = relFrFidsValues+bsk-1;
 
 nFids=length(fidsTypes);
 nLeads=size(potvals,1);
 
 %%%% set up the fsk and fek 
-fsk=globFrFidsValues - fidsKernelLength;   % fiducial start kernel,  the index in potvals where the kernel for fiducials starts
-fek=globFrFidsValues + fidsKernelLength;   % analog to fsk, but 'end'
+fsk=absFrFidsValues - fidsKernelLength;   % fiducial start kernel,  the index in potvals where the kernel for fiducials starts
+fek=absFrFidsValues + fidsKernelLength;   % analog to fsk, but 'end'
 
 
 
@@ -145,7 +143,7 @@ end
 
 %%%%% find the beats, get rid of beats before user fiducialiced beat
 
-beats=findMatches(signal, signal(bsk:bek), accuracy);
+beats=getBeatEnvelopes(signal, signal(bsk:bek), accuracy, bsk);
 % find oriBeatIdx, the index of the template beat
 oriBeatIdx = [];
 for beatNumber=1:length(beats)    
@@ -183,8 +181,8 @@ for beatNumber=1:nBeats %for each beat
 
         
         %%%% set up windows
-        ws=bs+locFrFidsValues(fidNumber)-window_width;  % dont search complete beat, only around fid
-        we=bs+locFrFidsValues(fidNumber)+window_width;
+        ws=bs+relFrFidsValues(fidNumber)-window_width;  % dont search complete beat, only around fid
+        we=bs+relFrFidsValues(fidNumber)+window_width;
         
         if we > size(potvals,2)
             beatToBeRemoved(end+1) = beatNumber;  % the fiducial might be out of range here, so better skip this beat..
@@ -200,8 +198,8 @@ for beatNumber=1:nBeats %for each beat
 
 
         %put them in global frame
-        indivFids=winFrIndivFids+fidsKernelLength+bs-1+locFrFidsValues(fidNumber)-window_width;  % now  newIndivFids is in "complete potvals" frame.
-        glFrGlobFid=winFrGlobFid+fidsKernelLength+bs-1+locFrFidsValues(fidNumber)-window_width;      % put it into "complete potvals" frame
+        indivFids=winFrIndivFids+fidsKernelLength+bs-1+relFrFidsValues(fidNumber)-window_width;  % now  newIndivFids is in "complete potvals" frame.
+        glFrGlobFid=winFrGlobFid+fidsKernelLength+bs-1+relFrFidsValues(fidNumber)-window_width;      % put it into "complete potvals" frame
 
         
 %         if beatNumber==1 && fidNumber ==1
@@ -239,6 +237,7 @@ end
 
 if isgraphics(h), delete(h), end
 success = 1;
+
 
 
 

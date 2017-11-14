@@ -31,28 +31,30 @@ function success = autoProcessSignal()
 clear global AUTOPROCESSING  % just in case, so previous stuff doesnt mess anything up
 global TS SCRIPTDATA AUTOPROCESSING
 
-unslicedDataIndex=SCRIPTDATA.unslicedDataIndex;
+unslicedDataIndex = SCRIPTDATA.unslicedDataIndex;
+templateFids = TS{SCRIPTDATA.CURRENTTS}.fids;
+templateBeatEnvelope = [TS{SCRIPTDATA.CURRENTTS}.selframes(1), TS{SCRIPTDATA.CURRENTTS}.selframes(2)];
+badLeads = (find(TS{SCRIPTDATA.unslicedDataIndex}.leadinfo > 0))';
 
 
-%%%% get the leadsToAutoprocess
-AUTOPROCESSING.leadsToAutoprocess = getLeadsToAutoprocess;
 
-%%%% get info from  already processed beat
-AUTOPROCESSING.bsk=TS{SCRIPTDATA.CURRENTTS}.selframes(1);    % "beat start kernel"
-AUTOPROCESSING.bek=TS{SCRIPTDATA.CURRENTTS}.selframes(2);  %beat end kernel
-AUTOPROCESSING.oriFids=TS{SCRIPTDATA.CURRENTTS}.fids;
+%%%%%% set up the settings structure
+settings.fidsKernelLength = SCRIPTDATA.FIDSKERNELLENGTH;
+settings.window_width = SCRIPTDATA.WINDOW_WIDTH;
+settings.nToBeFiducialized = SCRIPTDATA.NTOBEFIDUCIALISED;
+settings.leadsOfAllGroups = [SCRIPTDATA.GROUPLEADS{SCRIPTDATA.CURRENTRUNGROUP}{:}];
+settings.demandedLeads = SCRIPTDATA.LEADS_FOR_AUTOFIDUCIALIZING;
+settings.accuracy = SCRIPTDATA.ACCURACY;
+% TO DO:  USE_RMS ??
 
-
-%%%% get signal, the RMS needed to find beats
-leadsOfAllGroups=[SCRIPTDATA.GROUPLEADS{SCRIPTDATA.CURRENTRUNGROUP}{:}];
-badLeads=find(TS{SCRIPTDATA.unslicedDataIndex}.leadinfo > 0);
-leadsOfAllGroups = setdiff(leadsOfAllGroups, badLeads);
-signal = preprocessPotvals(TS{unslicedDataIndex}.potvals(leadsOfAllGroups,:));   % make signal out of leadsOfAllGroups
+SCRIPTDATA.DoIndivFids = 0;
+% TO DO: implement this
 
 
-%%%% find allFids based on oriFids and signal
-[AUTOPROCESSING.allFids, success]=findAllFids(TS{unslicedDataIndex}.potvals(AUTOPROCESSING.leadsToAutoprocess,:),signal);
+[AUTOPROCESSING.beats, AUTOPROCESSING.allFids, info, success] = getBeatsAndFids(TS{unslicedDataIndex}.potvals, templateBeatEnvelope, templateFids, badLeads, settings, SCRIPTDATA.DoIndivFids);
 if ~success, return, end
+
+AUTOPROCESSING.leadsToAutofiducialize = info.leadsToAutofiducialize;
 
 %%%% find AUTOPROCESSING.faultyBeatsIndeces and AUTOPROCESSING.faultyBeatInfo
 getFaultyBeats;
@@ -531,39 +533,3 @@ end
 
 
 
-function leadsToAutoprocess = getLeadsToAutoprocess
-% get leadsToAutoprocess, the leads to find fiducials for and plot.  Only these leads will be used to compute the global fids
-global SCRIPTDATA TS
-
-%%%% get some basics
-numLeadsToBeFiducialised=SCRIPTDATA.NTOBEFIDUCIALISED;    % nToBeFiducialised  evenly spread leads from leadsOfAllGroups will be chosen for autoprocessing
-leadsOfAllGroups=[SCRIPTDATA.GROUPLEADS{SCRIPTDATA.CURRENTRUNGROUP}{:}];
-demandedLeads = SCRIPTDATA.LEADS_FOR_AUTOFIDUCIALIZING;
-badLeads=(find(TS{SCRIPTDATA.unslicedDataIndex}.leadinfo > 0))';
-
-
-%%%% find the blankedLeads, the leads that contain only zeros, we don't want those!!
-potvals = TS{SCRIPTDATA.CURRENTTS}.potvals;
-blankedLeads = [];
-for leadIdx = 1:size(potvals,1)
-    if nnz(potvals(leadIdx,1:20:end)) == 0
-        blankedLeads(end+1) = leadIdx;
-    end
-end
-
-%%%% filter out the bad leads and blankedLeads from leadsOfAllGroups and demandedLeads
-unwantedLeads = [blankedLeads, badLeads];
-demandedLeads = setdiff(demandedLeads, unwantedLeads);
-leadsOfAllGroups = setdiff(leadsOfAllGroups, unwantedLeads);
-
-
-%%%% now get nToBeFiducialised beats, if there are not enoug demandedLeads
-numDemandedLeads = length(demandedLeads);
-numStillNeededLeads = numLeadsToBeFiducialised - numDemandedLeads;
-
-leadsOfAllGroups = setdiff(leadsOfAllGroups, demandedLeads);
-idxs = round(linspace(1,length(leadsOfAllGroups),numStillNeededLeads));
-
-leadsToAutoprocess = [leadsOfAllGroups(idxs), demandedLeads];
-
-end

@@ -24,12 +24,11 @@
 
 
 
-function beatEnvelopes=getBeatEnvelopes(signal, kernel, accuracy)
+function beatEnvelopes=getBeatEnvelopes(signal, kernel, accuracy,bsk)
 % finds kernel in signal.  retuns beatEnvelopes={[s_1,e_1], [s_2,e_2], ..[s_n,e_n]} so that 
 %  m=signal(s_i:e_i) matches kernel for all i, "matches" means:  xcorr(signal(s_i:e_i),kernel,0,'coeff') has a maximum peak value (at least accuracy)  (and matches dont overlap)
 % it also:
 % - sorts the beatEnvelopes in order they appear in signal (s1 < s2 < .. < si)
-global AUTOPROCESSING
 
 %%%% hardcoded:
 stepSize  = 20;
@@ -64,8 +63,8 @@ count=1;
 pval = 1;  %peak value
 while pval > accuracyForFirstEstimate
     %get max val and corresponding lag
-    if count == 1  % if first peak, make sure this one is the actual peak, this is to make sure the actual peak is not "planked out"
-        difLag = abs(stepLags - AUTOPROCESSING.bsk);
+    if count == 1  % if first peak, make sure this one is the original kernel peak. this is to make sure the actual peak is not "planked out"
+        difLag = abs(stepLags - bsk);  % find closest peak to beat start kernel, the time frame where kernel starts.
         [~,pidx] = min(difLag);
         pval = stepXCs(pidx);
         plag = stepLags(pidx);
@@ -171,6 +170,9 @@ for p=1:length(beatEnvelopes)
     end
 end
 beatEnvelopes(toBeDeleted)=[];
+
+
+
 
 
 
