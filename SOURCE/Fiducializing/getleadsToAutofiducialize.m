@@ -1,5 +1,5 @@
 function leadsToAutofiducialize = getleadsToAutofiducialize(numLeadsToBeFiducialised,leadsOfAllGroups,demandedLeads,badLeads)
-% get leadsToAutofiducialize, the leads to find fiducials for and plot.  Only these leads will be used to compute the global fids
+% get leadsToAutofiducialize, the leads to find fiducials for and show in autofiducializer window.  Only these leads will be autofiducialized and used to compute the global fids
 
 
 % %%%% find the blankedLeads, the leads that contain only zeros, we don't want those!!

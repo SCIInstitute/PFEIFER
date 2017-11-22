@@ -47,11 +47,15 @@ settings.demandedLeads = SCRIPTDATA.LEADS_FOR_AUTOFIDUCIALIZING;
 settings.accuracy = SCRIPTDATA.ACCURACY;
 settings.USE_RMS = SCRIPTDATA.USE_RMS;
 
-SCRIPTDATA.DoIndivFids = 0;
+settings.autoUpdateKernels  = SCRIPTDATA.AUTO_UPDATE_KERNELS;
+settings.nBeatsToAvrgOver = SCRIPTDATA.NUM_BEATS_TO_AVGR_OVER;
+settings.nBeatsBeforeUpdating  = SCRIPTDATA.NUM_BEATS_BEFORE_UPDATING;
+
+settings.DoIndivFids = 0;
 % TO DO: implement this
 
 
-[AUTOPROCESSING.beats, AUTOPROCESSING.allFids, info, success] = getBeatsAndFids(TS{unslicedDataIndex}.potvals, templateBeatEnvelope, templateFids, badLeads, settings, SCRIPTDATA.DoIndivFids);
+[AUTOPROCESSING.beats, AUTOPROCESSING.allFids, info, success] = getBeatsAndFids(TS{unslicedDataIndex}.potvals, templateBeatEnvelope, templateFids, badLeads, settings);
 if ~success, return, end
 
 AUTOPROCESSING.leadsToAutofiducialize = info.leadsToAutofiducialize;

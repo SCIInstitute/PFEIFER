@@ -24,7 +24,7 @@
 
 
 
-function beatEnvelopes=getBeatEnvelopes(signal, kernel, accuracy,bsk)
+function beatEnvelopes = getBeatEnvelopes(signal, kernel, accuracy,bsk)
 % finds kernel in signal.  retuns beatEnvelopes={[s_1,e_1], [s_2,e_2], ..[s_n,e_n]} so that 
 %  m=signal(s_i:e_i) matches kernel for all i, "matches" means:  xcorr(signal(s_i:e_i),kernel,0,'coeff') has a maximum peak value (at least accuracy)  (and matches dont overlap)
 % it also:
@@ -38,7 +38,12 @@ accuracyForFirstEstimate = 0.7;
 %%%% set up stuff
 sigLength = length(signal);
 kernelLength = length(kernel);
-estNumBeats = round(sigLength/330);    % very rough estimation of numBeats in signal.. a beat is usually 330 frames long
+estNumBeats = floor(sigLength/330);    % very rough estimation of numBeats in signal.. a beat is usually 330 frames long
+
+if estNumBeats < 1
+    beatEnvelopes = {};
+    return
+end
 
 %%%% get stepLags: the evenly spaced lags (with distance stepSize) to go through. First possible lag would be 0! ("lag frame")
 stStepLag = 0.5 * stepSize;   % first lag
@@ -63,7 +68,7 @@ count=1;
 pval = 1;  %peak value
 while pval > accuracyForFirstEstimate
     %get max val and corresponding lag
-    if count == 1  % if first peak, make sure this one is the original kernel peak. this is to make sure the actual peak is not "planked out"
+    if count == 1 && bsk~=0  % if we want to find the original beat (if bsk~=0) and it is first peak, make sure this one is the original kernel peak. this is to make sure the actual peak is not "planked out"
         difLag = abs(stepLags - bsk);  % find closest peak to beat start kernel, the time frame where kernel starts.
         [~,pidx] = min(difLag);
         pval = stepXCs(pidx);
@@ -171,7 +176,13 @@ for p=1:length(beatEnvelopes)
 end
 beatEnvelopes(toBeDeleted)=[];
 
+%%%% make sure beats don't overlap
 
+for p=1:length(beatEnvelopes)-1
+    if beatEnvelopes{p}(2) > beatEnvelopes{p+1}(1)
+        beatEnvelopes{p}(2) = beatEnvelopes{p+1}(1) - 1;
+    end
+end
 
 
 

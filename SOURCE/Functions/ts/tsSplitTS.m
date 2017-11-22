@@ -34,6 +34,9 @@ function newindices = tsSplitTS(TSindex, channels)
       TS{newindices(p)}.potvals = TS{newindices(p)}.potvals(channels{p},:);
       TS{newindices(p)}.leadinfo = TS{newindices(p)}.leadinfo(channels{p});
       TS{newindices(p)}.numleads = length(channels{p});
+      if isfield(TS{newindices(p)},'gain'), TS{newindices(p)}.gain = TS{newindices(p)}.gain(channels{p}); end
+      
+      
       if isfield(TS{newindices(p)},'fids')
           for r=1:length(TS{newindices(p)}.fids)
               if length(TS{newindices(p)}.fids(r).value) > 1

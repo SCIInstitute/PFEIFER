@@ -521,38 +521,38 @@ for beatNumber=1:length(AUTOPROCESSING.EVENTS)   %for each beat
     AUTOPROCESSING.EVENTS{beatNumber}{2} = events;   
 
     if SCRIPTDATA.DISPLAYTYPEA == 2, continue; end
-
+    
+    
+    
     %%%% LOCAL FIDUCIALS
-
     events = AUTOPROCESSING.EVENTS{beatNumber}{3};
 
     %%%% delete all current handles and set events.handles=[]
      if ~isempty(events.handle)
-         index = find(ishandle(events.handle(:)) & (events.handle(:) ~= 0));
+         index = ishandle(events.handle(:)) & (events.handle(:) ~= 0);
          delete(events.handle(index))
      end
     events.handle = [];
 
-
     if AUTOPROCESSING.DISPLAYTYPEA == 3, colorlist = events.colorlist; else colorlist = events.colorlistgray; end
 
 
-    %%%% index is eg [3 4 5 8 9 10], if those are the leads (in global frame) currently
-    %%%% displayed (this changes with yslider!, note 5 8 !
+    % index is eg [3 4 5 8 9 10], if those are the leads (in global frame) currently
+    % displayed (this changes with yslider!, note 5 8 !
 
-    index = AUTOPROCESSING.LEAD(chstart:chend);
-    for q=index     % for each of the 5-7 channels, that one can see in axes
-        for idx=find(q==AUTOPROCESSING.LEAD)
+    leadIdx = AUTOPROCESSING.LEAD(chstart:chend);
+    for lead=leadIdx     % for each of the 5-7 channels, that one can see in axes
+        for idx=find(lead==AUTOPROCESSING.LEAD)
             ydata = numchannels-[idx-1 idx];   % y-value, from where to where each local fid is plottet, eg [15, 16]  
             for p=1:size(events.value,2)   % for each fid of that channel
                 switch events.typelist(events.type(p))
-                    case 1 % normal fiducial
-                        v = events.value(q,p,1);
-                       events.handle(q,p) = line('parent',events.axes,'Xdata',[v v],'Ydata',ydata,'Color',colorlist{events.type(p)},'hittest','off','linewidth',events.linewidth{events.type(p)},'linestyle',events.linestyle{events.type(p)});
-                    case {2,3} % interval fiducial/ fixed intereval fiducial
-                        v = events.value(q,p,1);
-                        v2 = events.value(q,p,2);
-                        events.handle(q,p) = patch('parent',events.axes,'Xdata',[v v v2 v2],'Ydata',[ydata ydata([2 1])],'FaceColor',colorlist{events.type(p)},'hittest','off','FaceAlpha', 0.4,'linewidth',events.linewidth{events.type(p)},'linestyle',events.linestyle{events.type(p)});
+                    case 1 % normal fiducial (peaks)
+                        v = events.value(lead,p,1);
+                       events.handle(lead,p) = line('parent',events.axes,'Xdata',[v v],'Ydata',ydata,'Color',colorlist{events.type(p)},'hittest','off','linewidth',events.linewidth{events.type(p)},'linestyle',events.linestyle{events.type(p)});
+                    case {2,3} % interval fiducial/ fixed intereval fiducial (waves)
+                        v = events.value(lead,p,1);
+                        v2 = events.value(lead,p,2);
+                        events.handle(lead,p) = patch('parent',events.axes,'Xdata',[v v v2 v2],'Ydata',[ydata ydata([2 1])],'FaceColor',colorlist{events.type(p)},'hittest','off','FaceAlpha', 0.4,'linewidth',events.linewidth{events.type(p)},'linestyle',events.linestyle{events.type(p)});
                 end
             end
         end
@@ -1052,7 +1052,7 @@ for beatNumber=1:length(AUTOPROCESSING.allFids)  %for each beat
         
         %%%% now check if it is global or local fid and put the values of start_value/end_value in events.value
         nLeadsToAutofiducialize = length(AUTOPROCESSING.leadsToAutofiducialize);
-        if (length(start_value) == nLeadsToAutofiducialize)&&(length(end_value) == nLeadsToAutofiducialize) % if individual value for each lead
+        if (length(start_value) == nLeadsToAutofiducialize) && (length(end_value) == nLeadsToAutofiducialize) % if individual value for each lead
             AUTOPROCESSING.EVENTS{beatNumber}{3}.value(AUTOPROCESSING.leadsToAutofiducialize,end+1,1) = start_value;
             AUTOPROCESSING.EVENTS{beatNumber}{3}.value(AUTOPROCESSING.leadsToAutofiducialize,end,2) = end_value;
             AUTOPROCESSING.EVENTS{beatNumber}{3}.type(end+1) = mtype;

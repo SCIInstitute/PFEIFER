@@ -382,6 +382,10 @@ for p = 1:nFiles
         errordlg(msg)
         return
     end
+    
+    
+    %%%% update/check ts.filename and ts_info.filename
+    ts.filename = filenames{p};
 
 
     if ~isfield(ts,'time'), ts.time = 'none'; end
@@ -1032,11 +1036,27 @@ end
 
 function openSettings(~)
 %callback to 'Settings Windwow'
-handle=DataOrganisation;
-updateFigure(handle)
-
+figHandle=DataOrganisation;
+updateFigure(figHandle)
 
 end
+
+
+
+function resetDefaultSettings(cbObj)
+% callback to the 'default settings' pushbutton to restore the autofiducializing default settings
+global SCRIPTDATA
+fieldsToReset = {'ACCURACY','FIDSKERNELLENGTH','WINDOW_WIDTH','NTOBEFIDUCIALISED','USE_RMS','LEADS_FOR_AUTOFIDUCIALIZING','AUTO_UPDATE_KERNELS','NUM_BEATS_TO_AVGR_OVER','NUM_BEATS_BEFORE_UPDATING'};
+defaultSettings = getDefaultSettings;
+for p = 1:3:length(defaultSettings)
+    if ismember(defaultSettings{p}, fieldsToReset)
+        SCRIPTDATA.(defaultSettings{p}) = defaultSettings{p+1};
+    end
+end
+updateFigure(cbObj.Parent);
+end
+
+
 
 function runScript(~)
 %callback to 'apply' button, this starts the whole processing process!
@@ -2025,14 +2045,18 @@ function defaultsettings=getDefaultSettings
                     'DO_AUTOFIDUCIALISING', 0, 'bool',...      % autofiducialising
                     'AUTOFID_USER_INTERACTION', 0, 'bool',...
                     'ACCURACY', 0.9, 'double',...
-                    'FIDSKERNELLENGTH',10,'integer',...
-                    'WINDOW_WIDTH', 20, 'integer',...
+                    'FIDSKERNELLENGTH',20,'integer',...
+                    'WINDOW_WIDTH', 30, 'integer',...
                     'NTOBEFIDUCIALISED', 10, 'integer',...
                     'TRESHOLD_VAR', 50,'integer',...     
-                    'USE_RMS',0,'bool',...
+                    'USE_RMS',1,'bool',...
+                    'AUTO_UPDATE_KERNELS',1,'bool',...
+                    'NUM_BEATS_TO_AVGR_OVER', 5, 'integer',...
+                    'NUM_BEATS_BEFORE_UPDATING', 5, 'integer',...
                     'LEADS_FOR_AUTOFIDUCIALIZING',[],'vector'
             };
 end
+
 
 function str = myStrTrim(str)
 %removes weird leading and trailing non-alphanum characters from str

@@ -36,6 +36,9 @@ function [globFid, indivFids, variance] = findFid(windows,kernels)
 %   - indivXcorr: nLeads x 1 array with normalised xcorr values of matches
 
 
+
+
+
 nLeads=size(kernels,1);
 length_kernel=size(kernels,2);
 lagshift=0;
