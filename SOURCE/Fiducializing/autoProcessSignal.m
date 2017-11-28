@@ -51,8 +51,7 @@ settings.autoUpdateKernels  = SCRIPTDATA.AUTO_UPDATE_KERNELS;
 settings.nBeatsToAvrgOver = SCRIPTDATA.NUM_BEATS_TO_AVGR_OVER;
 settings.nBeatsBeforeUpdating  = SCRIPTDATA.NUM_BEATS_BEFORE_UPDATING;
 
-settings.DoIndivFids = 0;
-% TO DO: implement this
+settings.DoIndivFids = SCRIPTDATA.DoIndivFids;
 
 
 [AUTOPROCESSING.beats, AUTOPROCESSING.allFids, info, success] = getBeatsAndFids(TS{unslicedDataIndex}.potvals, templateBeatEnvelope, templateFids, badLeads, settings);
@@ -62,7 +61,6 @@ AUTOPROCESSING.leadsToAutofiducialize = info.leadsToAutofiducialize;
 
 %%%% find AUTOPROCESSING.faultyBeatsIndeces and AUTOPROCESSING.faultyBeatInfo
 getFaultyBeats;
-
 
 %%%% plot the found fids, let the user check them and make corrections
 if SCRIPTDATA.AUTOFID_USER_INTERACTION
@@ -80,9 +78,8 @@ if SCRIPTDATA.AUTOFID_USER_INTERACTION
     save(SCRIPTDATA.SCRIPTFILE,'SCRIPTDATA')  % save settings.. in case user made a change in autofiducializing window
 end
 
-
 %%%%% main loop: process each beat.
-global times
+global times     % to do: remove this? this global is only there to measure time efficiency.. 
 times=struct();
 times(1).count=1;
 
@@ -99,9 +96,7 @@ fn=fieldnames(times);
 for p=1:length(fn)
     times(times(1).count).(fn{p}) = sum([times.(fn{p})]);
 end
-        
-
-
+       
 success = 1;
 end
 
@@ -130,25 +125,6 @@ end
 
 %%%%%%%%%%% functions %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
-function signal = preprocessPotvals(potvals)
-% do temporal filter and RMS, to get a signal to work with
-
-%%%% temporal filter
-A = 1;
-B = [0.03266412226059 0.06320942361376 0.09378788647083 0.10617422096837 0.09378788647083 0.06320942361376 0.03266412226059];
-
-D = potvals';
-D = filter(B,A,D);
-D(1:(max(length(A),length(B))-1),:) = ones(max(length(A),length(B))-1,1)*D(max(length(A),length(B)),:);
-potvals = D';
-
-%%%% do RMS
-signal=sqrt(mean(potvals.^2));
-signal=signal-min(signal);
-end
-
-
 function getFaultyBeats
 % determine the beats, where autoprocessing didn't quite work ( eg those with very high variance)
 % fill AUTOPROCESSING.faultyBeatInfo and AUTOPROCESSING.faultyBeatIndeces with info
@@ -164,9 +140,10 @@ end
 %%%% set up variables
 treshold_variance = SCRIPTDATA.TRESHOLD_VAR;
 faultyBeatIndeces =[]; % the indeces in .Beats of faulty beats
-faultyBeatInfo = {};    % which fiducials (which types) in the beat are bad?     of format { [2 4], [5 6],.. }  
-faultyBeatValues = {};
+faultyBeatInfo = {};    % which fiducials (which types) in the beat are bad?        e.g faultyBeatInfo = { [2 4], [5 6 7],.. }  
+faultyBeatValues = {};  % correspondes with faultyBeatInfo, but contains the value instead of type
 numBeats = length(AUTOPROCESSING.beats);
+
 if ~isempty(AUTOPROCESSING.allFids)
     numFids = length(AUTOPROCESSING.allFids{1})/2;
 end
@@ -222,20 +199,30 @@ TS{newBeatIdx}.selframes=[beatframes(1),beatframes(end)];
 t=toc(a);
 times(times(1).count).a_sliceIntoBeat=t;
 
-%%%% put the new fids in the "local beat frame" and save them in newBeatIdx
-
+%%%% delete the local fids if we dont want them
 a=tic;
-fids=AUTOPROCESSING.allFids{beatNumber};
+fids = AUTOPROCESSING.allFids{beatNumber};
+if ~SCRIPTDATA.DoIndivFids
+    locFidIdx = [];
+    for fidIdx=1:length(fids)
+        if length(fids(fidIdx).value) > 1  % fids now in relative frame
+            locFidIdx(end+1) = fidIdx;
+        end
+    end
+    fids(locFidIdx) = [];
+end
+
+%%%% put the new fids in the "relative beat frame" and save them in newBeatIdx
 reference=beatframes(1);
-for fidNumber=1:length(fids)
-    fids(fidNumber).value=fids(fidNumber).value-reference+1;  % fids now in local frame
+for fidIdx=1:length(fids)
+    fids(fidIdx).value=fids(fidIdx).value-reference+1;  % fids now in relative frame
 end
 if isfield(fids,'variance'),  fids=rmfield(fids,'variance'); end  %variance not wanted in the output
 TS{newBeatIdx}.fids=fids;
 t=toc(a);
 times(times(1).count).b_MakeFidsLocalAndRemvoeVariance=t;
 
-%%%%%% if 'blank bad leads' button is selected,   set all values of the bad leads to 0
+%%%% if 'blank bad leads' button is selected,   set all values of the bad leads to 0
 a=tic;
 if SCRIPTDATA.DO_BLANKBADLEADS == 1
     badleads = tsIsBad(newBeatIdx);

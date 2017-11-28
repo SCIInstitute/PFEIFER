@@ -263,7 +263,6 @@ function InitFiducials(handle,mode)
     button = findobj(allchild(handle),'tag','FIDSTYPE');
     set(button,'value',find(events.num == FIDSDISPLAY.NEWFIDSTYPE),'string',FIDSDISPLAY.fidslist);
     
-    FIDSDISPLAY.SELFIDS = 1;
     set(findobj(allchild(handle),'tag','FIDSGLOBAL'),'value',1);
     set(findobj(allchild(handle),'tag','FIDSGROUP'),'value',0);
     set(findobj(allchild(handle),'tag','FIDSLOCAL'),'value',0);

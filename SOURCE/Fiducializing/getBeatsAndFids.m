@@ -125,7 +125,6 @@ else
     leadsToAutofiducialize = getleadsToAutofiducialize(nLeadsToAutofiducialize, settings.leadsOfAllGroups, settings.demandedLeads, leadsToBeIgnored);
 end
 
-
 %%%% reduce potvals, add rms 
 unslicedReducedPotvals = unslicedComplPotvals(leadsToAutofiducialize,:);
 clear unslicedComplPotvals
@@ -158,17 +157,20 @@ if settings.autoUpdateKernels
 end
 
 
-global xxx
-xxx.pv1 = unslicedReducedPotvals(3,1:1500);
 
 %%%%% baseline correct first beat around qrs-wave to get better fidKernel
 bs = allBeatEnvelopes{1}(1);
-blcs = bs + relFrOriFidsValues(fidTypes == 2) - 1 - 40;   % to do: make sure qrs start does exist!
+blcs = bs + relFrOriFidsValues(fidTypes == 2) - 1 - 40;
 blce = bs + relFrOriFidsValues(fidTypes == 4) - 1 + 50;
+if blcs < 1
+    blcs = 1;
+    disp('WARNING: qrs start is pretty close to beat start. This can cause in bad fiducial detection.')
+end
+
+
+
 unslicedReducedPotvals(:,blcs:blce) = baselineCorrection(unslicedReducedPotvals(:,blcs:blce),1, blce-blcs,5);
 
-
-xxx.pv2 = unslicedReducedPotvals(3,1:1500);
 
 
 %%%% get the fsk and fek
@@ -198,13 +200,26 @@ end
 
 %%%% set up the kernels
 totalKernelLength = 2 * settings.fidsKernelLength +1;
+
 fidKernel = zeros(nLeadsToAutofiducialize, totalKernelLength, nFids);
 for fidIdx = 1:nFids
     fidKernel(:,:,fidIdx) = unslicedReducedPotvals(:,fsk(fidIdx):fek(fidIdx));
 end
 
-xxx.kernel = fidKernel(3,:,1);
-xxx.fsk = fsk(1);
+
+
+
+%%%% for testing only
+% clear global xxx
+% global xxx
+% xxx.pv = unslicedReducedPotvals;
+% xxx.fsk = fsk;
+% xxx.fek = fek;
+% xxx.fidKernel = fidKernel;
+% xxx.beatEnvelopes = allBeatEnvelopes;
+% error('xx')
+
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -218,7 +233,8 @@ else
 end
 [allFidsAbsFr{1:1000}] = deal(defaultFidStruct); % just initialize this to a really long number and delete empty slots at the end
 
-h=waitbar(0,'Autofiducializing Beats..');
+h=[];
+if ~settings.autoUpdateKernels, h=waitbar(0,'Autofiducializing Beats..'); end  % no waitbar when updating beats since this is hard to do since we don't know how many beats we will have in advance
 
 beatCount = 1;
 while beatCount <= nBeats + 1  % as long as there are still beat envelopes with no corresponding fiducials..
@@ -265,15 +281,15 @@ while beatCount <= nBeats + 1  % as long as there are still beat envelopes with 
     bs = allBeatEnvelopes{beatCount}(1);  % start of beat
     be = allBeatEnvelopes{beatCount}(2);  % end of beat
     
-   
-    
     
     %%%%% baseline correct around qrs-wave
     blcs = bs + relFrOriFidsValues(fidTypes == 2) - 1 - 40;
     blce = bs + relFrOriFidsValues(fidTypes == 4) - 1 + 50;
+    if blcs < 1
+        blcs = 1;
+        disp('WARNING: qrs start is pretty close to beat start. This can cause in bad fiducial detection.')
+    end
     unslicedReducedPotvals(:,blcs:blce) = baselineCorrection(unslicedReducedPotvals(:,blcs:blce),1, blce-blcs,5);
-    
-    xxx.pv3 = unslicedReducedPotvals(3,1:1500);
 
     
     
@@ -282,6 +298,7 @@ while beatCount <= nBeats + 1  % as long as there are still beat envelopes with 
         %%%% set up windows
         ws = bs - 1 + relFrOriFidsValues(fidIdx) - settings.window_width + kernelShift(fidIdx);  % dont search complete beat, only around fid
         we = bs - 1 + relFrOriFidsValues(fidIdx) + settings.window_width + kernelShift(fidIdx); 
+        shift = 0;
         if ws < bs  % if window 'to far left', shift it to the right!
             shift = bs - ws;
             ws = bs;
@@ -291,8 +308,10 @@ while beatCount <= nBeats + 1  % as long as there are still beat envelopes with 
             ws = ws + shift;
             we = be;
         end
+        if abs(shift) > settings.window_width - settings.fidsKernelLength
+            disp('WARNING: at least one fiducial is to close to a beat envelope. This often causes trouble.')
+        end
         windows=unslicedReducedPotvals(:,ws:we);
-
         
         %%%% find fiducials
         [winFrGlobFid, winFrIndivFids, variance] = findFid(windows,fidKernel(:,:,fidIdx));
@@ -311,9 +330,9 @@ while beatCount <= nBeats + 1  % as long as there are still beat envelopes with 
         %%%% if DoIndivFids, set individual fids of unfiducialized leads to beat start
         if settings.DoIndivFids
             copy_absFrIndivFids = absFrIndivFids;
-            absFrIndivFids = zeros(nLeads,1);
+            absFrIndivFids = zeros(nLeads,1);   % we need a fiducial for every lead in potvals!
             absFrIndivFids(leadsToAutofiducialize) = copy_absFrIndivFids;
-            absFrIndivFids(absFrIndivFids == 0) = 1;
+            absFrIndivFids(absFrIndivFids == 0) = NaN;
         end
         
 
@@ -327,16 +346,16 @@ while beatCount <= nBeats + 1  % as long as there are still beat envelopes with 
         allFidsAbsFr{beatCount}(nFids+fidIdx).value=absFrGlobFids;  
         allFidsAbsFr{beatCount}(nFids+fidIdx).variance=variance;   
         
+        % NOTE #1: individual fids must be first in the fids structure! Otherwise there will be problems later in the PFEIFER code
+        % NOTE #2: in a wave fiducial, the start must be imediately followed by the end of the wave
         
         
-        
-        
-        %%%% for testing only
-       % disp('weg damit')
-        allFidsKernels{beatCount} = fidKernel;
-        allWindowStarts{beatCount}(fidIdx) = ws;
-        allWindowEnds{beatCount}(fidIdx) = we;
-        allAbsFrOriFidsValues{beatCount}(fidIdx) = bs - 1 + relFrOriFidsValues(fidIdx);
+%         %%%% for testing only
+%         disp('weg damit')
+%         allFidsKernels{beatCount} = fidKernel;
+%         allWindowStarts{beatCount}(fidIdx) = ws;
+%         allWindowEnds{beatCount}(fidIdx) = we;
+%         allAbsFrOriFidsValues{beatCount}(fidIdx) = bs - 1 + relFrOriFidsValues(fidIdx);
         
         
     end
@@ -345,23 +364,25 @@ while beatCount <= nBeats + 1  % as long as there are still beat envelopes with 
 end
 if isgraphics(h), delete(h), end
 
+
+
 allFidsAbsFr = allFidsAbsFr(1:nBeats);
 
 
 
 
 
-%%%% testing stuff only
-disp('remove this')
-clear global td
-global td
-td.allBeatEnvelopes = allBeatEnvelopes;
-td.unslicedReducedPotvals = unslicedReducedPotvals;
-td.allFidsKernels = allFidsKernels;
-td.allWindowStarts = allWindowStarts;
-td.allWindowEnds = allWindowEnds;
-td.allFidsAbsFr = allFidsAbsFr; 
-td.allAbsFrOriFidsValues = allAbsFrOriFidsValues;
+% %%%% testing stuff only
+% disp('remove this')
+% clear global td
+% global td
+% td.allBeatEnvelopes = allBeatEnvelopes;
+% td.unslicedReducedPotvals = unslicedReducedPotvals;
+% td.allFidsKernels = allFidsKernels;
+% td.allWindowStarts = allWindowStarts;
+% td.allWindowEnds = allWindowEnds;
+% td.allFidsAbsFr = allFidsAbsFr; 
+% td.allAbsFrOriFidsValues = allAbsFrOriFidsValues;
 
 
 

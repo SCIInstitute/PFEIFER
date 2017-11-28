@@ -68,7 +68,13 @@ slidery=findobj(allchild(fig),'tag','SLIDERY');
 addlistener(sliderx,'ContinuousValueChange',@UpdateSlider);
 addlistener(slidery,'ContinuousValueChange',@UpdateSlider);
 
-AUTOPROCESSING.DISPLAYTYPEA = 1;
+%%%% set up fiducial selection
+AUTOPROCESSING.DISPLAYTYPEA = 1;  % DISPLAYTYPEA is either 1 or 3 to show either global RMS or individual leads
+AUTOPROCESSING.SELFIDS = 1;       % is either 1 or 3 letting you edit either the local or the global fiducials
+set(findobj(allchild(fig),'tag','FIDSGLOBAL'),'value',1);
+set(findobj(allchild(fig),'tag','FIDSLOCAL'),'value',0);
+
+
 
 %%%% init AUTOPROCESSING
 AUTOPROCESSING.CurrentEventIdx=[];
@@ -149,8 +155,6 @@ end
 beatSelectPopupObj.String = selectionChoises;
 
 
-
-
 function setupDisplay(fig)
 %      no plotting, but everything else with axes, particualrely:
 %         - sets up some start values for xlim, ylim, sets up axes and slider handles
@@ -195,17 +199,17 @@ AUTOPROCESSING.COLORLIST = {[1 0 0],[0 0.7 0],[0 0 1],[0.5 0 0],[0 0.3 0],[0 0 0
 if ~isfield(SCRIPTDATA,'DISPLAYTYPEA')
     SCRIPTDATA.DISPLAYTYPEA=1;
 end
-%%%% set up signals for global RMS, GROUP RMS or individual RMS
+%%%% set up signals for global RMS, GROUP RMS or individual leads
 switch SCRIPTDATA.DISPLAYTYPEA
     case 1   % show global RMS
-        ch  = []; 
+        allLeadToPlots  = []; 
         for p=groups 
             leads = SCRIPTDATA.GROUPLEADS{SCRIPTDATA.CURRENTRUNGROUP}{p};
             index = TS{tsindex}.leadinfo(leads)==0;  % index of only the 'good' leads, filter out badleads
-            ch = [ch leads(index)];   % ch is leads only of the leads of the groubs selected, not of all leads
+            allLeadToPlots = [allLeadToPlots leads(index)];   % ch is leads only of the leads of the groubs selected, not of all leads
         end
         
-        AUTOPROCESSING.SIGNAL = sqrt(mean(TS{tsindex}.potvals(ch,:).^2));
+        AUTOPROCESSING.SIGNAL = sqrt(mean(TS{tsindex}.potvals(allLeadToPlots,:).^2));
         AUTOPROCESSING.SIGNAL = AUTOPROCESSING.SIGNAL-min(AUTOPROCESSING.SIGNAL);
         AUTOPROCESSING.LEADINFO = 0;
         AUTOPROCESSING.GROUP = 1;
@@ -213,8 +217,21 @@ switch SCRIPTDATA.DISPLAYTYPEA
         AUTOPROCESSING.LEADGROUP = 0;
         AUTOPROCESSING.NAME = {'Global RMS'};
         AUTOPROCESSING.GROUPNAME = {'Global RMS'};
+        
+        
+        %%%% set the indiv/global fids buttons,  disable/enable the right ones
+        if AUTOPROCESSING.SELFIDS > 1
+            AUTOPROCESSING.SELFIDS = 1;
+            set(findobj(allchild(fig),'tag','FIDSGLOBAL'),'value',1);
+            set(findobj(allchild(fig),'tag','FIDSLOCAL'),'value',0);
+        end
+        set(findobj(allchild(fig),'tag','FIDSGLOBAL'),'enable','on');
+        set(findobj(allchild(fig),'tag','FIDSLOCAL'),'enable','off');
+        
+        
+        
 
-    case 2
+    case 2   % group fiducials
         AUTOPROCESSING.SIGNAL = zeros(numgroups,numframes);
         for p=1:numgroups
             leads = SCRIPTDATA.GROUPLEADS{SCRIPTDATA.CURRENTRUNGROUP}{groups(p)};
@@ -228,37 +245,48 @@ switch SCRIPTDATA.DISPLAYTYPEA
         AUTOPROCESSING.LEAD = 0*AUTOPROCESSING.GROUP;
         AUTOPROCESSING.LEADGROUP = groups;
         AUTOPROCESSING.LEADINFO = zeros(numgroups,1);
+        if AUTOPROCESSING.SELFIDS > 2
+            AUTOPROCESSING.SELFIDS = 1;
+            set(findobj(allchild(fig),'tag','FIDSGLOBAL'),'value',1);
+            set(findobj(allchild(fig),'tag','FIDSLOCAL'),'value',0);
+        end
 
-    case 3   % indiv fids
-        
-        
-        %%%% only for autoprocessing, make copy of GROUPLEADS, where the groupleads, that are not in leadsToAutofiducialize, are filtered out. Only work with the copies here       
-        GROUPLEADS=SCRIPTDATA.GROUPLEADS{SCRIPTDATA.CURRENTRUNGROUP};   %the copy
-        for group=groups
-            GROUPLEADS{group}=intersect(AUTOPROCESSING.leadsToAutofiducialize, GROUPLEADS{group});
+    case 3   % indiv fids 
+        %%%% get the groupLeads, the lead idxs (grouped into the groups) in potvals that we want to plot
+        groupLeads=SCRIPTDATA.GROUPLEADS{SCRIPTDATA.CURRENTRUNGROUP};
+        if ~SCRIPTDATA.DoIndivFids % if we do not have individual fids for all leads, filter out the ones where we don't have them.
+            for groupIdx=groups
+                groupLeads{groupIdx}=intersect(AUTOPROCESSING.leadsToAutofiducialize, groupLeads{groupIdx});
+            end
+        else  % in this case, only filter out badleads, we dont want to plot them..
+            for groupIdx=groups
+                groupLeads{groupIdx}=setdiff(groupLeads{groupIdx}, SCRIPTDATA.GBADLEADS{SCRIPTDATA.CURRENTRUNGROUP});
+            end            
         end
         
-        
-        
+        %%%% ...
         AUTOPROCESSING.GROUP =[];
         AUTOPROCESSING.NAME = {};
         AUTOPROCESSING.LEAD = [];
         AUTOPROCESSING.LEADGROUP = [];
-        ch  = []; 
+        allLeadToPlots  = []; 
         for p=groups
-            ch = [ch GROUPLEADS{p}]; 
-            AUTOPROCESSING.GROUP = [AUTOPROCESSING.GROUP p*ones(1,length(GROUPLEADS{p}))];
-            AUTOPROCESSING.LEADGROUP = [AUTOPROCESSING.GROUP GROUPLEADS{p}];
-            AUTOPROCESSING.LEAD = [AUTOPROCESSING.LEAD GROUPLEADS{p}];
-            for q=1:length(GROUPLEADS{p})
-                AUTOPROCESSING.NAME{end+1} = sprintf('# %d',GROUPLEADS{p}(q)); 
+            allLeadToPlots = [allLeadToPlots groupLeads{p}]; 
+            AUTOPROCESSING.GROUP = [AUTOPROCESSING.GROUP p*ones(1,length(groupLeads{p}))];
+            AUTOPROCESSING.LEADGROUP = [AUTOPROCESSING.GROUP groupLeads{p}];
+            AUTOPROCESSING.LEAD = [AUTOPROCESSING.LEAD groupLeads{p}];
+            for q=1:length(groupLeads{p})
+                AUTOPROCESSING.NAME{end+1} = sprintf('# %d',groupLeads{p}(q)); 
             end 
         end
         for p=1:length(groups)
             AUTOPROCESSING.GROUPNAME{p} = [SCRIPTDATA.GROUPNAME{SCRIPTDATA.CURRENTRUNGROUP}{groups(p)}]; 
         end
-        AUTOPROCESSING.SIGNAL = TS{tsindex}.potvals(ch,:);
-        AUTOPROCESSING.LEADINFO = TS{tsindex}.leadinfo(ch);
+        AUTOPROCESSING.SIGNAL = TS{tsindex}.potvals(allLeadToPlots,:);
+        AUTOPROCESSING.LEADINFO = TS{tsindex}.leadinfo(allLeadToPlots);
+        
+        set(findobj(allchild(fig),'tag','FIDSGLOBAL'),'enable','on');
+        set(findobj(allchild(fig),'tag','FIDSLOCAL'),'enable','on');
 end
 
 
@@ -306,10 +334,12 @@ AUTOPROCESSING.YWIN = [max([0 numsignal-6]) numsignal]; %dipsplay maximal 6 sing
 
 fig.Pointer=pointer;
 
+
+
 function UpdateDisplay
 %plots the FD.SIGNAL,  makes the plot..  also calls  DisplayFiducials
 global SCRIPTDATA AUTOPROCESSING;
-ax=AUTOPROCESSING.AXES;
+ax = AUTOPROCESSING.AXES;
 axes(ax);
 cla(ax);
 hold(ax,'on');
@@ -319,10 +349,11 @@ xlim = AUTOPROCESSING.XLIM;
 ylim = AUTOPROCESSING.YLIM;
 
 numframes = size(AUTOPROCESSING.SIGNAL,2);
+numchannels = size(AUTOPROCESSING.SIGNAL,1);
 startframe = max([floor(SCRIPTDATA.SAMPLEFREQ*xwin(1)) 1]);
 endframe = min([ceil(SCRIPTDATA.SAMPLEFREQ*xwin(2)) numframes]);
 
-%%%% DRAW THE GRID
+%%%% draw the grid
 if ~isfield(SCRIPTDATA,'DISPLAYGRIDA')
     SCRIPTDATA.DISPLAYGRIDA=1;  % default is "no grid", if nothing else has been selected so far
 end
@@ -336,11 +367,6 @@ if SCRIPTDATA.DISPLAYGRIDA > 1
     X = [clines; clines]; Y = ywin'*ones(1,length(clines));
     line(ax,X,Y,'color',[0.5 0.5 0.5],'hittest','off');
 end
-
-
-
-numchannels = size(AUTOPROCESSING.SIGNAL,1);
-
 
 
 %%%% if no scaling has been selected yet, choose "local" as the default
@@ -369,10 +395,8 @@ if ~isfield(SCRIPTDATA,'DISPLAYLABELA')
     SCRIPTDATA.DISPLAYLABELA=1;
 end
 
-
-
 %%%% choose colors and plot
-for p=chstart:chend
+for p = chstart:chend
     k = startframe:endframe;
     color = AUTOPROCESSING.COLORLIST{AUTOPROCESSING.GROUP(p)};
     if AUTOPROCESSING.LEADINFO(p) > 0
@@ -382,10 +406,13 @@ for p=chstart:chend
         end
     end
     plot(ax,AUTOPROCESSING.TIME(k),AUTOPROCESSING.SIGNAL(p,k),'color',color,'hittest','off');
+    
+    % plot the lead labels
     if (SCRIPTDATA.DISPLAYLABELA == 1)&&(chend-chstart < 30) && (AUTOPROCESSING.YWIN(2) >= numchannels-p+1)
-        text(ax,AUTOPROCESSING.XWIN(1),numchannels-p+1,AUTOPROCESSING.NAME{p},'color',color,'VerticalAlignment','top','hittest','off'); 
+        text(ax,AUTOPROCESSING.XWIN(1),numchannels-p+1, AUTOPROCESSING.NAME{p},'color',color,'VerticalAlignment','top','hittest','off'); 
     end
 end
+
 set(AUTOPROCESSING.AXES,'YTick',[],'YLim',ywin,'XLim',xwin);
 
 %%%% do some slider stuff
@@ -430,11 +457,7 @@ for beatNumber=1:length(AUTOPROCESSING.allFids)
     end
     text(beatStart + distance/2,AUTOPROCESSING.YWIN(2),txt,'VerticalAlignment','top','HorizontalAlignment','center','FontSize',17)   
 end
-
-
-
 DisplayFiducials;
-
 
 
 function DisplayFiducials
@@ -445,10 +468,9 @@ global SCRIPTDATA AUTOPROCESSING;
 ywin = AUTOPROCESSING.YWIN;
 for beatNumber=1:length(AUTOPROCESSING.EVENTS)   %for each beat
     
-    %%%% first check if beat is within window, othterwise its not necessary to plot that beat  
+    %%%% first check if beat is within window, otherwise its not necessary to plot that beat  
     beatStart = AUTOPROCESSING.beats{beatNumber}(1)/SCRIPTDATA.SAMPLEFREQ;
-    beatEnd = AUTOPROCESSING.beats{beatNumber}(2)/SCRIPTDATA.SAMPLEFREQ;
-    
+    beatEnd = AUTOPROCESSING.beats{beatNumber}(2)/SCRIPTDATA.SAMPLEFREQ;   
     if beatStart > AUTOPROCESSING.XWIN(2) || beatEnd < AUTOPROCESSING.XWIN(1)
         continue   % beat is not in window, so don't plot it.
     end
@@ -469,7 +491,7 @@ for beatNumber=1:length(AUTOPROCESSING.EVENTS)   %for each beat
      if ~isempty(events.handle), index = find(ishandle(events.handle(:)) & (events.handle(:) ~= 0)); delete(events.handle(index)); end   %delete any existing lines
     events.handle = [];
 
-    if AUTOPROCESSING.DISPLAYTYPEA == 1, colorlist = events.colorlist; else colorlist = events.colorlistgray; end
+    if AUTOPROCESSING.SELFIDS == 1, colorlist = events.colorlist; else colorlist = events.colorlistgray; end
 
     for p=1:size(events.value,2)   %   for p=[1: anzahl zu plottender linien]
         switch events.typelist(events.type(p))
@@ -485,14 +507,12 @@ for beatNumber=1:length(AUTOPROCESSING.EVENTS)   %for each beat
     AUTOPROCESSING.EVENTS{beatNumber}{1} = events;           
 
     if SCRIPTDATA.DISPLAYTYPEA == 1, continue; end
-
-    
     
     %%%% GROUP FIDUCIALS
     events = AUTOPROCESSING.EVENTS{beatNumber}{2};
     if ~isempty(events.handle), index = find(ishandle(events.handle(:)) & (events.handle(:) ~= 0)); delete(events.handle(index)); end
     events.handle = [];
-    if AUTOPROCESSING.DISPLAYTYPEA == 2, colorlist = events.colorlist; else colorlist = events.colorlistgray; end
+    if AUTOPROCESSING.SELFIDS == 2, colorlist = events.colorlist; else colorlist = events.colorlistgray; end
 
     numchannels = size(AUTOPROCESSING.SIGNAL,1);
     chend = numchannels - max([floor(ywin(1)) 0]);
@@ -504,8 +524,6 @@ for beatNumber=1:length(AUTOPROCESSING.EVENTS)   %for each beat
         nindex = index(AUTOPROCESSING.LEADGROUP(index)==q);
         if isempty(nindex), continue; end
         ydata = numchannels-[min(nindex)-1 max(nindex)];
-
-
         for p=1:size(events.value,2)
             switch events.typelist(events.type(p))
                 case 1 % normal fiducial
@@ -534,17 +552,16 @@ for beatNumber=1:length(AUTOPROCESSING.EVENTS)   %for each beat
      end
     events.handle = [];
 
-    if AUTOPROCESSING.DISPLAYTYPEA == 3, colorlist = events.colorlist; else colorlist = events.colorlistgray; end
+    if AUTOPROCESSING.SELFIDS == 3, colorlist = events.colorlist; else colorlist = events.colorlistgray; end
 
 
     % index is eg [3 4 5 8 9 10], if those are the leads (in global frame) currently
     % displayed (this changes with yslider!, note 5 8 !
-
-    leadIdx = AUTOPROCESSING.LEAD(chstart:chend);
-    for lead=leadIdx     % for each of the 5-7 channels, that one can see in axes
+    leadIdxs = AUTOPROCESSING.LEAD(chstart:chend);
+    for lead=leadIdxs     % for each of the 5-7 channels, that one can see in axes
         for idx=find(lead==AUTOPROCESSING.LEAD)
             ydata = numchannels-[idx-1 idx];   % y-value, from where to where each local fid is plottet, eg [15, 16]  
-            for p=1:size(events.value,2)   % for each fid of that channel
+            for p=1:size(events.value,2)   % for each fid of that lead
                 switch events.typelist(events.type(p))
                     case 1 % normal fiducial (peaks)
                         v = events.value(lead,p,1);
@@ -557,8 +574,7 @@ for beatNumber=1:length(AUTOPROCESSING.EVENTS)   %for each beat
             end
         end
     end
-    AUTOPROCESSING.EVENTS{beatNumber}{3} = events;
-    
+    AUTOPROCESSING.EVENTS{beatNumber}{3} = events;    
 end
 
 
@@ -588,6 +604,35 @@ else
     UpdateDisplay
 end
 
+
+
+
+function SetFids(handle)
+    
+    %callback function to the three buttons ('Global Fids', Group
+    % Fids') in the "Fiducials" Window (middle left up)
+    
+    % makes sure that only one of the three buttons ('Global Fids', Group
+    % Fids', 'Local Fids' is selected at the same time. All three buttons
+    % have same callback function (this one), but different tags..
+    
+    % then it udates Axes accordingly (by calling DisplayFiducials)
+
+    global AUTOPROCESSING
+    figObj = handle.Parent;
+    tag = handle.Tag;
+    switch tag
+        case 'FIDSGLOBAL'
+            AUTOPROCESSING.SELFIDS = 1;
+            set(findobj(allchild(figObj),'tag','FIDSGLOBAL'),'value',1);
+            set(findobj(allchild(figObj),'tag','FIDSLOCAL'),'value',0);        
+        case 'FIDSLOCAL'
+            AUTOPROCESSING.SELFIDS = 3;
+            set(findobj(allchild(figObj),'tag','FIDSGLOBAL'),'value',0);
+            set(findobj(allchild(figObj),'tag','FIDSLOCAL'),'value',1);
+    end
+    DisplayFiducials;
+    
 
 
 function zoomIntoBeat(cbobj)
@@ -789,8 +834,8 @@ if (t>xwin(1))&&(t<xwin(2))&&(y>ywin(1))&&(y<ywin(2))     % if mouseclick within
     
     if isempty(AUTOPROCESSING.CurrentEventIdx), return, end % if click not within a beat, return..
     
-    %%%% get event of beat, mark the closest fid in it, then update it and save it
-    events = AUTOPROCESSING.EVENTS{AUTOPROCESSING.CurrentEventIdx}{AUTOPROCESSING.DISPLAYTYPEA}; %local, group, or global fids of the beat where click occured
+    %%%% get event of beat, mark the closest fid in it
+    events = AUTOPROCESSING.EVENTS{AUTOPROCESSING.CurrentEventIdx}{AUTOPROCESSING.SELFIDS}; %local, group, or global fids of the beat where click occured
     events = FindClosestEvent(events,t,y);       % update sel, sel1, sel2
     
     %%%% check if there is a red line that might have to be removed in that beat
@@ -812,14 +857,12 @@ if (t>xwin(1))&&(t<xwin(2))&&(y>ywin(1))&&(y<ywin(2))     % if mouseclick within
             AUTOPROCESSING.faultyBeatLineHandles{faultyBeatIndex}(faultyFidIndex) = [];
             AUTOPROCESSING.faultyBeatValues{faultyBeatIndex}(faultyFidIndex) = [];
             AUTOPROCESSING.faultyBeatInfo{faultyBeatIndex}(faultyFidIndex) = [];
-
-
         end
     end
     
     %%%% set closest event and save it
     events = SetClosestEvent(events,t,y);
-    AUTOPROCESSING.EVENTS{AUTOPROCESSING.CurrentEventIdx}{AUTOPROCESSING.DISPLAYTYPEA} = events;   % save the event after it has been modified
+    AUTOPROCESSING.EVENTS{AUTOPROCESSING.CurrentEventIdx}{AUTOPROCESSING.SELFIDS} = events;   % save the event after it has been modified
 end
 
 
@@ -830,12 +873,12 @@ global AUTOPROCESSING
 if ~isfield(AUTOPROCESSING,'CurrentEventIdx'), return, end
 if isempty(AUTOPROCESSING.CurrentEventIdx), return, end  % if nothing selected currently, return
 
-events = AUTOPROCESSING.EVENTS{AUTOPROCESSING.CurrentEventIdx}{AUTOPROCESSING.DISPLAYTYPEA};  
+events = AUTOPROCESSING.EVENTS{AUTOPROCESSING.CurrentEventIdx}{AUTOPROCESSING.SELFIDS};  
 if events.sel(1) > 0
     point = AUTOPROCESSING.AXES.CurrentPoint;
     t = median([AUTOPROCESSING.XLIM point(1,1)]);
     y = median([AUTOPROCESSING.YLIM point(1,2)]);
-    AUTOPROCESSING.EVENTS{AUTOPROCESSING.CurrentEventIdx}{AUTOPROCESSING.DISPLAYTYPEA} = SetClosestEvent(events,t,y);
+    AUTOPROCESSING.EVENTS{AUTOPROCESSING.CurrentEventIdx}{AUTOPROCESSING.SELFIDS} = SetClosestEvent(events,t,y);
 end
 
 function ButtonUp(handle)
@@ -846,7 +889,7 @@ function ButtonUp(handle)
 global AUTOPROCESSING  SCRIPTDATA;
 if isempty(AUTOPROCESSING.CurrentEventIdx), return, end % if nothing selected, return..   
 
-events = AUTOPROCESSING.EVENTS{AUTOPROCESSING.CurrentEventIdx}{AUTOPROCESSING.DISPLAYTYPEA};        
+events = AUTOPROCESSING.EVENTS{AUTOPROCESSING.CurrentEventIdx}{AUTOPROCESSING.SELFIDS};        
 if events.sel(1) > 0
     point = AUTOPROCESSING.AXES.CurrentPoint;
     t = median([AUTOPROCESSING.XLIM point(1,1)]);
@@ -861,7 +904,7 @@ if events.sel(1) > 0
     
     
     %%%% save the modified event
-    AUTOPROCESSING.EVENTS{AUTOPROCESSING.CurrentEventIdx}{AUTOPROCESSING.DISPLAYTYPEA} = events;
+    AUTOPROCESSING.EVENTS{AUTOPROCESSING.CurrentEventIdx}{AUTOPROCESSING.SELFIDS} = events;
     
     %%%% deselect event (beat)
     AUTOPROCESSING.CurrentEventIdx=[];
@@ -990,21 +1033,21 @@ FidsToEvents;
 function FidsToEvents
 %puts .allFids into .EVENTS
 
-global SCRIPTDATA AUTOPROCESSING;
+global SCRIPTDATA AUTOPROCESSING TS;
 
 samplefreq = SCRIPTDATA.SAMPLEFREQ;
 isamplefreq = 1/samplefreq;
 
 for beatNumber=1:length(AUTOPROCESSING.allFids)  %for each beat
     AUTOPROCESSING.EVENTS{beatNumber}=AUTOPROCESSING.DEFAULT_EVENTS;
-    fids=AUTOPROCESSING.allFids{beatNumber};
+    fids = AUTOPROCESSING.allFids{beatNumber};
     
     if isempty([fids.type]), continue, end
     
     %%%% find the start_value and the end_value of a wave
     %this takes advantage of the fact, that end of wave imediatly follows beginning of waves in fids
     
-    fidsIndex=1;
+    fidsIndex = 1;
     while fidsIndex <=length(fids)
          switch fids(fidsIndex).type
             case 0
@@ -1051,10 +1094,17 @@ for beatNumber=1:length(AUTOPROCESSING.allFids)  %for each beat
         % eg. mtype=3 means it's a T-wave, because fidslist{3}='T-Wave'
         
         %%%% now check if it is global or local fid and put the values of start_value/end_value in events.value
-        nLeadsToAutofiducialize = length(AUTOPROCESSING.leadsToAutofiducialize);
-        if (length(start_value) == nLeadsToAutofiducialize) && (length(end_value) == nLeadsToAutofiducialize) % if individual value for each lead
-            AUTOPROCESSING.EVENTS{beatNumber}{3}.value(AUTOPROCESSING.leadsToAutofiducialize,end+1,1) = start_value;
-            AUTOPROCESSING.EVENTS{beatNumber}{3}.value(AUTOPROCESSING.leadsToAutofiducialize,end,2) = end_value;
+        if SCRIPTDATA.DoIndivFids
+            nIndivFids = size(TS{SCRIPTDATA.CURRENTTS}.potvals,1);
+            leadsWithIndivFids = 1:nIndivFids;
+        else
+            nIndivFids = length(AUTOPROCESSING.leadsToAutofiducialize);
+            leadsWithIndivFids = AUTOPROCESSING.leadsToAutofiducialize;
+        end
+        
+        if (length(start_value) == nIndivFids) && (length(end_value) == nIndivFids) % if individual value for each lead
+            AUTOPROCESSING.EVENTS{beatNumber}{3}.value(leadsWithIndivFids,end+1,1) = start_value;
+            AUTOPROCESSING.EVENTS{beatNumber}{3}.value(leadsWithIndivFids,end,2) = end_value;
             AUTOPROCESSING.EVENTS{beatNumber}{3}.type(end+1) = mtype;
         elseif (length(start_value) ==1)&&(length(end_value) == 1) % if global fiducials
             AUTOPROCESSING.EVENTS{beatNumber}{1}.value(:,end+1,1) = start_value;
@@ -1084,9 +1134,18 @@ for beatNumber=1:length(AUTOPROCESSING.allFids)  %for each beat
         val2{end+1} = round(AUTOPROCESSING.EVENTS{beatNumber}{1}.value(1,p,2)*samplefreq);
         mtype{end+1} = AUTOPROCESSING.EVENTS{beatNumber}{1}.type(p);
     end
-    % EXPLANATION OF val1, val2, mtype
-    % val1{1:NumGlobalFids}=firstValueOfGlobalFids,
-    % val2 analogous, but second value of fid.    mtype same, but with fiducial event.type instead of values.
+    
+    % now the local fids
+    for p=1:length(AUTOPROCESSING.EVENTS{beatNumber}{3}.type)
+        val1{end+1} = AUTOPROCESSING.EVENTS{beatNumber}{3}.value(:,p,1)*samplefreq;
+        val2{end+1} = AUTOPROCESSING.EVENTS{beatNumber}{3}.value(:,p,2)*samplefreq;
+        mtype{end+1} = AUTOPROCESSING.EVENTS{beatNumber}{3}.type(p);
+    end 
+    
+    % val1{1:NumGlFids}= firstValueOfGlobalFids (wave start value)
+    % val1{NumGlFids+1:NumGlFids+1+NumGroupFids}=1xNumleads vectors with 1th val of group fids
+    % val1{end-NumLocalFids:end}= values (value vectors)  of local fids
+    % val2 analogous.    mtype same, but with fiducial event.type instead of values.
     
     %%%% for each added fiducial (of all types): add it to fids
     for p=1:length(val1)
@@ -1241,7 +1300,7 @@ function events = FindClosestEvent(events,t,y)
 % sel=1 => erster balken am nächsten zu input t,  sel=2  =>2. balken am nächstn  
 % sel2=1  => erste Strich von balken am nächsten,  sel2=2  => zweiter strich näher
 % alle sel sind 0, falls isempty(value)
-%sel3 ist bei global gleich 1, ansonsten ist sel3 glaub lead..
+%sel3 ist bei global gleich 1, ansonsten ist sel3 lead..
 global AUTOPROCESSING
 
 if isempty(events.value)                                       %sels are all 0 if first time

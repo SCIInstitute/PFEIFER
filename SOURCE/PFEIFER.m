@@ -1079,7 +1079,6 @@ function runScript(~)
     
     
     h = [];   %for waitbar
-    success = 0;
     success = PreLoopScript;
     if ~success, return, end
     
@@ -1096,6 +1095,19 @@ function runScript(~)
     %%%% save helper files 
     savePROCESSINGDATA;
     saveSettings;
+    
+    
+    
+    %%%% check some user inputs 
+    if SCRIPTDATA.NUM_BEATS_TO_AVGR_OVER > SCRIPTDATA.NUM_BEATS_BEFORE_UPDATING
+        errordlg('# Beats For Updating must not be greater than # Beats Before Updating.');
+        return
+    end
+    if length(SCRIPTDATA.LEADS_FOR_AUTOFIDUCIALIZING) > SCRIPTDATA.NTOBEFIDUCIALISED
+        errordlg('You cannot specify more Leads For Autofiducializing than there are Number of Leads.')
+        return
+    end
+    
     
     
     %%%% make sure a rungroup is defined for each selected file
@@ -1502,6 +1514,7 @@ if (SCRIPTDATA.DO_BASELINE == 1)
         msg=sprintf('Couldn''t find any selected start/end time frames for %s. Either provide one by using a PROCESSINGDATA file where this information has been saved previously or select ''User Interaction'' at the Slice/Average'' section to manually select a start/end time frame. Aborting...',TS{index}.filename);
         errordlg(msg)
         TS{index}=[];
+        success  = 0;
         return
     end
     if ~isfield(TS{index},'startframe'), TS{index}.startframe = 1; end
@@ -2053,7 +2066,8 @@ function defaultsettings=getDefaultSettings
                     'AUTO_UPDATE_KERNELS',1,'bool',...
                     'NUM_BEATS_TO_AVGR_OVER', 5, 'integer',...
                     'NUM_BEATS_BEFORE_UPDATING', 5, 'integer',...
-                    'LEADS_FOR_AUTOFIDUCIALIZING',[],'vector'
+                    'LEADS_FOR_AUTOFIDUCIALIZING',[],'vector',...
+                    'DoIndivFids',0,'bool'
             };
 end
 
