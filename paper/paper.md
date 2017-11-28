@@ -12,7 +12,7 @@ tags:
 authors:
  - name: Anton Rodenhauser
    orcid: 0000-0003-1077-8230
-   affiliation: 2
+   affiliation: 1
  - name: Wilson W Good 
    orcid: 0000-0002-0111-9076
    affiliation: 1 2
@@ -33,9 +33,9 @@ authors:
    affiliation: 1 2
 
 affiliations:
- - name: University of Utah Bioengineering Department
+- name: Scientific Computing and Imaging Institute, University of Utah, Salt Lake City, UT, USA
    index: 1
- - name: Scientific Computing and Imaging Institute
+ - name:  Bioengineering Department, University of Utah, Salt Lake City, UT, USA
    index: 2
 date: 25 October 2017
 bibliography: josspaper.bib
