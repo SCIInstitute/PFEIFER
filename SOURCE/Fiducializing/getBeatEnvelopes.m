@@ -40,16 +40,18 @@ sigLength = length(signal);
 kernelLength = length(kernel);
 estNumBeats = floor(sigLength/330);    % very rough estimation of numBeats in signal.. a beat is usually 330 frames long
 
-if estNumBeats < 1
+%%%% get stepLags: the evenly spaced lags (with distance stepSize) to go through. First possible lag would be 0! ("lag frame")
+stStepLag = 0.5 * stepSize;  % first lag
+endStepLag = sigLength  - kernelLength - 0.5 * stepSize; % last lag
+nStepLags = ceil((endStepLag - stStepLag)/stepSize) + 1;
+stepLags = round(linspace(stStepLag, endStepLag, nStepLags));
+
+
+if estNumBeats < 1 || sigLength < kernelLength ||  endStepLag < stStepLag
     beatEnvelopes = {};
     return
 end
 
-%%%% get stepLags: the evenly spaced lags (with distance stepSize) to go through. First possible lag would be 0! ("lag frame")
-stStepLag = 0.5 * stepSize;   % first lag
-endStepLag = sigLength  - kernelLength - 0.5 * stepSize; % last lag
-nStepLags = ceil((endStepLag - stStepLag)/stepSize) + 1;
-stepLags = round(linspace(stStepLag, endStepLag, nStepLags));
 
 
 %%%% get stepXC - the corresponding correlations for each stepLag
@@ -87,7 +89,7 @@ while pval > accuracyForFirstEstimate
     stepXCs(s:e) = 0;
     
     % save peak value pval und peak lag plag:
-    estimatedPeakLags(count) =  plag;
+    estimatedPeakLags(count) =  plag;   
     estimatedPeakXCVals(count) = pval;
     
 %    plotEstiPeak(plag)               % for testing only

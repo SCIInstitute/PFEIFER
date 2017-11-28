@@ -731,6 +731,14 @@ if nargin == 2
     end
 end
 
+
+if strcmp(tag,'AUTO_UPDATE_KERNELS')
+    disable_enable_TemplateUpdateButtons(hObject.Parent)
+end
+if strcmp(tag,'DoIndivFids')
+    disable_enable_AutofidOptions(hObject.Parent)
+end
+
 updateFigure(findobj(allchild(0),'tag','PROCESSINGSCRIPTSETTINGS'));
 updateFigure(findobj(allchild(0),'tag','PROCESSINGSCRIPTMENU')); 
 
@@ -1046,7 +1054,7 @@ end
 function resetDefaultSettings(cbObj)
 % callback to the 'default settings' pushbutton to restore the autofiducializing default settings
 global SCRIPTDATA
-fieldsToReset = {'ACCURACY','FIDSKERNELLENGTH','WINDOW_WIDTH','NTOBEFIDUCIALISED','USE_RMS','LEADS_FOR_AUTOFIDUCIALIZING','AUTO_UPDATE_KERNELS','NUM_BEATS_TO_AVGR_OVER','NUM_BEATS_BEFORE_UPDATING'};
+fieldsToReset = {'ACCURACY','FIDSKERNELLENGTH','WINDOW_WIDTH','NTOBEFIDUCIALISED','USE_RMS','LEADS_FOR_AUTOFIDUCIALIZING','NUM_BEATS_TO_AVGR_OVER','NUM_BEATS_BEFORE_UPDATING'};
 defaultSettings = getDefaultSettings;
 for p = 1:3:length(defaultSettings)
     if ismember(defaultSettings{p}, fieldsToReset)
@@ -1056,6 +1064,40 @@ end
 updateFigure(cbObj.Parent);
 end
 
+
+function disable_enable_TemplateUpdateButtons(fig)
+
+global SCRIPTDATA
+tagsToChange = {'NUM_BEATS_BEFORE_UPDATING','NUM_BEATS_TO_AVGR_OVER','text49','text48'};
+
+for p = 1:length(tagsToChange)
+    obj = findobj(allchild(fig),'Tag',tagsToChange{p});
+    if SCRIPTDATA.AUTO_UPDATE_KERNELS
+        set(obj,'enable','on','visible','on')
+    else
+        set(obj,'enable','inactive','visible','off')
+    end
+end
+drawnow
+end
+
+
+
+function disable_enable_AutofidOptions(fig)
+
+global SCRIPTDATA
+tagsToChange = {'NTOBEFIDUCIALISED','LEADS_FOR_AUTOFIDUCIALIZING','USE_RMS','text45','text46'};
+
+for p = 1:length(tagsToChange)
+    obj = findobj(allchild(fig),'Tag',tagsToChange{p});
+    if ~SCRIPTDATA.DoIndivFids
+        set(obj,'enable','on','visible','on')
+    else
+        set(obj,'enable','inactive','visible','off')
+    end
+end
+drawnow
+end
 
 
 function runScript(~)
