@@ -8,35 +8,33 @@ tags:
   - Cardiac
   - Signal processing
   - MATLAB 
-
 authors:
  - name: Anton Rodenhauser
    orcid: 0000-0003-1077-8230
    affiliation: 1
  - name: Wilson W Good 
    orcid: 0000-0002-0111-9076
-   affiliation: 1 2
+   affiliation: 1, 2
  - name: Brian Zenger 
    orcid: 0000-0002-0039-9184
-   affiliation: 1 2
+   affiliation: 1, 2
  - name: Jess Tate 
    orcid: 0000-0002-2934-1453
-   affiliation: 1 2
+   affiliation: 1, 2
  - name: Kedar Aras 
    orcid: 0000-0002-9898-1462
-   affiliation: 1 2
+   affiliation: 1, 2
  - name: Brett Burton 
    orcid: 0000-0002-3971-4225
-   affiliation: 1 2
+   affiliation: 1, 2
  - name: Rob S. MacLeod 
    orcid:  0000-0002-0000-0356
-   affiliation: 1 2
-
+   affiliation: 1, 2
 affiliations:
 - name: Scientific Computing and Imaging Institute, University of Utah, Salt Lake City, UT, USA
-index: 1
+  index: 1
 - name:  Bioengineering Department, University of Utah, Salt Lake City, UT, USA
-index: 2
+  index: 2
 date: 25 October 2017
 bibliography: josspaper.bib
 ---
