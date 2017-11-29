@@ -35,7 +35,7 @@ authors:
 affiliations:
 - name: Scientific Computing and Imaging Institute, University of Utah, Salt Lake City, UT, USA
 index: 1
- - name:  Bioengineering Department, University of Utah, Salt Lake City, UT, USA
+- name:  Bioengineering Department, University of Utah, Salt Lake City, UT, USA
 index: 2
 date: 25 October 2017
 bibliography: josspaper.bib
