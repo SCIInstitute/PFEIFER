@@ -36,10 +36,10 @@ function [globFid, indivFids, variance] = findFid(windows,kernels)
 %   - indivXcorr: nLeads x 1 array with normalised xcorr values of matches
 
 
-nLeads=size(kernels,1);
-indivFids=zeros(nLeads,1);
-indivXcorr=zeros(nLeads,1);
 
+
+
+nLeads=size(kernels,1);
 length_kernel=size(kernels,2);
 lagshift=0;
 numlags=size(windows,2)-length_kernel+1;   %only the lags with "no overlapping"
@@ -56,6 +56,7 @@ end
 [~,globFid]=max(sum(xc,1),[],2);
 % variance
 variance=var(indivFids);
+
 
 
 

@@ -22,9 +22,6 @@
 
 
 
-
-
-
 function success = autoProcessSignal()
 % do all the autoprocessing.  Use the fiducials in the fiducialed beat to find all other beats of 
 % that run and fiducialise those beats, too. Handle & save the autoprocessed beats just like the 
@@ -33,39 +30,37 @@ function success = autoProcessSignal()
 %set up globals
 clear global AUTOPROCESSING  % just in case, so previous stuff doesnt mess anything up
 global TS SCRIPTDATA AUTOPROCESSING
-crg=SCRIPTDATA.CURRENTRUNGROUP;
-unslicedDataIndex=SCRIPTDATA.unslicedDataIndex;
-nToBeFiducialised=SCRIPTDATA.NTOBEFIDUCIALISED;    % nToBeFiducialised  evenly spread leads from leadsOfAllGroups will be chosen for autoprocessing
+
+unslicedDataIndex = SCRIPTDATA.unslicedDataIndex;
+templateFids = TS{SCRIPTDATA.CURRENTTS}.fids;
+templateBeatEnvelope = [TS{SCRIPTDATA.CURRENTTS}.selframes(1), TS{SCRIPTDATA.CURRENTTS}.selframes(2)];
+badLeads = (find(TS{SCRIPTDATA.unslicedDataIndex}.leadinfo > 0))';
 
 
-%%%% get the leadsOfAllGroups and filter out badleads
-badleads=find(TS{SCRIPTDATA.unslicedDataIndex}.leadinfo > 0);     % the global indices of bad leads
-leadsOfAllGroups=[SCRIPTDATA.GROUPLEADS{crg}{:}];
-leadsOfAllGroups=setdiff(leadsOfAllGroups,badleads);  %signal (where the beat is found) will constitute of those.  got rid of badleads
 
-%%%% set leadsToAutoprocess, the leads to find fiducials for and plot.  Only these leads will be used to compute the global fids
-idxs=round(linspace(1,length(leadsOfAllGroups),nToBeFiducialised));
-%idxs=randi([1,length(leadsOfAllGroups)],1,nToBeFiducialised); % this is wrong, since it may create dublicates
+%%%%%% set up the settings structure
+settings.fidsKernelLength = SCRIPTDATA.FIDSKERNELLENGTH;
+settings.window_width = SCRIPTDATA.WINDOW_WIDTH;
+settings.nToBeFiducialized = SCRIPTDATA.NTOBEFIDUCIALISED;
+settings.leadsOfAllGroups = [SCRIPTDATA.GROUPLEADS{SCRIPTDATA.CURRENTRUNGROUP}{:}];
+settings.demandedLeads = SCRIPTDATA.LEADS_FOR_AUTOFIDUCIALIZING;
+settings.accuracy = SCRIPTDATA.ACCURACY;
+settings.USE_RMS = SCRIPTDATA.USE_RMS;
 
-AUTOPROCESSING.leadsToAutoprocess=leadsOfAllGroups(idxs);
+settings.autoUpdateKernels  = SCRIPTDATA.AUTO_UPDATE_KERNELS;
+settings.nBeatsToAvrgOver = SCRIPTDATA.NUM_BEATS_TO_AVGR_OVER;
+settings.nBeatsBeforeUpdating  = SCRIPTDATA.NUM_BEATS_BEFORE_UPDATING;
 
-
-%%%% get info from  already processed beat
-AUTOPROCESSING.bsk=TS{SCRIPTDATA.CURRENTTS}.selframes(1);    % "beat start kernel"
-AUTOPROCESSING.bek=TS{SCRIPTDATA.CURRENTTS}.selframes(2);  %beat end kernel
-AUTOPROCESSING.oriFids=TS{SCRIPTDATA.CURRENTTS}.fids;
-
-%%%% get signal, the RMS needed to find beats
-signal = preprocessPotvals(TS{unslicedDataIndex}.potvals(leadsOfAllGroups,:));   % make signal out of leadsOfAllGroups
-
-%%%% find allFids based on oriFids and signal
-[AUTOPROCESSING.allFids, success]=findAllFids(TS{unslicedDataIndex}.potvals(AUTOPROCESSING.leadsToAutoprocess,:),signal);
+settings.DoIndivFids = SCRIPTDATA.DoIndivFids;
 
 
+[AUTOPROCESSING.beats, AUTOPROCESSING.allFids, info, success] = getBeatsAndFids(TS{unslicedDataIndex}.potvals, templateBeatEnvelope, templateFids, badLeads, settings);
 if ~success, return, end
+
+AUTOPROCESSING.leadsToAutofiducialize = info.leadsToAutofiducialize;
+
 %%%% find AUTOPROCESSING.faultyBeatsIndeces and AUTOPROCESSING.faultyBeatInfo
 getFaultyBeats;
-
 
 %%%% plot the found fids, let the user check them and make corrections
 if SCRIPTDATA.AUTOFID_USER_INTERACTION
@@ -83,9 +78,8 @@ if SCRIPTDATA.AUTOFID_USER_INTERACTION
     save(SCRIPTDATA.SCRIPTFILE,'SCRIPTDATA')  % save settings.. in case user made a change in autofiducializing window
 end
 
-
 %%%%% main loop: process each beat.
-global times
+global times     % to do: remove this? this global is only there to measure time efficiency.. 
 times=struct();
 times(1).count=1;
 
@@ -102,9 +96,7 @@ fn=fieldnames(times);
 for p=1:length(fn)
     times(times(1).count).(fn{p}) = sum([times.(fn{p})]);
 end
-        
-
-
+       
 success = 1;
 end
 
@@ -133,25 +125,6 @@ end
 
 %%%%%%%%%%% functions %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
-function signal = preprocessPotvals(potvals)
-% do temporal filter and RMS, to get a signal to work with
-
-%%%% temporal filter
-A = 1;
-B = [0.03266412226059 0.06320942361376 0.09378788647083 0.10617422096837 0.09378788647083 0.06320942361376 0.03266412226059];
-
-D = potvals';
-D = filter(B,A,D);
-D(1:(max(length(A),length(B))-1),:) = ones(max(length(A),length(B))-1,1)*D(max(length(A),length(B)),:);
-potvals = D';
-
-%%%% do RMS
-signal=sqrt(mean(potvals.^2));
-signal=signal-min(signal);
-end
-
-
 function getFaultyBeats
 % determine the beats, where autoprocessing didn't quite work ( eg those with very high variance)
 % fill AUTOPROCESSING.faultyBeatInfo and AUTOPROCESSING.faultyBeatIndeces with info
@@ -167,9 +140,10 @@ end
 %%%% set up variables
 treshold_variance = SCRIPTDATA.TRESHOLD_VAR;
 faultyBeatIndeces =[]; % the indeces in .Beats of faulty beats
-faultyBeatInfo = {};    % which fiducials (which types) in the beat are bad?     of format { [2 4], [5 6],.. }  
-faultyBeatValues = {};
+faultyBeatInfo = {};    % which fiducials (which types) in the beat are bad?        e.g faultyBeatInfo = { [2 4], [5 6 7],.. }  
+faultyBeatValues = {};  % correspondes with faultyBeatInfo, but contains the value instead of type
 numBeats = length(AUTOPROCESSING.beats);
+
 if ~isempty(AUTOPROCESSING.allFids)
     numFids = length(AUTOPROCESSING.allFids{1})/2;
 end
@@ -225,20 +199,30 @@ TS{newBeatIdx}.selframes=[beatframes(1),beatframes(end)];
 t=toc(a);
 times(times(1).count).a_sliceIntoBeat=t;
 
-%%%% put the new fids in the "local beat frame" and save them in newBeatIdx
-
+%%%% delete the local fids if we dont want them
 a=tic;
-fids=AUTOPROCESSING.allFids{beatNumber};
-reference=beatframes(1);
-for fidNumber=1:length(fids)
-    fids(fidNumber).value=fids(fidNumber).value-reference+1;  % fids now in local frame
+fids = AUTOPROCESSING.allFids{beatNumber};
+if ~SCRIPTDATA.DoIndivFids
+    locFidIdx = [];
+    for fidIdx=1:length(fids)
+        if length(fids(fidIdx).value) > 1  % fids now in relative frame
+            locFidIdx(end+1) = fidIdx;
+        end
+    end
+    fids(locFidIdx) = [];
+end
+
+%%%% put the new fids in the "relative beat frame" and save them in newBeatIdx
+reference = beatframes(1);
+for fidIdx=1:length(fids)
+    fids(fidIdx).value=fids(fidIdx).value - reference + 1;  % fids now in relative frame
 end
 if isfield(fids,'variance'),  fids=rmfield(fids,'variance'); end  %variance not wanted in the output
 TS{newBeatIdx}.fids=fids;
 t=toc(a);
 times(times(1).count).b_MakeFidsLocalAndRemvoeVariance=t;
 
-%%%%%% if 'blank bad leads' button is selected,   set all values of the bad leads to 0
+%%%% if 'blank bad leads' button is selected,   set all values of the bad leads to 0
 a=tic;
 if SCRIPTDATA.DO_BLANKBADLEADS == 1
     badleads = tsIsBad(newBeatIdx);
@@ -266,7 +250,6 @@ times(times(1).count).d_BaselineCorrection=t;
 
 
 %%%%% do activation and deactivation
-
 a=tic;
 if SCRIPTDATA.FIDSAUTOACT == 1
     success = DetectActivation(newBeatIdx); 
@@ -401,7 +384,6 @@ function success = DetectActivation(newBeatIdx)
 %%%% load globals and set mouse arrow to waiting
 global TS SCRIPTDATA;
 
-
 %%%% get current tsIndex,  set qstart=qend=zeros(numchannel,1),
 %%%% act=(1/SCRIPTDATA.SAMPLEFREQ)*ones(numleads,1)
 numchannels = size(TS{newBeatIdx}.potvals,1);
@@ -409,7 +391,7 @@ qstart = zeros(numchannels,1);
 qend = zeros(numchannels,1);
 act = ones(numchannels,1)*(1/SCRIPTDATA.SAMPLEFREQ);
 
-%%%% check if there is a t-wave to do recovery
+%%%% check if there is a qrs=wave
 qstart_indeces=find([TS{newBeatIdx}.fids.type]==2);
 qend_indeces=find([TS{newBeatIdx}.fids.type]==4);
 if isempty(qstart_indeces) || isempty(qend_indeces)
@@ -440,8 +422,6 @@ end
 qs = min([qstart qend],[],2);
 qe = max([qstart qend],[],2);
 
-
-
 %%%% init win/deg/neg
 win = SCRIPTDATA.ACTWIN;
 deg = SCRIPTDATA.ACTDEG;
@@ -451,10 +431,17 @@ deg = SCRIPTDATA.ACTDEG;
 [actFktHandle, success]=getActFunction;
 if ~success, return, end
 
+if any((qe-qs) < 15)
+    msg = sprintf('The QRS-wave in beat %d is to small! This often causes the activation detetection to fail',newBeatIdx);
+    errordlg(msg)
+    success = 0 ;
+    return
+end
+
 try
     for leadNumber=1:numchannels
-     %for each lead in each group = for all leads..  
-       [act(leadNumber)] = (actFktHandle(TS{newBeatIdx}.potvals(leadNumber,qs(leadNumber):qe(leadNumber)),win,deg)-1)/SCRIPTDATA.SAMPLEFREQ + qs(leadNumber);
+        %for each lead in each group = for all leads..  
+        [act(leadNumber)] = (actFktHandle(TS{newBeatIdx}.potvals(leadNumber,qs(leadNumber):qe(leadNumber)),win,deg)-1)/SCRIPTDATA.SAMPLEFREQ + qs(leadNumber);
     end
 catch
     errordlg('The selected function used to find the activations caused an error. Aborting...')
@@ -537,8 +524,6 @@ TS{newBeatIdx}.fids(end).value=rec;
 
 success = 1;
 end
-
-
 
 
 

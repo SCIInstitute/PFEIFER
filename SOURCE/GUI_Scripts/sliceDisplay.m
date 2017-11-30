@@ -230,7 +230,7 @@ end
 
 
 function SetupDisplay(handle)
-
+    
 pointer = handle.Pointer;
 handle.Pointer = 'watch';
 global TS SCRIPTDATA SLICEDISPLAY;
@@ -260,6 +260,7 @@ numgroups = length(groups);
 SLICEDISPLAY.NAME ={};
 SLICEDISPLAY.GROUPNAME = {};
 SLICEDISPLAY.GROUP = [];
+
 
 switch SCRIPTDATA.DISPLAYTYPE
     case 1
@@ -305,9 +306,12 @@ switch SCRIPTDATA.DISPLAYTYPE
         for p=1:length(groups)
             SLICEDISPLAY.GROUPNAME{p} = [SCRIPTDATA.GROUPNAME{SCRIPTDATA.CURRENTRUNGROUP}{groups(p)}]; 
         end 
+
         SLICEDISPLAY.SIGNAL = TS{tsindex}.potvals(ch,:);
         SLICEDISPLAY.LEADINFO = TS{tsindex}.leadinfo(ch);
+         
 end
+
 
 switch SCRIPTDATA.DISPLAYSCALING
     case 1
@@ -316,6 +320,12 @@ switch SCRIPTDATA.DISPLAYSCALING
         k(k==0) = 1;
         s = sparse(1:m,1:m,1./k,m,m);
         SLICEDISPLAY.SIGNAL = s*SLICEDISPLAY.SIGNAL;
+            
+%         SLICEDISPLAY.SIGNAL=SLICEDISPLAY.SIGNAL-min(SLICEDISPLAY.SIGNAL,[],2);
+% 
+%         for p=1:size(SLICEDISPLAY.SIGNAL,1)
+%             SLICEDISPLAY.SIGNAL(p,:)=SLICEDISPLAY.SIGNAL(p,:)/max(SLICEDISPLAY.SIGNAL(p,:));
+%         end
     case 2
         k = max(abs(SLICEDISPLAY.SIGNAL(:)));
         [m,~] = size(SLICEDISPLAY.SIGNAL);
@@ -333,6 +343,7 @@ switch SCRIPTDATA.DISPLAYSCALING
         s = sparse(1:m,1:m,1./k,m,m);
         SLICEDISPLAY.SIGNAL = s*SLICEDISPLAY.SIGNAL;
 end
+
 
 if SCRIPTDATA.DISPLAYTYPE == 3
     SLICEDISPLAY.SIGNAL = 0.5*SLICEDISPLAY.SIGNAL+0.5;
@@ -358,7 +369,6 @@ switch SCRIPTDATA.DISPLAYOFFSET
 end
 
 SLICEDISPLAY.COLORLIST = {[1 0 0],[0 0.7 0],[0 0 1],[0.5 0 0],[0 0.3 0],[0 0 0.5],[1 0.3 0.3],[0.3 0.7 0.3],[0.3 0.3 1],[0.75 0 0],[0 0.45 0],[0 0 0.75]};
-
 handle.Pointer = pointer;
 
     
@@ -466,7 +476,9 @@ for p=chstart:chend
             color = [0.35 0.35 0.35];
         end
     end
+    
 
+    
     plot(ax,SLICEDISPLAY.TIME(k),SLICEDISPLAY.SIGNAL(p,k),'color',color,'hittest','off');
     if (SCRIPTDATA.DISPLAYOFFSET == 1) && (SCRIPTDATA.DISPLAYLABEL == 1)&&(chend-chstart < 30) && (SLICEDISPLAY.YWIN(2) >= numchannels-p+1)
         text(ax,SLICEDISPLAY.XWIN(1),numchannels-p+1,SLICEDISPLAY.NAME{p},'color',color,'VerticalAlignment','top','hittest','off'); 

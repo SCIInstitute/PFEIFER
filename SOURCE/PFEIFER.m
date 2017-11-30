@@ -382,6 +382,10 @@ for p = 1:nFiles
         errordlg(msg)
         return
     end
+    
+    
+    %%%% update/check ts.filename and ts_info.filename
+    ts.filename = filenames{p};
 
 
     if ~isfield(ts,'time'), ts.time = 'none'; end
@@ -727,6 +731,14 @@ if nargin == 2
     end
 end
 
+
+if strcmp(tag,'AUTO_UPDATE_KERNELS')
+    disable_enable_TemplateUpdateButtons(hObject.Parent)
+end
+if strcmp(tag,'DoIndivFids')
+    disable_enable_AutofidOptions(hObject.Parent)
+end
+
 updateFigure(findobj(allchild(0),'tag','PROCESSINGSCRIPTSETTINGS'));
 updateFigure(findobj(allchild(0),'tag','PROCESSINGSCRIPTMENU')); 
 
@@ -1032,11 +1044,61 @@ end
 
 function openSettings(~)
 %callback to 'Settings Windwow'
-handle=DataOrganisation;
-updateFigure(handle)
-
+figHandle=DataOrganisation;
+updateFigure(figHandle)
 
 end
+
+
+
+function resetDefaultSettings(cbObj)
+% callback to the 'default settings' pushbutton to restore the autofiducializing default settings
+global SCRIPTDATA
+fieldsToReset = {'ACCURACY','FIDSKERNELLENGTH','WINDOW_WIDTH','NTOBEFIDUCIALISED','USE_RMS','LEADS_FOR_AUTOFIDUCIALIZING','NUM_BEATS_TO_AVGR_OVER','NUM_BEATS_BEFORE_UPDATING'};
+defaultSettings = getDefaultSettings;
+for p = 1:3:length(defaultSettings)
+    if ismember(defaultSettings{p}, fieldsToReset)
+        SCRIPTDATA.(defaultSettings{p}) = defaultSettings{p+1};
+    end
+end
+updateFigure(cbObj.Parent);
+end
+
+
+function disable_enable_TemplateUpdateButtons(fig)
+
+global SCRIPTDATA
+tagsToChange = {'NUM_BEATS_BEFORE_UPDATING','NUM_BEATS_TO_AVGR_OVER','text49','text48'};
+
+for p = 1:length(tagsToChange)
+    obj = findobj(allchild(fig),'Tag',tagsToChange{p});
+    if SCRIPTDATA.AUTO_UPDATE_KERNELS
+        set(obj,'enable','on','visible','on')
+    else
+        set(obj,'enable','inactive','visible','off')
+    end
+end
+drawnow
+end
+
+
+
+function disable_enable_AutofidOptions(fig)
+
+global SCRIPTDATA
+tagsToChange = {'NTOBEFIDUCIALISED','LEADS_FOR_AUTOFIDUCIALIZING','USE_RMS','text45','text46'};
+
+for p = 1:length(tagsToChange)
+    obj = findobj(allchild(fig),'Tag',tagsToChange{p});
+    if ~SCRIPTDATA.DoIndivFids
+        set(obj,'enable','on','visible','on')
+    else
+        set(obj,'enable','inactive','visible','off')
+    end
+end
+drawnow
+end
+
 
 function runScript(~)
 %callback to 'apply' button, this starts the whole processing process!
@@ -1059,7 +1121,6 @@ function runScript(~)
     
     
     h = [];   %for waitbar
-    success = 0;
     success = PreLoopScript;
     if ~success, return, end
     
@@ -1076,6 +1137,19 @@ function runScript(~)
     %%%% save helper files 
     savePROCESSINGDATA;
     saveSettings;
+    
+    
+    
+    %%%% check some user inputs 
+    if SCRIPTDATA.NUM_BEATS_TO_AVGR_OVER > SCRIPTDATA.NUM_BEATS_BEFORE_UPDATING
+        errordlg('# Beats For Updating must not be greater than # Beats Before Updating.');
+        return
+    end
+    if length(SCRIPTDATA.LEADS_FOR_AUTOFIDUCIALIZING) > SCRIPTDATA.NTOBEFIDUCIALISED
+        errordlg('You cannot specify more Leads For Autofiducializing than there are Number of Leads.')
+        return
+    end
+    
     
     
     %%%% make sure a rungroup is defined for each selected file
@@ -1438,7 +1512,7 @@ if SCRIPTDATA.DO_SLICE_USER == 1  %if 'user interaction' button is pressed
 end
 
 %%%% store all the SETTINGS/CHANGES done by the user
-ExportUserSettings(inputfilename,index,{'SELFRAMES','AVERAGEMETHOD','AVERAGECHANNEL','AVERAGERMSTYPE','AVERAGESTART','AVERAGEEND','AVERAGEFRAMES','TEMPLATEFRAMES','LEADINFO'});
+ExportUserSettings(inputfilename,index,{'SELFRAMES','LEADINFO'});
 
 %%%%%% if 'blank bad leads' button is selected,   set all values of the bad leads to 0   
 if SCRIPTDATA.DO_BLANKBADLEADS == 1
@@ -1482,6 +1556,7 @@ if (SCRIPTDATA.DO_BASELINE == 1)
         msg=sprintf('Couldn''t find any selected start/end time frames for %s. Either provide one by using a PROCESSINGDATA file where this information has been saved previously or select ''User Interaction'' at the Slice/Average'' section to manually select a start/end time frame. Aborting...',TS{index}.filename);
         errordlg(msg)
         TS{index}=[];
+        success  = 0;
         return
     end
     if ~isfield(TS{index},'startframe'), TS{index}.startframe = 1; end
@@ -1522,7 +1597,7 @@ if (SCRIPTDATA.DO_BASELINE == 1)
         end     
     end
     %%%% and save user selections in PROCESSINGDATA    
-    ExportUserSettings(inputfilename,index,{'SELFRAMES','AVERAGEMETHOD','AVERAGECHANNEL','AVERAGERMSTYPE','AVERAGESTART','AVERAGEEND','AVERAGEFRAMES','TEMPLATEFRAMES','LEADINFO','FIDS','FIDSET','STARTFRAME'});
+    ExportUserSettings(inputfilename,index,{'SELFRAMES','LEADINFO','FIDS','STARTFRAME'});
      
     %%%% now do the final baseline correction
     if SCRIPTDATA.DO_BASELINE == 1
@@ -1583,13 +1658,16 @@ if SCRIPTDATA.DO_DETECT == 1
         end     
     end    
     % save the user selections (stored in ts) in PROCESSINGDATA
-    ExportUserSettings(inputfilename,index,{'SELFRAMES','AVERAGEMETHOD','AVERAGERMSTYPE','AVERAGECHANNEL','AVERAGESTART','AVERAGEEND','AVERAGEFRAMES','TEMPLATEFRAMES','LEADINFO','FIDS','FIDSET','STARTFRAME'});
+    ExportUserSettings(inputfilename,index,{'SELFRAMES','LEADINFO','FIDS','STARTFRAME'});
 end
 
 %%%% now we have a fiducialed beat - use it as template to autoprocess the rest of the data in TS{unslicedDataIndex}
 if SCRIPTDATA.DO_AUTOFIDUCIALISING
     SCRIPTDATA.CURRENTTS = index;
+
     success = autoProcessSignal;
+    
+    
     if ~success, return, end
     
     switch SCRIPTDATA.NAVIGATION
@@ -1598,7 +1676,14 @@ if SCRIPTDATA.DO_AUTOFIDUCIALISING
             return; 
     end  
 end
-    
+
+
+
+
+
+
+
+
 
 %%%% this part does the splitting. In detail it
 % - creates numgroups new ts structures (one for each group) using
@@ -2002,7 +2087,6 @@ function defaultsettings=getDefaultSettings
                     'ACTDEG',3,'integer',...
                     'RECWIN',7,'integer',...
                     'RECDEG',3,'integer',...
-                    'TRESHOLD_VAR', 50,'integer',...                %autofiducializing stuff
                     'FILTER_SELECTION',1,'toolsdropdownmenu',...    % tools options
                     'BASELINE_SELECTION',1,'toolsdropdownmenu',...
                     'ACT_SELECTION',1,'toolsdropdownmenu',...
@@ -2016,11 +2100,19 @@ function defaultsettings=getDefaultSettings
                     'DO_AUTOFIDUCIALISING', 0, 'bool',...      % autofiducialising
                     'AUTOFID_USER_INTERACTION', 0, 'bool',...
                     'ACCURACY', 0.9, 'double',...
-                    'FIDSKERNELLENGTH',10,'integer',...
-                    'WINDOW_WIDTH', 20, 'integer',...
-                    'NTOBEFIDUCIALISED', 10, 'integer'
+                    'FIDSKERNELLENGTH',20,'integer',...
+                    'WINDOW_WIDTH', 30, 'integer',...
+                    'NTOBEFIDUCIALISED', 10, 'integer',...
+                    'TRESHOLD_VAR', 50,'integer',...     
+                    'USE_RMS',1,'bool',...
+                    'AUTO_UPDATE_KERNELS',1,'bool',...
+                    'NUM_BEATS_TO_AVGR_OVER', 5, 'integer',...
+                    'NUM_BEATS_BEFORE_UPDATING', 5, 'integer',...
+                    'LEADS_FOR_AUTOFIDUCIALIZING',[],'vector',...
+                    'DoIndivFids',0,'bool'
             };
 end
+
 
 function str = myStrTrim(str)
 %removes weird leading and trailing non-alphanum characters from str
