@@ -1,16 +1,28 @@
 function potvals = baselineCorrectBeats(potvals, beatEnvelopes)
+% this function does not only baseline correct at beatEnvelopes, but also sets values between beats to 0
 
+nLeads = size(potvals,1);
 
 for beatIdx = 1:length(beatEnvelopes)
+    %%%% baseline correct
     beatStart = beatEnvelopes{beatIdx}(1);
     beatEnd = beatEnvelopes{beatIdx}(2);
     potvals(:,beatStart:beatEnd) = baselineCorrection(potvals(:,beatStart:beatEnd),1,beatEnd-beatStart,5);
+    
+    
+    %%%% set values between beats to zero
+    if beatIdx > 1
+        prevBeatEnd = beatEnvelopes{beatIdx-1}(2);
+        distanceBetweenBeats = 1 + beatStart - prevBeatEnd;
+        potvals(:,prevBeatEnd:beatStart) = zeros(nLeads,distanceBetweenBeats);
+    end
 end
 
 
 
 function baseline_corrected_potvals = baselineCorrection(potvals,startframe,endframe,baselineWidth)
 % start/endframe is either a number (global) or a vector (individual on a lead by lead basis)
+
 
 [numleads, numframes] = size(potvals);
 

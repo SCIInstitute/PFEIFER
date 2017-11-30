@@ -213,9 +213,9 @@ if ~SCRIPTDATA.DoIndivFids
 end
 
 %%%% put the new fids in the "relative beat frame" and save them in newBeatIdx
-reference=beatframes(1);
+reference = beatframes(1);
 for fidIdx=1:length(fids)
-    fids(fidIdx).value=fids(fidIdx).value-reference+1;  % fids now in relative frame
+    fids(fidIdx).value=fids(fidIdx).value - reference + 1;  % fids now in relative frame
 end
 if isfield(fids,'variance'),  fids=rmfield(fids,'variance'); end  %variance not wanted in the output
 TS{newBeatIdx}.fids=fids;
@@ -384,7 +384,6 @@ function success = DetectActivation(newBeatIdx)
 %%%% load globals and set mouse arrow to waiting
 global TS SCRIPTDATA;
 
-
 %%%% get current tsIndex,  set qstart=qend=zeros(numchannel,1),
 %%%% act=(1/SCRIPTDATA.SAMPLEFREQ)*ones(numleads,1)
 numchannels = size(TS{newBeatIdx}.potvals,1);
@@ -392,7 +391,7 @@ qstart = zeros(numchannels,1);
 qend = zeros(numchannels,1);
 act = ones(numchannels,1)*(1/SCRIPTDATA.SAMPLEFREQ);
 
-%%%% check if there is a t-wave to do recovery
+%%%% check if there is a qrs=wave
 qstart_indeces=find([TS{newBeatIdx}.fids.type]==2);
 qend_indeces=find([TS{newBeatIdx}.fids.type]==4);
 if isempty(qstart_indeces) || isempty(qend_indeces)
@@ -423,8 +422,6 @@ end
 qs = min([qstart qend],[],2);
 qe = max([qstart qend],[],2);
 
-
-
 %%%% init win/deg/neg
 win = SCRIPTDATA.ACTWIN;
 deg = SCRIPTDATA.ACTDEG;
@@ -434,10 +431,17 @@ deg = SCRIPTDATA.ACTDEG;
 [actFktHandle, success]=getActFunction;
 if ~success, return, end
 
+if any((qe-qs) < 15)
+    msg = sprintf('The QRS-wave in beat %d is to small! This often causes the activation detetection to fail',newBeatIdx);
+    errordlg(msg)
+    success = 0 ;
+    return
+end
+
 try
     for leadNumber=1:numchannels
-     %for each lead in each group = for all leads..  
-       [act(leadNumber)] = (actFktHandle(TS{newBeatIdx}.potvals(leadNumber,qs(leadNumber):qe(leadNumber)),win,deg)-1)/SCRIPTDATA.SAMPLEFREQ + qs(leadNumber);
+        %for each lead in each group = for all leads..  
+        [act(leadNumber)] = (actFktHandle(TS{newBeatIdx}.potvals(leadNumber,qs(leadNumber):qe(leadNumber)),win,deg)-1)/SCRIPTDATA.SAMPLEFREQ + qs(leadNumber);
     end
 catch
     errordlg('The selected function used to find the activations caused an error. Aborting...')

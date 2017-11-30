@@ -103,7 +103,6 @@ else
     nBeats = length(allBeatEnvelopes);
 end
 
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%% get unslicedReducedPotvals, the leads to work with  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -135,7 +134,8 @@ end
 
 %%%% baselineCorrect the beats we have so far
 unslicedReducedPotvals = baselineCorrectBeats(unslicedReducedPotvals,allBeatEnvelopes);
-
+% set values before first beat to zero  (this makes things easier later, since we don't have to worry anymore if window is out of beat
+unslicedReducedPotvals(:,1:allBeatEnvelopes{1}(1)) = zeros(nLeadsToAutofiducialize,allBeatEnvelopes{1}(1));
 
 
 
@@ -164,11 +164,8 @@ blcs = bs + relFrOriFidsValues(fidTypes == 2) - 1 - 40;
 blce = bs + relFrOriFidsValues(fidTypes == 4) - 1 + 50;
 if blcs < 1
     blcs = 1;
-    disp('WARNING: qrs start is pretty close to beat start. This can cause in bad fiducial detection.')
+    disp('WARNING: qrs start is pretty close to beat start. This can result in bad fiducial detection.')
 end
-
-
-
 unslicedReducedPotvals(:,blcs:blce) = baselineCorrection(unslicedReducedPotvals(:,blcs:blce),1, blce-blcs,5);
 
 
@@ -200,7 +197,6 @@ end
 
 %%%% set up the kernels
 totalKernelLength = 2 * settings.fidsKernelLength +1;
-
 fidKernel = zeros(nLeadsToAutofiducialize, totalKernelLength, nFids);
 for fidIdx = 1:nFids
     fidKernel(:,:,fidIdx) = unslicedReducedPotvals(:,fsk(fidIdx):fek(fidIdx));
@@ -209,10 +205,10 @@ end
 
 
 
-%%%% for testing only
+% %%% for testing only
 % clear global xxx
 % global xxx
-% xxx.pv = unslicedReducedPotvals;
+% xxx.pv3 = unslicedReducedPotvals;
 % xxx.fsk = fsk;
 % xxx.fek = fek;
 % xxx.fidKernel = fidKernel;
@@ -260,16 +256,27 @@ while beatCount <= nBeats + 1  % as long as there are still beat envelopes with 
             for p=1:length(newBeatEnvelopes)
                 newBeatEnvelopes{p} = newBeatEnvelopes{p} + reference - 1;
             end
-
+            
+            % get rid of superfluous newBeatEnvelopes. We only want nBeatsBeforeUpdating new beats
             if length(newBeatEnvelopes) > settings.nBeatsBeforeUpdating
                 newBeatEnvelopes = newBeatEnvelopes(1:settings.nBeatsBeforeUpdating);
             end
-            nBeats = nBeats + length(newBeatEnvelopes);
-            allBeatEnvelopes(beatCount:nBeats) = newBeatEnvelopes;
             
             
             %%%% baselineCorrect the new found beats
             unslicedReducedPotvals = baselineCorrectBeats(unslicedReducedPotvals,newBeatEnvelopes);
+            %also set values between last old beat and first new beat to zero
+            if ~isempty(newBeatEnvelopes)
+                unslicedReducedPotvals(:, allBeatEnvelopes{end}(2):newBeatEnvelopes{1}(1)) = zeros(nLeadsToAutofiducialize,1 +newBeatEnvelopes{1}(1) - allBeatEnvelopes{end}(2));
+            end
+            
+            
+            
+            
+            % add the newBeatEnvelopes to allBeatEnvelopes
+            nBeats = nBeats + length(newBeatEnvelopes);
+            allBeatEnvelopes(beatCount:nBeats) = newBeatEnvelopes;
+            
         end
     end
     % if out of beat envelopes, break
@@ -280,6 +287,8 @@ while beatCount <= nBeats + 1  % as long as there are still beat envelopes with 
     %%%% get current beat start/end
     bs = allBeatEnvelopes{beatCount}(1);  % start of beat
     be = allBeatEnvelopes{beatCount}(2);  % end of beat
+    newBeatStart = bs;
+    newBeatEnd = be;  % in case we need to update those
     
     
     %%%%% baseline correct around qrs-wave
@@ -287,7 +296,7 @@ while beatCount <= nBeats + 1  % as long as there are still beat envelopes with 
     blce = bs + relFrOriFidsValues(fidTypes == 4) - 1 + 50;
     if blcs < 1
         blcs = 1;
-        disp('WARNING: qrs start is pretty close to beat start. This can cause in bad fiducial detection.')
+        disp('WARNING: qrs start is pretty close to beat start. This can result in bad fiducial detection.')
     end
     unslicedReducedPotvals(:,blcs:blce) = baselineCorrection(unslicedReducedPotvals(:,blcs:blce),1, blce-blcs,5);
 
@@ -299,17 +308,17 @@ while beatCount <= nBeats + 1  % as long as there are still beat envelopes with 
         ws = bs - 1 + relFrOriFidsValues(fidIdx) - settings.window_width + kernelShift(fidIdx);  % dont search complete beat, only around fid
         we = bs - 1 + relFrOriFidsValues(fidIdx) + settings.window_width + kernelShift(fidIdx); 
         shift = 0;
-        if ws < bs  % if window 'to far left', shift it to the right!
-            shift = bs - ws;
-            ws = bs;
+        if ws < 1  % if window 'to far left', shift it to the right!
+            shift = 1 - ws;
+            ws = 1;
             we = we + shift;
-        elseif we > be  % if window 'to far right', shift it to the left!
-            shift = be - we;
+        elseif we > nFrames  % if window 'to far right', shift it to the left!
+            shift = nFrames - we;
             ws = ws + shift;
-            we = be;
+            we = nFrames;
         end
-        if abs(shift) > settings.window_width - settings.fidsKernelLength
-            disp('WARNING: at least one fiducial is to close to a beat envelope. This often causes trouble.')
+        if abs(shift) * 0.75 > (settings.window_width - settings.fidsKernelLength)
+            disp('WARNING: at least one fiducial is to close to start or end of the time signal. This can cause trouble and should be avoided.')
         end
         windows=unslicedReducedPotvals(:,ws:we);
         
@@ -327,6 +336,23 @@ while beatCount <= nBeats + 1  % as long as there are still beat envelopes with 
         absFrGlobFids = winFrGlobFid + absFrOriFidsValues(fidIdx) - fsk(fidIdx) + ws - 1;      % put it into "complete potvals" frame
         
         
+        %%%% if any of the fiducials is "outside of a beat", make beat larger to fit fiducial
+        if settings.DoIndivFids
+            if any(absFrIndivFids < newBeatStart)
+                newBeatStart = min(absFrIndivFids);
+            end
+            if any(absFrIndivFids > newBeatEnd)
+                newBeatStart = max(absFrIndivFids);
+            end
+        else
+            if absFrGlobFids < newBeatStart
+                newBeatStart = absFrGlobFids;
+            end
+            if absFrGlobFids > newBeatEnd
+                newBeatEnd = absFrGlobFids;
+            end
+        end
+
         %%%% if DoIndivFids, set individual fids of unfiducialized leads to beat start
         if settings.DoIndivFids
             copy_absFrIndivFids = absFrIndivFids;
@@ -334,6 +360,7 @@ while beatCount <= nBeats + 1  % as long as there are still beat envelopes with 
             absFrIndivFids(leadsToAutofiducialize) = copy_absFrIndivFids;
             absFrIndivFids(absFrIndivFids == 0) = NaN;
         end
+        
         
 
         %%%% put the found absFrIndivFids in allFids
@@ -359,6 +386,14 @@ while beatCount <= nBeats + 1  % as long as there are still beat envelopes with 
         
         
     end
+    
+    %%% update beat envelopes
+    allBeatEnvelopes{beatCount}(1) = newBeatStart;  
+    allBeatEnvelopes{beatCount}(2) = newBeatEnd;
+
+
+    
+    
     if isgraphics(h), waitbar(beatCount/nBeats,h), end
     beatCount = beatCount + 1;
 end
@@ -371,7 +406,7 @@ allFidsAbsFr = allFidsAbsFr(1:nBeats);
 
 
 
-
+% 
 % %%%% testing stuff only
 % disp('remove this')
 % clear global td
