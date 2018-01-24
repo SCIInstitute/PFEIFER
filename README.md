@@ -5,6 +5,11 @@
 
 PFEIFER is an open source software for processing of cardiac electrogram signals. 
 
+To reference PFEIFER in your own work please refer to the Journal of Open Source Software article published at the link below. 
+
+[![DOI](http://joss.theoj.org/papers/10.21105/joss.00472/status.svg)](https://doi.org/10.21105/joss.00472)
+
+
 [![DOI](https://zenodo.org/badge/98670022.svg)](https://zenodo.org/badge/latestdoi/98670022)
 
 # Installation Instructions
