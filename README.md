@@ -22,7 +22,7 @@ To reference PFEIFER in your own work please refer to the Journal of Open Source
 
 ## Starting PFEIFER 
 
-PFEIFER is designed as a collection of .m scripts and functions usable within an active installation of MATLAB. To run PFEIFER the user must navigate to the directory that contains the PFEIFER source code and add this folder and subfolders to the MATLAB path. Once added to the MATLAB path the user can access the PFEIFER GUI in any directory by calling "PFEIFER" from the command window of MATLAB.
+PFEIFER is designed as a collection of .m scripts and functions usable within an active installation of MATLAB. To run PFEIFER the user must add the PFEIFER folder and subfolders to the MATLAB path. Once added to the MATLAB path the user can access the PFEIFER GUI in any directory by calling "PFEIFER" from the command window of MATLAB.
 
 
 
