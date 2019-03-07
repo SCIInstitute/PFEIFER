@@ -156,7 +156,9 @@ data = struct('filename', '' , ...
              error('dimensions of mapping file and potvals don''t match')
          end
      end
-     
+     if size(potval,2) ~= numframes
+         numframes= size(potval,2);
+     end
      %if calibration file is available, recalibrate the data
      if isfield(options, 'scalemap')
          for i=1:numleads
