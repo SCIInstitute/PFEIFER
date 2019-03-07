@@ -135,7 +135,9 @@ end
 %%%% baselineCorrect the beats we have so far
 unslicedReducedPotvals = baselineCorrectBeats(unslicedReducedPotvals,allBeatEnvelopes);
 % set values before first beat to zero  (this makes things easier later, since we don't have to worry anymore if window is out of beat
+try
 unslicedReducedPotvals(:,1:allBeatEnvelopes{1}(1)) = zeros(nLeadsToAutofiducialize,allBeatEnvelopes{1}(1));
+
 
 
 
@@ -399,7 +401,10 @@ while beatCount <= nBeats + 1  % as long as there are still beat envelopes with 
 end
 if isgraphics(h), delete(h), end
 
-
+catch 
+    
+    ['Run ',num2str(settings.RunNumber),' has no autofid beats']
+end
 
 allFidsAbsFr = allFidsAbsFr(1:nBeats);
 
