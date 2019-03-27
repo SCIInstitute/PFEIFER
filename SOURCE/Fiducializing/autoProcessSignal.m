@@ -442,7 +442,8 @@ end
 try
     for leadNumber=1:numchannels
         %for each lead in each group = for all leads..  
-        [act(leadNumber)] = (actFktHandle(TS{newBeatIdx}.potvals(leadNumber,qs(leadNumber):qe(leadNumber)),win,deg)-1)/SCRIPTDATA.SAMPLEFREQ + qs(leadNumber);
+        %[act(leadNumber)] = (actFktHandle(TS{newBeatIdx}.potvals(leadNumber,qs(leadNumber):qe(leadNumber)),win,deg)-1)/SCRIPTDATA.SAMPLEFREQ + qs(leadNumber);
+        [act(leadNumber)] = (actFktHandle(TS{newBeatIdx}.potvals(leadNumber,qs(leadNumber):qe(leadNumber)),win,deg)-1) + qs(leadNumber);
     end
 catch
     errordlg('The selected function used to find the activations caused an error. Aborting...')
@@ -511,7 +512,9 @@ deg = SCRIPTDATA.RECDEG;
 if ~success, return, end
 try
     for leadNumber=1:numchannels
-        rec(leadNumber) = recFktHandle(TS{newBeatIdx}.potvals(leadNumber,ts(leadNumber):te(leadNumber)),win,deg)/SCRIPTDATA.SAMPLEFREQ + ts(leadNumber);
+        %rec(leadNumber) = recFktHandle(TS{newBeatIdx}.potvals(leadNumber,ts(leadNumber):te(leadNumber)),win,deg)/SCRIPTDATA.SAMPLEFREQ + ts(leadNumber);
+        rec(leadNumber) = recFktHandle(TS{newBeatIdx}.potvals(leadNumber,ts(leadNumber):te(leadNumber)),win,deg) + ts(leadNumber);
+
     end
 catch
     errordlg('The selected function used to find the recoveries caused an error. Aborting...')

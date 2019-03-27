@@ -1384,23 +1384,24 @@ act = ones(FIDSDISPLAY.EVENTS{3}.maxn,1)*(1/SCRIPTDATA.SAMPLEFREQ);
 %%%% qstart/end=QRS-Komplex-start/end-timeframe as saved in
 %%%% events.value. Check for global, group, local..
 ind = find(FIDSDISPLAY.EVENTS{1}.type == 2);
+indt = find(FIDSDISPLAY.EVENTS{1}.type == 3);
 if ~isempty(ind)
     qstart = FIDSDISPLAY.EVENTS{1}.value(1,ind(1),1)*ones(numchannels,1);
-    qend   = FIDSDISPLAY.EVENTS{1}.value(1,ind(1),2)*ones(numchannels,1);
+    qend   = FIDSDISPLAY.EVENTS{1}.value(1,indt(1),1)*ones(numchannels,1);
 end   
 numgroups = length(SCRIPTDATA.GROUPLEADS{SCRIPTDATA.CURRENTRUNGROUP});
 ind = find(FIDSDISPLAY.EVENTS{2}.type == 2);
 if ~isempty(ind)
     for p=1:numgroups
         qstart(SCRIPTDATA.GROUPLEADS{SCRIPTDATA.CURRENTRUNGROUP}{p}) = FIDSDISPLAY.EVENTS{2}.value(p,ind(1),1);
-        qend(SCRIPTDATA.GROUPLEADS{SCRIPTDATA.CURRENTRUNGROUP}{p})   = FIDSDISPLAY.EVENTS{2}.value(p,ind(1),2);
+        qend(SCRIPTDATA.GROUPLEADS{SCRIPTDATA.CURRENTRUNGROUP}{p})   = FIDSDISPLAY.EVENTS{2}.value(p,indt(1),1);
     end
 end
 
 ind = find(FIDSDISPLAY.EVENTS{3}.type == 2);
 if ~isempty(ind)
     qstart = FIDSDISPLAY.EVENTS{3}.value(:,ind(1),1);
-    qend = FIDSDISPLAY.EVENTS{3}.value(:,ind(1),2);
+    qend = FIDSDISPLAY.EVENTS{3}.value(:,indt(1),1);
 end
 
 if nnz(qstart)==0 || nnz(qend)==0  % if there is no qrs wave, return without doing something.. qrs needed to find activation
