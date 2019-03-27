@@ -512,7 +512,9 @@ deg = SCRIPTDATA.RECDEG;
 if ~success, return, end
 try
     for leadNumber=1:numchannels
-        rec(leadNumber) = recFktHandle(TS{newBeatIdx}.potvals(leadNumber,ts(leadNumber):te(leadNumber)),win,deg)/SCRIPTDATA.SAMPLEFREQ + ts(leadNumber);
+        %rec(leadNumber) = recFktHandle(TS{newBeatIdx}.potvals(leadNumber,ts(leadNumber):te(leadNumber)),win,deg)/SCRIPTDATA.SAMPLEFREQ + ts(leadNumber);
+        rec(leadNumber) = recFktHandle(TS{newBeatIdx}.potvals(leadNumber,ts(leadNumber):te(leadNumber)),win,deg) + ts(leadNumber);
+
     end
 catch
     errordlg('The selected function used to find the recoveries caused an error. Aborting...')
