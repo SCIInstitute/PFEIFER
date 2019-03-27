@@ -442,7 +442,8 @@ end
 try
     for leadNumber=1:numchannels
         %for each lead in each group = for all leads..  
-        [act(leadNumber)] = (actFktHandle(TS{newBeatIdx}.potvals(leadNumber,qs(leadNumber):qe(leadNumber)),win,deg)-1)/SCRIPTDATA.SAMPLEFREQ + qs(leadNumber);
+        %[act(leadNumber)] = (actFktHandle(TS{newBeatIdx}.potvals(leadNumber,qs(leadNumber):qe(leadNumber)),win,deg)-1)/SCRIPTDATA.SAMPLEFREQ + qs(leadNumber);
+        [act(leadNumber)] = (actFktHandle(TS{newBeatIdx}.potvals(leadNumber,qs(leadNumber):qe(leadNumber)),win,deg)-1) + qs(leadNumber);
     end
 catch
     errordlg('The selected function used to find the activations caused an error. Aborting...')
