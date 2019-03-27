@@ -52,6 +52,7 @@ settings.nBeatsToAvrgOver = SCRIPTDATA.NUM_BEATS_TO_AVGR_OVER;
 settings.nBeatsBeforeUpdating  = SCRIPTDATA.NUM_BEATS_BEFORE_UPDATING;
 
 settings.DoIndivFids = SCRIPTDATA.DoIndivFids;
+settings.RunNumber = SCRIPTDATA.ACQNUM;
 
 
 [AUTOPROCESSING.beats, AUTOPROCESSING.allFids, info, success] = getBeatsAndFids(TS{unslicedDataIndex}.potvals, templateBeatEnvelope, templateFids, badLeads, settings);
