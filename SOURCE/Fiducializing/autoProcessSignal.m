@@ -394,7 +394,7 @@ act = ones(numchannels,1)*(1/SCRIPTDATA.SAMPLEFREQ);
 
 %%%% check if there is a qrs=wave
 qstart_indeces=find([TS{newBeatIdx}.fids.type]==2);
-qend_indeces=find([TS{newBeatIdx}.fids.type]==4);
+qend_indeces=find([TS{newBeatIdx}.fids.type]==5);
 if isempty(qstart_indeces) || isempty(qend_indeces)
     msg = sprintf('There is no qrs-wave for the file %s. Therefore, activation detection cannot be done for this file. Aborting...',TS{newBeatIdx}.filename);
     errordlg(msg)
