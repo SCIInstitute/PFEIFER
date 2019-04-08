@@ -39,7 +39,7 @@ function PFEIFER(varargin)
 %%%% check if this script is called as a callback or to start PFEIFER
 if nargin > 1 && ischar(varargin{1})  % if called as a callback
     feval(varargin{1},varargin{2:end});  % execute callback
-    return
+    return 
 end
 
 %%%% initianlize the globals SCRIPTDATA and PROCESSINGDATA
@@ -57,120 +57,11 @@ dataOrgFigHandle=DataOrganisation();    %Open the settings Display
 updateFigure(dataOrgFigHandle);     % and update it
 setHelpMenus(dataOrgFigHandle);      % initialise help menus that pop up when you righ click on button
 updateACQFiles      % get ACQ Files from input directory to display
+
 end
 
 
 
-function updateFigure(figObj)
-% changes all Settings in the figure ( that belongs to handle) according to
-% SCRIPTDATA.  
-%Updates everything in the gui figures, including File Listbox etc..
-% handle is gui figure object
-
-global SCRIPTDATA;
-
-%%%% loop through all fieldnames of SCRIPTDATA and make changes accourding to the fieldname
-fn = fieldnames(SCRIPTDATA);
-for p=1:length(fn)
-    %%%% identify the uicontrol object in the gui figure ("handle") that is related to the fieldname. The uicontrol object are identified by there tag property
-    obj = findobj(allchild(figObj),'tag',fn{p});
-    if ~isempty(obj) % if field is also Tag to a uicontroll object in the figure..
-        %%%% change that uicontroll. Depending on type..  
-        objtype = SCRIPTDATA.TYPE.(fn{p});
-        switch objtype
-            case {'file','string'}
-                obj.String = SCRIPTDATA.(fn{p});
-            case {'listbox'}
-                cellarray = SCRIPTDATA.(fn{p});
-                if ~isempty(cellarray) 
-                    values = intersect(SCRIPTDATA.ACQFILENUMBER,SCRIPTDATA.ACQFILES);
-                    
-                    if length(cellarray) == 1
-                        maxVal=3;
-                    else
-                        maxVal = length(cellarray);
-                    end
-                    set(obj,'string',cellarray,'max',maxVal,'value',values,'enable','on');
-                else
-                    set(obj,'string',{'NO ACQ or AC2 FILES FOUND','',''},'max',3,'value',[],'enable','off');
-                end
-            case {'double','vector','listboxedit','integer'}
-                obj.String = mynum2str(SCRIPTDATA.(fn{p}));
-            case {'bool','toolsdropdownmenu'}
-                [obj.Value] = deal(SCRIPTDATA.(fn{p}));
-            case {'select'}   % case of SCRIPTDATA.GROUPSELECT  
-                value = SCRIPTDATA.(fn{p});    % int telling which group is selected
-                if value == 0, value = 1; end  %if nothing was selected
-                obj.Value = value;
-                rungroup=SCRIPTDATA.RUNGROUPSELECT;
-                if rungroup==0, continue; end
-                selectnames = SCRIPTDATA.GROUPNAME{rungroup};  %update dropdown with GROUPNAME, but add 'NEW GROUP' first
-                selectnames{end+1} = 'NEW GROUP';
-                obj.String = selectnames;
-
-            case {'selectR'}
-                value = SCRIPTDATA.(fn{p});    % int telling which rungroup is selected
-                if value == 0, value = 1; end  %if nothing was selected
-                selectrnames = SCRIPTDATA.RUNGROUPNAMES;  %update dropdown with GROUPNAME, but add 'NEW GROUP' first
-                selectrnames{end+1} = 'NEW RUNGROUP'; 
-                obj.String = selectrnames;
-                obj.Value = value;
-
-
-            case {'groupfile','groupstring','groupdouble','groupvector','groupbool'}   
-                group = SCRIPTDATA.GROUPSELECT;
-                if (group > 0)
-                    set(obj,'enable','on','visible','on');
-                    cellarray = SCRIPTDATA.(fn{p}){SCRIPTDATA.RUNGROUPSELECT};
-                    if length(cellarray) < group   %if the 'new group' option is selected!
-                        cellarray{group} = SCRIPTDATA.DEFAULT.(fn{p});      % if new group was added, fill emty array slots with default values
-                    end
-                    switch objtype(6:end)
-                        case {'file','string'}
-                            obj.String = cellarray{group};
-                        case {'double','vector','integer'}
-                            obj.String = mynum2str(cellarray{group});
-                        case {'bool'}
-                            obj.Value = cellarray{group};
-                    end
-                    SCRIPTDATA.(fn{p}){SCRIPTDATA.RUNGROUPSELECT}=cellarray;    
-                else
-                    set(obj,'enable','inactive','visible','off');
-                end
-            case {'rungroupstring', 'rungroupvector'}    %any of the rungroupbuttons
-                rungroup = SCRIPTDATA.RUNGROUPSELECT;
-                if (rungroup > 0)
-                    set(obj,'enable','on','visible','on');
-                    set(findobj(allchild(figObj),'tag','GROUPSELECT'),'enable','on','visible','on')
-                    set(findobj(allchild(figObj),'tag','RUNGROUPFILESBUTTON'),'enable','on','visible','on','BackgroundColor',[0.28 0.28 0.28])
-                    
-                    set(findobj(allchild(figObj),'tag','BROWSE_RUNGROUPMAPPINGFILE'),'enable','on','visible','on','BackgroundColor',[0.28 0.28 0.28])
-                    set(findobj(allchild(figObj),'tag','USE_MAPPINGFILE'),'enable','on','visible','on')
-                    set(findobj(allchild(figObj),'tag','mappingfileStaticTextObj'),'enable','on','visible','on')
-
-                    cellarray = SCRIPTDATA.(fn{p});                     
-                    switch objtype(9:end)
-                        case {'file','string'}
-                            obj.String = cellarray{rungroup};
-                        case {'double','vector','integer'}
-                            obj.String = mynum2str(cellarray{rungroup});
-                        case {'bool'}
-                            obj.Value = cellarray{rungroup};
-                    end
-                    SCRIPTDATA.(fn{p})=cellarray;
-                else
-                    set(obj,'enable','inactive','visible','off');
-                    set(findobj(allchild(figObj),'tag','GROUPSELECT'),'enable','off','visible','off')
-                    set(findobj(allchild(figObj),'tag','RUNGROUPFILESBUTTON'),'enable','off','visible','off')
-                    
-                    set(findobj(allchild(figObj),'tag','BROWSE_RUNGROUPMAPPINGFILE'),'enable','off','visible','off')
-                    set(findobj(allchild(figObj),'tag','USE_MAPPINGFILE'),'enable','off','visible','off')
-                    set(findobj(allchild(figObj),'tag','mappingfileStaticTextObj'),'enable','off','visible','off')
-                end
-        end
-    end
-end
-end
 
 
 
@@ -181,89 +72,11 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  Callback functions %%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function CloseFcn(~)
-%callback function for the 'close' buttons.
-global SCRIPTDATA PROCESSINGDATA FIDSDISPLAY SLICEDISPLAY TS
-
-%%%% save setting
-try
-    if ~isempty(SCRIPTDATA.SCRIPTFILE)
-     saveSettings
-     disp('Saved SETTINGS before closing PFEIFER')
-    else
-     disp('PFEIFER closed without saving SETTINGS')
-    end
-catch
-    %do nothing
-end
-
-%%%% delete all gui figures
-delete(findobj(allchild(0),'tag','PROCESSINGSCRIPTMENU')); 
-delete(findobj(allchild(0),'tag','PROCESSINGSCRIPTSETTINGS')); 
-delete(findobj(allchild(0),'tag','SLICEDISPLAY'));
-delete(findobj(allchild(0),'tag','FIDSDISPLAY'));
-
-%%%% delete all waitbars
-waitObjs = findall(0,'type','figure','tag','waitbar');
-delete(waitObjs);
-
-%%%% delete all error dialog windows
-errordlgObjs = findall(0,'type','figure','tag','Msgbox_Error Dialog');
-delete(errordlgObjs);
-
-%%%% clear globals
-clear global PROCESSINGDATA SCRIPTDATA FIDSDISPLAY SLICEDISPLAY TS
-end
 
 
 
-function setupToolSelectionDropdownmenus(figObj)
-global SCRIPTDATA
-[pathToPFEIFERfile,~,~] = fileparts(which('PFEIFER.m'));   % find path to PFEIFER.m
-
-%%%% hardcoded lists of the tags of the dropdown menus and the folders corresponding to them
-dropdownTags = {    'FILTER_SELECTION', 'BASELINE_SELECTION',   'ACT_SELECTION', 'REC_SELECTION'};     % the Tags of the dropdown uicontrol objects
-toolsFoldernames = {'temporal_filters', 'baseline_corrections', 'act_detection', 'rec_detection'};    % these are the folder names of the folder in the TOOLS folder
-toolsOptions = {    'FILTER_OPTIONS',   'BASELINE_OPTIONS',     'ACT_OPTIONS',   'REC_OPTIONS'};
 
 
-%%%% loop through dropdown menus:
-for p=1:length(dropdownTags)
-
-    %%%% find the dropdown object
-    dropdownObj = findobj(allchild(figObj),'Tag',dropdownTags{p});
-    
-    %%%% get the path to tools folder
-    pathToTools = fullfile(pathToPFEIFERfile,'TOOLS',toolsFoldernames{p});
-    
-    %%%% get all the function.m names in that folder. these are the different options to choose from
-    folderData = what(pathToTools);
-    functionNames = folderData.m;
-    % get rid of the '.m' at the end
-    for q=1:length(functionNames)
-        functionNames{q} = functionNames{q}(1:end-2);
-    end
-    
-    
-    %%%% set the dropdownObj.String
-    if isempty(functionNames)
-        [dropdownObj.String] = deal('no function found');
-    else
-        [dropdownObj.String] = deal(functionNames);      % deal and [  ] necessary here, because in case of 'BASELINE_SELECTION', there are two objects (since there are select baseline dropdown menus with the same tag)
-    end
-    
-    %%%% set the dropdownObj.Value
-    if SCRIPTDATA.(dropdownTags{p}) > length(functionNames)
-        SCRIPTDATA.(dropdownTags{p}) = 1;
-    end
-    [dropdownObj.Value] = deal(SCRIPTDATA.(dropdownTags{p}));     % deal and [ ... ] necessary here, because in case of 'BASELINE_SELECTION', there are two objects (since both select baseline dropdown menus have that same tag)
-    
-    %%%% save the toolsOptions in SCRIPTDATA (for later use)
-    SCRIPTDATA.(toolsOptions{p}) = functionNames;
-end
-    
-
-end
 
 
 function Browse(handle,ext,mode)
@@ -763,85 +576,10 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%% utility functions %%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function str = mynum2str(vec)
-    % converts vectoren in strings
-    % also outputs special format for the listboxedit  ( mitte unten, wo
-    % man [1:19] eingibt
-    if length(vec) == 1
-        str = num2str(vec);
-    else
-        if nnz(vec-round(vec)) > 0
-            str = num2str(vec);
-        else
-            vec = sort(vec);
-            str = '';
-            ind = 1;
-            len = length(vec);
-            while (ind <= len)
-                if (len-ind) > 0
-                     step = vec(ind+1)-vec(ind);
-                     k = 1;
-                     while (k+ind+1 <= len)
-                         if vec(ind+k+1)-vec(ind+k) == step
-                             k = k + 1;
-                         else
-                             break;
-                         end
-                     end
-                     if k > 1
-                         if step == 1
-                            str = [str sprintf('%d:%d ',vec(ind),vec(ind+k))]; ind = ind + k+1;
-                        else
-                            str = [str sprintf('%d:%d:%d ',vec(ind),step,vec(ind+k))]; ind = ind + k+1;
-                        end
-                     else
-                         str = [str sprintf('%d ',vec(ind))]; ind = ind + 1;
-                     end
-                 else
-                     for p = ind:len
-                         str = [str sprintf('%d ',vec(p))]; ind = len + 1;
-                     end
-                 end
-             end
-         end
-     end
-end
-
-function vec = mystr2num(str)
-    vec = eval(['[' str ']']);
-end
-
-function strs = commalist(str)
-    %converts input like 'a,b,c' or 'a, b, c' oder 'a;b, c' in a cell array
-    %{'a', 'b', 'c'}
-    str = str(find(isspace(str)==0));
-    ind = [0 sort([strfind(str,',') strfind(str,';')]) length(str)+1];
-    for p=1:(length(ind)-1)
-        strs{p} = str((ind(p)+1):(ind(p+1)-1));
-    end
-    
-end
 
 
 
 
 
-function str = myStrTrim(str)
-%removes weird leading and trailing non-alphanum characters from str
-if isempty(str), return, end
 
-for p = 1:length(str)
-    if isstrprop(str(p),'alphanum')
-        start=p;
-        break
-    end
-end
-for p=length(str):-1:1
-    if isstrprop(str(p),'alphanum')
-        ending=p;
-        break
-    end
-end
 
-str=str(start:ending);
-end
