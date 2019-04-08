@@ -21,23 +21,23 @@
 % SOFTWARE.
 
 
+function executeCallback(fig,tag,input)
+hObject =  findobj(allchild(fig),'Tag',tag);
+callbackFkt = hObject.Callback;
 
-function str = myStrTrim(str)
-%removes weird leading and trailing non-alphanum characters from str
-if isempty(str), return, end
-
-for p = 1:length(str)
-    if isstrprop(str(p),'alphanum')
-        start=p;
-        break
-    end
-end
-for p=length(str):-1:1
-    if isstrprop(str(p),'alphanum')
-        ending=p;
-        break
-    end
-end
-
-str=str(start:ending);
+switch tag
+    case {'SAVESCRIPTDATA','SAVEPROCESSINGDATA'}
+        callbackFkt(hObject,input)
+    otherwise
+        switch hObject.Style
+            case {'slider','radiobutton','togglebutton', 'checkbox','listbox', 'popupmenu'}
+                try
+                    hObject.Value = input;
+                catch
+                    error('Could not execute callback with tag %s in figure %s.', tag,fig.Name)
+                end
+            case {'edit'}
+                hObject.String = input;
+        end
+        callbackFkt(hObject,'dummyEventData');   
 end

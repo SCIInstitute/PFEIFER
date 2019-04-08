@@ -22,22 +22,35 @@
 
 
 
-function str = myStrTrim(str)
-%removes weird leading and trailing non-alphanum characters from str
-if isempty(str), return, end
+function runScriptFile(scriptdata_file,processingdata_file)
 
-for p = 1:length(str)
-    if isstrprop(str(p),'alphanum')
-        start=p;
-        break
-    end
-end
-for p=length(str):-1:1
-    if isstrprop(str(p),'alphanum')
-        ending=p;
-        break
-    end
+global SCRIPTDATA PROCESSINGDATA
+
+mainFigure = findobj(allchild(0),'tag','PROCESSINGSCRIPTMENU');
+settingsFigure = findobj(allchild(0),'tag','PROCESSINGSCRIPTSETTINGS');
+
+
+% s_success = loadSCRIPTDATA(scriptdata_file);
+% if s_success==0
+%     return
+% end
+% PFEIFER('updateFigure',settingsFigure)
+% PFEIFER('updateFigure',mainFigure)
+% 
+% 
+% 
+% p_success = loadPROCESSINGDATA(processingdata_file);
+% if p_success==0
+%     return
+% end
+% PFEIFER('updateFigure',settingsFigure)
+% PFEIFER('updateFigure',mainFigure)
+
+executeCallback(settingsFigure,'DATAFILE',processingdata_file)
+executeCallback(settingsFigure,'SCRIPTFILE',scriptdata_file)
+
+runScript
 end
 
-str=str(start:ending);
-end
+
+

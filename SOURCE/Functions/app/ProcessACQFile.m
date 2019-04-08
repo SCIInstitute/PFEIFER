@@ -342,8 +342,16 @@ end
 %%%% split TS{index} into numGroups smaller ts
 splitgroup = [];
 for p=1:length(SCRIPTDATA.GROUPNAME{SCRIPTDATA.CURRENTRUNGROUP})
-    if SCRIPTDATA.GROUPDONOTPROCESS{SCRIPTDATA.CURRENTRUNGROUP}{p} == 0, splitgroup = [splitgroup p]; end
+    if SCRIPTDATA.GROUPDONOTPROCESS{SCRIPTDATA.CURRENTRUNGROUP}{p} == 0
+        splitgroup = [splitgroup p]; 
+    end
 end
+
+if isempty(splitgroup)
+    errordlg('no groups to process.  Perhaps they have all been marked: ''do not process''.')
+    return
+end
+
 % splitgroup is now eg [1 3] if there are 3 groups but the 2 should
 % not be processed
 channels=SCRIPTDATA.GROUPLEADS{SCRIPTDATA.CURRENTRUNGROUP}(splitgroup);

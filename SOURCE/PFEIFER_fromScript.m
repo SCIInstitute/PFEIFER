@@ -20,24 +20,25 @@
 % OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 % SOFTWARE.
 
+ 
+function [SCRIPTDATA, PROCESSINGDATA] = PFEIFER_fromScript(scriptdata_file,processingdata_file)
 
+global SCRIPTDATA PROCESSINGDATA
+PFEIFER
 
-function str = myStrTrim(str)
-%removes weird leading and trailing non-alphanum characters from str
-if isempty(str), return, end
+mainFigure = findobj(allchild(0),'tag','PROCESSINGSCRIPTMENU');
+settingsFigure = findobj(allchild(0),'tag','PROCESSINGSCRIPTSETTINGS');
 
-for p = 1:length(str)
-    if isstrprop(str(p),'alphanum')
-        start=p;
-        break
-    end
-end
-for p=length(str):-1:1
-    if isstrprop(str(p),'alphanum')
-        ending=p;
-        break
-    end
-end
+executeCallback(settingsFigure,'DATAFILE',processingdata_file)
+executeCallback(settingsFigure,'SCRIPTFILE',scriptdata_file)
 
-str=str(start:ending);
+PFEIFER('updateFigure',settingsFigure)
+PFEIFER('updateFigure',mainFigure)
+
+%PFEIFER('runScript',mainFigure)
+runScript
+
+%PFEIFER('CloseFcn',settingsFigure)
+CloseFcn
+
 end

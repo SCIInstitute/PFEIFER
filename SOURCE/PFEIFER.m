@@ -37,11 +37,20 @@ function PFEIFER(varargin)
 
 
 %%%% check if this script is called as a callback or to start PFEIFER
-if nargin > 1 && ischar(varargin{1})  % if called as a callback
+if nargin >2 && ischar(varargin{1}) && strcmp(varargin{1},'runScriptFile')
+    init_PFEIFER()
+    feval(varargin{1},varargin{2:end});
+elseif nargin > 1 && ischar(varargin{1})  % if called as a callback
     feval(varargin{1},varargin{2:end});  % execute callback
     return 
+else
+    init_PFEIFER()
 end
 
+
+end
+
+function init_PFEIFER()
 %%%% initianlize the globals SCRIPTDATA and PROCESSINGDATA
 clear global SCRIPTDATA PROCESSINGDATA
 initSCRIPTDATA();   
@@ -57,9 +66,7 @@ dataOrgFigHandle=DataOrganisation();    %Open the settings Display
 updateFigure(dataOrgFigHandle);     % and update it
 setHelpMenus(dataOrgFigHandle);      % initialise help menus that pop up when you righ click on button
 updateACQFiles      % get ACQ Files from input directory to display
-
 end
-
 
 
 
