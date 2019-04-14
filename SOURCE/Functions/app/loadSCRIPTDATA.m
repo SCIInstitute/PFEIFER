@@ -77,6 +77,14 @@ for p=1:length(SCRIPTDATA.RUNGROUPMAPPINGFILE)
         SCRIPTDATA.RUNGROUPMAPPINGFILE{p} = '';
     end
 end
+% reset output files 
+outTags = {'OUTFILENAME', 'ARIFILENAME', 'ITGFILENAME'};
+for p=1:length(outTags)
+    SCRIPTDATA.(outTags{p})={};
+end
+
+
+
 
 
 

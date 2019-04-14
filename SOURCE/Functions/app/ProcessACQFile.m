@@ -29,6 +29,9 @@ function success = ProcessACQFile(inputfilename,inputfiledir)
 success = 0;
 olddir = pwd;
 global SCRIPTDATA TS
+outfiles = {};
+arifiles = {};
+itgfiles = {};
 
 %%%%% create cellaray files={full acqfilename, mappingfile, calibration file}, if the latter two are needed & exist    
 filename = fullfile(inputfiledir,inputfilename);
@@ -85,7 +88,8 @@ end
     
 
 %%%% ImportUserSettings (put Data from PROCESSINGDATA in TS{currentTS} %%%%%%%%%%    
-fieldstoload = {'SELFRAMES','AVERAGEMETHOD','AVERAGESTART','AVERAGECHANNEL','AVERAGERMSTYPE','AVERAGEEND','AVERAGEFRAMES','TEMPLATEFRAMES'};      
+fieldstoload = {'SELFRAMES','AVERAGEMETHOD','AVERAGESTART','AVERAGECHANNEL',...
+    'AVERAGERMSTYPE','AVERAGEEND','AVERAGEFRAMES','TEMPLATEFRAMES'};      
 ImportUserSettings(inputfilename,index,fieldstoload);
 
     
@@ -103,7 +107,9 @@ if SCRIPTDATA.DO_FILTER      % if 'apply temporal filter' is selected
     %%%% get filterFunction (the function selected to do temporal filtering) and check if it is valid
     filterFunctionString = SCRIPTDATA.FILTER_OPTIONS{SCRIPTDATA.FILTER_SELECTION};
     if nargin(filterFunctionString)~=1 || nargout(filterFunctionString)~=1
-        msg=sprintf('the provided temporal filter function ''%s'' does not have the right number of input and output arguments. Cannot filter data. Aborting..',filterFunctionString);
+        msg=sprintf(['the provided temporal filter function ''%s'' does not'...
+            ' have the right number of input and output arguments. '...
+            'Cannot filter data. Aborting..'],filterFunctionString);
         errordlg(msg)
         return
     end
@@ -115,7 +121,8 @@ if SCRIPTDATA.DO_FILTER      % if 'apply temporal filter' is selected
     try
         TS{index}.potvals = filterFunction(TS{index}.potvals);
     catch
-        msg = sprintf('Something wrong with the provided temporal filter function ''%s''. Using it to filter the data failed. Aborting..',filterFunctionString);
+        msg = sprintf(['Something wrong with the provided temporal filter function '...
+            '''%s''. Using it to filter the data failed. Aborting..'],filterFunctionString);
         errordlg(msg)
         return
     end
@@ -123,7 +130,9 @@ if SCRIPTDATA.DO_FILTER      % if 'apply temporal filter' is selected
     
     %%%%  check if potvals still have the right format and the filterFunction worked correctly
     if oldNumFrames ~= size(TS{index}.potvals,2) || oldNumLeads ~= size(TS{index}.potvals,1)
-        msg = sprintf('The provided temporal filter function ''%s'' does not work as supposed. It changes the dimensions of the potvals. Using it to filter the data failed. Aborting..',filterFunctionString);
+        msg = sprintf(['The provided temporal filter function ''%s'' does not '...
+            'work as supposed. It changes the dimensions of the potvals. '...
+            'Using it to filter the data failed. Aborting..'],filterFunctionString);
         errordlg(msg)
         return
     end
@@ -144,7 +153,9 @@ end
 % - calls sigSlice, which in this case:  updates TS{currentIndex} bei
 % keeping only the timeframe-window specified in ts.selframes
 if SCRIPTDATA.DO_SLICE_USER == 1  %if 'user interaction' button is pressed
-    handle = sliceDisplay(index); % this only changes selframes I think it also uses ts.averageframes (and all from export userlist bellow?)
+    % this only changes selframes I think it also uses ts.averageframes 
+    % (and all from export userlist bellow?)
+    handle = sliceDisplay(index); 
     waitfor(handle);
 
     switch SCRIPTDATA.NAVIGATION  % if any of these was clicked in sliceDisplay
@@ -198,7 +209,11 @@ if (SCRIPTDATA.DO_BASELINE == 1)
 % frame (the selframe), the local frame changed!
 
     if ~isfield(TS{index},'selframes')
-        msg=sprintf('Couldn''t find any selected start/end time frames for %s. Either provide one by using a PROCESSINGDATA file where this information has been saved previously or select ''User Interaction'' at the Slice/Average'' section to manually select a start/end time frame. Aborting...',TS{index}.filename);
+        msg=sprintf(['Couldn''t find any selected start/end time frames for %s. '...
+            'Either provide one by using a PROCESSINGDATA file where this information'...
+            ' has been saved previously or select ''User Interaction'' at the Slice/Average'''...
+            'section to manually select a start/end time frame. Aborting...'],...
+            TS{index}.filename);
         errordlg(msg)
         TS{index}=[];
         success  = 0;
@@ -210,7 +225,8 @@ if (SCRIPTDATA.DO_BASELINE == 1)
     fidsShiftFids(index,oldstartframe-newstartframe);    
     TS{index}.startframe = newstartframe; 
  
-    %%%%  get baseline (the intervall ) from TS (so default or from ImportSettings. If values are weird, set to [1, numframes]
+    %%%%  get baseline (the intervall ) from TS (so default or from ImportSettings. 
+    %%%% If values are weird, set to [1, numframes]
     % and set that as new fiducial
     baseline = fidsFindFids(index,'baseline');
     framelength = size(TS{index}.potvals,2);
@@ -268,7 +284,11 @@ if SCRIPTDATA.DO_DETECT == 1
 
     %%% fids shift, same as in baseline stuff, to get to local frame?!
     if ~isfield(TS{index},'selframes')
-        msg=sprintf('Couldn''t find any selected start/end time frames for %s. Either provide one by using a PROCESSINGDATA file where this information has been saved previously or select ''User Interaction'' at the Slice/Average'' section to manually select a start/end time frame. Aborting...',TS{index}.filename);
+        msg=sprintf(['Couldn''t find any selected start/end time frames for %s.'...
+            ' Either provide one by using a PROCESSINGDATA file where this information '...
+            'has been saved previously or select ''User Interaction'' at the '...
+            'Slice/Average'' section to manually select a start/end time frame. Aborting...'],...
+            TS{index}.filename);
         errordlg(msg)
         TS{index}=[];
         return
@@ -299,7 +319,10 @@ if SCRIPTDATA.DO_DETECT == 1
 
         waitfor(handle);
         switch SCRIPTDATA.NAVIGATION
-            case {'prev','next','stop','redo','back'}, cd(olddir); tsClear(index); success = 1; return; 
+            case {'prev','next','stop','redo','back'}, cd(olddir); 
+                tsClear(index); 
+                success = 1; 
+                return; 
         end     
     end    
     % save the user selections (stored in ts) in PROCESSINGDATA
@@ -355,20 +378,23 @@ end
 % splitgroup is now eg [1 3] if there are 3 groups but the 2 should
 % not be processed
 channels=SCRIPTDATA.GROUPLEADS{SCRIPTDATA.CURRENTRUNGROUP}(splitgroup);
-splittedTSindices = tsSplitTS(index, channels);    
-tsDeal(splittedTSindices,'filename',ioUpdateFilename('.mat',inputfilename,SCRIPTDATA.GROUPEXTENSION{SCRIPTDATA.CURRENTRUNGROUP}(splitgroup))); 
+splitTSindices = tsSplitTS(index, channels);    
+tsDeal(splitTSindices,'filename',ioUpdateFilename('.mat',inputfilename,...
+    SCRIPTDATA.GROUPEXTENSION{SCRIPTDATA.CURRENTRUNGROUP}(splitgroup))); 
 tsClear(index);        
 
 
 
 %%%% save the new ts structures
 
-tsDeal(splittedTSindices,'filename',ioUpdateFilename('.mat',inputfilename,SCRIPTDATA.GROUPEXTENSION{SCRIPTDATA.CURRENTRUNGROUP}(splitgroup)));
+tsDeal(splitTSindices,'filename',ioUpdateFilename('.mat',inputfilename,...
+    SCRIPTDATA.GROUPEXTENSION{SCRIPTDATA.CURRENTRUNGROUP}(splitgroup)));
 
 %%%% save the group ts structures
-for splitIdx=splittedTSindices
+for splitIdx=splitTSindices
     ts=TS{splitIdx};
     fullFilename=fullfile(SCRIPTDATA.MATODIR, ts.filename);
+    SCRIPTDATA.OUTFILENAME{end+1} = ts.filename;
     fprintf('Saving file: %s\n',ts.filename)
     save(fullFilename,'ts','-v6')
 end    
@@ -377,17 +403,21 @@ end
 %%%% do integral maps and save them  
 if SCRIPTDATA.DO_INTEGRALMAPS == 1
     if SCRIPTDATA.DO_DETECT == 0
-        msg=sprintf('Need fiducials (at least QRS wave or T wave) to do integral maps for %s. Aborting', inputfilename);
+        msg=sprintf(['Need fiducials (at least QRS wave or T wave) to do '...
+            'integral maps for %s. Aborting'], inputfilename);
         errordlg(msg)
         return
     end
-    mapindices = fidsIntAll(splittedTSindices);
+    mapindices = fidsIntAll(splitTSindices);
     if length(splitgroup)~=length(mapindices)
-        msg=sprintf('Fiducials (QRS wave or T wave) necessary to do integral maps. However, for %s there are no fiducials for all groups. Aborting...',inputfilename);
+        msg=sprintf(['Fiducials (QRS wave or T wave) necessary to do integral maps. '...
+            'However, for %s there are no fiducials for all groups. Aborting...'],...
+            inputfilename);
         errordlg(msg)
         return
     end
-    fnames=ioUpdateFilename('.mat',inputfilename,SCRIPTDATA.GROUPEXTENSION{SCRIPTDATA.CURRENTRUNGROUP}(splitgroup),'-itg');
+    fnames=ioUpdateFilename('.mat',inputfilename,...
+        SCRIPTDATA.GROUPEXTENSION{SCRIPTDATA.CURRENTRUNGROUP}(splitgroup),'-itg');
     tsDeal(mapindices,'filename',fnames); 
     tsSet(mapindices,'newfileext','');
     
@@ -395,6 +425,7 @@ if SCRIPTDATA.DO_INTEGRALMAPS == 1
     for mapIdx=mapindices
         ts=TS{mapIdx};
         fullFilename=fullfile(SCRIPTDATA.MATODIR, ts.filename);
+        SCRIPTDATA.ITGFILENAME{end+1} = ts.filename;
         fprintf('Saving file: %s\n',ts.filename)
         save(fullFilename,'ts','-v6')
     end    
@@ -405,22 +436,25 @@ end
     
 if SCRIPTDATA.DO_ACTIVATIONMAPS == 1
     if SCRIPTDATA.DO_DETECT == 0 % 'Detect fiducials must be selected'
-        errordlg('Fiducials needed to do Activationsmaps! Select the ''Do Fiducials'' button to do Activationmaps. Aborting...')
+        errordlg(['Fiducials needed to do Activationsmaps! Select the '...
+            '''Do Fiducials'' button to do Activationmaps. Aborting...'])
         return;
     end
 
     %%%% make new ts at TS(mapindices). That new ts is like the old
     %%%% one, but has ts.potvals=[act rec act-rec]
-    [mapindices, success] = sigActRecMap(splittedTSindices);   
+    [mapindices, success] = sigActRecMap(splitTSindices);   
     if ~success,return, end
     
-    tsDeal(mapindices,'filename',ioUpdateFilename('.mat',inputfilename,SCRIPTDATA.GROUPEXTENSION{SCRIPTDATA.CURRENTRUNGROUP}(splitgroup),'-ari')); 
+    tsDeal(mapindices,'filename',ioUpdateFilename('.mat',inputfilename,...
+        SCRIPTDATA.GROUPEXTENSION{SCRIPTDATA.CURRENTRUNGROUP}(splitgroup),'-ari')); 
     tsSet(mapindices,'newfileext','');
     
-    %%%% save integral maps  and clear them
+    %%%% save ARI maps  and clear them
     for mapIdx=mapindices
         ts=TS{mapIdx};
         fullFilename=fullfile(SCRIPTDATA.MATODIR, ts.filename);
+        SCRIPTDATA.ARIFILENAME{end+1} = ts.filename;
         fprintf('Saving file: %s\n',ts.filename)
         save(fullFilename,'ts','-v6')
     end    
@@ -430,7 +464,7 @@ end
 %%%%% save everything and clear TS
 savePROCESSINGDATA;
 saveSettings;
-tsClear(splittedTSindices);
+tsClear(splitTSindices);
 if SCRIPTDATA.DO_AUTOFIDUCIALISING
     tsClear(SCRIPTDATA.unslicedDataIndex);
     SCRIPTDATA.unslicedDataIndex=[];
