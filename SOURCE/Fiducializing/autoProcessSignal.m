@@ -23,9 +23,9 @@
 
 
 function success = autoProcessSignal()
-% do all the autoprocessing.  Use the fiducials in the fiducialed beat to find all other beats of 
-% that run and fiducialise those beats, too. Handle & save the autoprocessed beats just like the 
-% beat done by the user.
+% do all the autoprocessing.  Use the fiducials in the fiducialed beat to find 
+% all other beats of that run and fiducialise those beats, too. Handle & save 
+% the autoprocessed beats just like the beat done by the user.
 
 %set up globals
 clear global AUTOPROCESSING  % just in case, so previous stuff doesnt mess anything up
@@ -33,7 +33,8 @@ global TS SCRIPTDATA AUTOPROCESSING
 
 unslicedDataIndex = SCRIPTDATA.unslicedDataIndex;
 templateFids = TS{SCRIPTDATA.CURRENTTS}.fids;
-templateBeatEnvelope = [TS{SCRIPTDATA.CURRENTTS}.selframes(1), TS{SCRIPTDATA.CURRENTTS}.selframes(2)];
+templateBeatEnvelope = [TS{SCRIPTDATA.CURRENTTS}.selframes(1), ...
+    TS{SCRIPTDATA.CURRENTTS}.selframes(2)];
 badLeads = (find(TS{SCRIPTDATA.unslicedDataIndex}.leadinfo > 0))';
 
 
@@ -55,7 +56,8 @@ settings.DoIndivFids = SCRIPTDATA.DoIndivFids;
 settings.RunNumber = SCRIPTDATA.ACQNUM;
 
 
-[AUTOPROCESSING.beats, AUTOPROCESSING.allFids, info, success] = getBeatsAndFids(TS{unslicedDataIndex}.potvals, templateBeatEnvelope, templateFids, badLeads, settings);
+[AUTOPROCESSING.beats, AUTOPROCESSING.allFids, info, success] = getBeatsAndFids(...
+    TS{unslicedDataIndex}.potvals, templateBeatEnvelope, templateFids, badLeads, settings);
 if ~success, return, end
 
 AUTOPROCESSING.leadsToAutofiducialize = info.leadsToAutofiducialize;
@@ -76,15 +78,18 @@ if SCRIPTDATA.AUTOFID_USER_INTERACTION
             success = 1;
             return; 
     end  
-    save(SCRIPTDATA.SCRIPTFILE,'SCRIPTDATA')  % save settings.. in case user made a change in autofiducializing window
+    % save settings.. in case user made a change in autofiducializing window
+    save(SCRIPTDATA.SCRIPTFILE,'SCRIPTDATA')  
 end
 
 %%%%% main loop: process each beat.
-global times     % to do: remove this? this global is only there to measure time efficiency.. 
+% to do: remove this? this global is only there to measure time efficiency.. 
+global times     
 times=struct();
 times(1).count=1;
 
-for beatNumber=2:length(AUTOPROCESSING.beats)    % skip the first beat, as this is the user fiducialized one
+% skip the first beat, as this is the user fiducialized one
+for beatNumber=2:length(AUTOPROCESSING.beats)    
     b=tic;
     success = processBeat(beatNumber);
     t2=toc(b);
@@ -106,28 +111,11 @@ end
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 %%%%%%%%%%% functions %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function getFaultyBeats
-% determine the beats, where autoprocessing didn't quite work ( eg those with very high variance)
+% determine the beats, where autoprocessing didn't quite work 
+% ( eg those with very high variance)
 % fill AUTOPROCESSING.faultyBeatInfo and AUTOPROCESSING.faultyBeatIndeces with info
 
 global AUTOPROCESSING SCRIPTDATA
@@ -141,8 +129,11 @@ end
 %%%% set up variables
 treshold_variance = SCRIPTDATA.TRESHOLD_VAR;
 faultyBeatIndeces =[]; % the indeces in .Beats of faulty beats
-faultyBeatInfo = {};    % which fiducials (which types) in the beat are bad?        e.g faultyBeatInfo = { [2 4], [5 6 7],.. }  
-faultyBeatValues = {};  % correspondes with faultyBeatInfo, but contains the value instead of type
+% which fiducials (which types) in the beat are bad?        
+% e.g faultyBeatInfo = { [2 4], [5 6 7],.. }  
+faultyBeatInfo = {};    
+% correspondes with faultyBeatInfo, but contains the value instead of type
+faultyBeatValues = {};  
 numBeats = length(AUTOPROCESSING.beats);
 
 if ~isempty(AUTOPROCESSING.allFids)
@@ -163,7 +154,8 @@ for beatNumber = 1:numBeats
         faultyBeatInfo{end+1} = faultyFids;
         
         %%%% get the faultyValues of that faulty beat
-        faultyIndeces = faultyIndeces + numFids;  % now faultyIndeces are indeces of global bad fiducials
+        % now faultyIndeces are indeces of global bad fiducials
+        faultyIndeces = faultyIndeces + numFids;  
         faultyValues = [AUTOPROCESSING.allFids{beatNumber}(faultyIndeces).value];
         faultyBeatValues{end+1}=faultyValues;
     end   
@@ -191,7 +183,8 @@ global times
 %%%% slice "complete ts" into beat (in TS{newBeatIdx} )
 a=tic;
 newBeatIdx=tsNew(1);
-beatframes=AUTOPROCESSING.beats{beatNumber}(1):AUTOPROCESSING.beats{beatNumber}(2);  % all time frames of the beat
+% all time frames of the beat
+beatframes=AUTOPROCESSING.beats{beatNumber}(1):AUTOPROCESSING.beats{beatNumber}(2);  
 
 TS{newBeatIdx}=TS{SCRIPTDATA.unslicedDataIndex};
 TS{newBeatIdx}.potvals=TS{newBeatIdx}.potvals(:,beatframes);
@@ -218,7 +211,8 @@ reference = beatframes(1);
 for fidIdx=1:length(fids)
     fids(fidIdx).value=fids(fidIdx).value - reference + 1;  % fids now in relative frame
 end
-if isfield(fids,'variance'),  fids=rmfield(fids,'variance'); end  %variance not wanted in the output
+%variance not wanted in the output
+if isfield(fids,'variance'),  fids=rmfield(fids,'variance'); end  
 TS{newBeatIdx}.fids=fids;
 t=toc(a);
 times(times(1).count).b_MakeFidsLocalAndRemvoeVariance=t;
@@ -276,14 +270,16 @@ filename=sprintf('%s-b%d',filename,beatNumber-1);
 %%%% split TS{newIdx} into numGroups smaller ts in grIndices
 splitgroup = [];
 for p=1:length(SCRIPTDATA.GROUPNAME{SCRIPTDATA.CURRENTRUNGROUP})
-    if SCRIPTDATA.GROUPDONOTPROCESS{SCRIPTDATA.CURRENTRUNGROUP}{p} == 0, splitgroup = [splitgroup p]; end
+    if SCRIPTDATA.GROUPDONOTPROCESS{SCRIPTDATA.CURRENTRUNGROUP}{p} == 0, ...
+            splitgroup = [splitgroup p]; end
 end
 % splitgroup is now eg [1 3] if there are 3 groups but the 2 should
 % not be processed
 channels=SCRIPTDATA.GROUPLEADS{SCRIPTDATA.CURRENTRUNGROUP}(splitgroup);
 grIndices = tsSplitTS(newBeatIdx, channels);    
 % update the filenames (add '-groupextension' to filename)
-tsDeal(grIndices,'filename',ioUpdateFilename('.mat',filename,SCRIPTDATA.GROUPEXTENSION{SCRIPTDATA.CURRENTRUNGROUP}(splitgroup))); 
+tsDeal(grIndices,'filename',ioUpdateFilename('.mat',filename,SCRIPTDATA.GROUPEXTENSION{...
+    SCRIPTDATA.CURRENTRUNGROUP}(splitgroup))); 
 tsClear(newBeatIdx);
 
 t=toc(a);
@@ -296,6 +292,7 @@ for grIdx=grIndices
     ts=TS{grIdx};
     fullFilename=fullfile(SCRIPTDATA.MATODIR, ts.filename);
     fprintf('Saving file: %s\n',ts.filename)
+    SCRIPTDATA.OUTFILENAME{end+1} = ts.filename;
     save(fullFilename,'ts','-v6')
 end
 t=toc(a);
@@ -309,21 +306,24 @@ times(times(1).count).g_saveGroups=t;
 if SCRIPTDATA.DO_INTEGRALMAPS == 1
     a=tic;
     if SCRIPTDATA.DO_DETECT == 0
-        msg=sprintf('Need fiducials (at least QRS wave or T wave) to do integral maps for %s. Aborting..', filename);
+        msg=sprintf(['Need fiducials (at least QRS wave or T wave) to do integral ' ...
+            'maps for %s. Aborting..'], filename);
         errordlg(msg)
         success = 0;
         return
     end
     mapindices = fidsIntAll(grIndices);
     if length(splitgroup)~=length(mapindices)
-        msg=sprintf('Fiducials (QRS wave or T wave) necessary to do integral maps. However, for %s there are no fiducials for all groups. Aborting...',filename);
+        msg=sprintf(['Fiducials (QRS wave or T wave) necessary to do integral maps. '...
+            'However, for %s there are no fiducials for all groups. Aborting...'],filename);
         errordlg(msg)
         success = 0;
         return
     end
 
 
-    fnames=ioUpdateFilename('.mat',filename,SCRIPTDATA.GROUPEXTENSION{SCRIPTDATA.CURRENTRUNGROUP}(splitgroup),'-itg');
+    fnames=ioUpdateFilename('.mat',filename,SCRIPTDATA.GROUPEXTENSION{...
+        SCRIPTDATA.CURRENTRUNGROUP}(splitgroup),'-itg');
 
     tsDeal(mapindices,'filename',fnames); 
     tsSet(mapindices,'newfileext','');
@@ -333,6 +333,7 @@ if SCRIPTDATA.DO_INTEGRALMAPS == 1
         ts=TS{mapIdx};
         fullFilename=fullfile(SCRIPTDATA.MATODIR, ts.filename);
         fprintf('Saving file: %s\n',ts.filename)
+        SCRIPTDATA.ITGFILENAME{end+1} = ts.filename;
         save(fullFilename,'ts','-v6')
     end
     tsClear(mapindices);
@@ -349,7 +350,8 @@ if SCRIPTDATA.DO_ACTIVATIONMAPS == 1
     a=tic;
     
     if SCRIPTDATA.DO_DETECT == 0 % 'Detect fiducials must be selected'
-        errordlg('Fiducials needed to do Activationsmaps! Select the ''Do Fiducials'' button to do Activationmaps. Aborting...')
+        errordlg(['Fiducials needed to do Activationsmaps! Select the ''Do Fiducials'' '...
+            'button to do Activationmaps. Aborting...'])
         return
     end
 
@@ -357,7 +359,8 @@ if SCRIPTDATA.DO_ACTIVATIONMAPS == 1
     %%%% one, but has ts.potvals=[act rec act-rec]
     [mapindices, success] = sigActRecMap(grIndices);   
     if ~success,return, end
-    tsDeal(mapindices,'filename',ioUpdateFilename('.mat',filename,SCRIPTDATA.GROUPEXTENSION{SCRIPTDATA.CURRENTRUNGROUP}(splitgroup),'-ari')); 
+    tsDeal(mapindices,'filename',ioUpdateFilename('.mat',filename,SCRIPTDATA.GROUPEXTENSION{...
+        SCRIPTDATA.CURRENTRUNGROUP}(splitgroup),'-ari')); 
     tsSet(mapindices,'newfileext','');
 
     %%%%  save the 'new act/rec' ts as eg 'Run0009-gr1-ari.mat  and clearTS{mapindex}
@@ -365,6 +368,7 @@ if SCRIPTDATA.DO_ACTIVATIONMAPS == 1
         ts=TS{mapIdx};
         fullFilename=fullfile(SCRIPTDATA.MATODIR, ts.filename);
         fprintf('Saving file: %s\n',ts.filename)
+        SCRIPTDATA.ARIFILENAME{end+1} = ts.filename;
         save(fullFilename,'ts','-v6')
     end
     tsClear(mapindices);
@@ -396,7 +400,8 @@ act = ones(numchannels,1)*(1/SCRIPTDATA.SAMPLEFREQ);
 qstart_indeces=find([TS{newBeatIdx}.fids.type]==2);
 qend_indeces=find([TS{newBeatIdx}.fids.type]==4);
 if isempty(qstart_indeces) || isempty(qend_indeces)
-    msg = sprintf('There is no qrs-wave for the file %s. Therefore, activation detection cannot be done for this file. Aborting...',TS{newBeatIdx}.filename);
+    msg = sprintf(['There is no qrs-wave for the file %s. Therefore, activation '...
+        'detection cannot be done for this file. Aborting...'],TS{newBeatIdx}.filename);
     errordlg(msg)
     success = 0;
     return
@@ -433,7 +438,8 @@ deg = SCRIPTDATA.ACTDEG;
 if ~success, return, end
 
 if any((qe-qs) < 15)
-    msg = sprintf('The QRS-wave in beat %d is to small! This often causes the activation detetection to fail',newBeatIdx);
+    msg = sprintf(['The QRS-wave in beat %d is to small! This often causes the '...
+        'activation detetection to fail'],newBeatIdx);
     errordlg(msg)
     success = 0 ;
     return
@@ -442,8 +448,10 @@ end
 try
     for leadNumber=1:numchannels
         %for each lead in each group = for all leads..  
-        %[act(leadNumber)] = (actFktHandle(TS{newBeatIdx}.potvals(leadNumber,qs(leadNumber):qe(leadNumber)),win,deg)-1)/SCRIPTDATA.SAMPLEFREQ + qs(leadNumber);
-        [act(leadNumber)] = (actFktHandle(TS{newBeatIdx}.potvals(leadNumber,qs(leadNumber):qe(leadNumber)),win,deg)-1) + qs(leadNumber);
+        %[act(leadNumber)] = (actFktHandle(TS{newBeatIdx}.potvals(leadNumber,...
+        %qs(leadNumber):qe(leadNumber)),win,deg)-1)/SCRIPTDATA.SAMPLEFREQ + qs(leadNumber);
+        [act(leadNumber)] = (actFktHandle(TS{newBeatIdx}.potvals(leadNumber,...
+            qs(leadNumber):qe(leadNumber)),win,deg)-1) + qs(leadNumber);
     end
 catch
     errordlg('The selected function used to find the activations caused an error. Aborting...')
@@ -477,7 +485,8 @@ rec = ones(numchannels,1)*(1/SCRIPTDATA.SAMPLEFREQ);
 tStartIndeces=find([TS{newBeatIdx}.fids.type]==5); 
 tEndIndeces=find([TS{newBeatIdx}.fids.type]==7);
 if isempty(tStartIndeces) || isempty(tEndIndeces)
-    msg = sprintf('There is no t-wave for the file %s. Therefore, recovery detection cannot be done for this file. Aborting...',TS{newBeatIdx}.filename);
+    msg = sprintf(['There is no t-wave for the file %s. Therefore, recovery '...
+        'detection cannot be done for this file. Aborting...'],TS{newBeatIdx}.filename);
     errordlg(msg)
     success = 0;
     return
@@ -512,8 +521,10 @@ deg = SCRIPTDATA.RECDEG;
 if ~success, return, end
 try
     for leadNumber=1:numchannels
-        %rec(leadNumber) = recFktHandle(TS{newBeatIdx}.potvals(leadNumber,ts(leadNumber):te(leadNumber)),win,deg)/SCRIPTDATA.SAMPLEFREQ + ts(leadNumber);
-        rec(leadNumber) = recFktHandle(TS{newBeatIdx}.potvals(leadNumber,ts(leadNumber):te(leadNumber)),win,deg) + ts(leadNumber);
+        %rec(leadNumber) = recFktHandle(TS{newBeatIdx}.potvals(leadNumber,...
+        %ts(leadNumber):te(leadNumber)),win,deg)/SCRIPTDATA.SAMPLEFREQ + ts(leadNumber);
+        rec(leadNumber) = recFktHandle(TS{newBeatIdx}.potvals(leadNumber,...
+            ts(leadNumber):te(leadNumber)),win,deg) + ts(leadNumber);
 
     end
 catch
