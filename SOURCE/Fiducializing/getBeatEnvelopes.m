@@ -24,7 +24,7 @@
 
 
 
-function beatEnvelopes = getBeatEnvelopes(signal, kernel, accuracy,bsk)
+function [beatEnvelopes, info]= getBeatEnvelopes(signal, kernel, accuracy,bsk)
 % finds kernel in signal.  retuns beatEnvelopes={[s_1,e_1], [s_2,e_2], ..[s_n,e_n]} so that 
 %  m=signal(s_i:e_i) matches kernel for all i, "matches" means:  xcorr(signal(s_i:e_i),kernel,0,'coeff') has a maximum peak value (at least accuracy)  (and matches dont overlap)
 % it also:
@@ -113,6 +113,7 @@ end
 %%%% for each estimated peak, find the real precise peak, which must be somewhere close to estimatedPeakXCVal.   fill matches accourdingly
 count=0;
 beatEnvelopes = cell(1,length(estimatedPeakXCVals));
+info = cell(1,length(estimatedPeakXCVals));
 start_values=zeros(1,length(estimatedPeakXCVals)); % needed for sorting only
 for pl = estimatedPeakLags  % for each "estimated" peak
     count = count + 1;
@@ -159,10 +160,11 @@ for pl = estimatedPeakLags  % for each "estimated" peak
     %%%% check if peak value is higher than accuracy. Only then put found match in matches
     
     if sv < accuracy
-        continue
+                                                                                                                                                                                                                                                                                                                                                                                             continue
     else
         beatEnvelopes{count} = [sl+1, sl+kernelLength] ;
         start_values(count) = sl+1;  % for sorting
+        info{count} = sv;
     end
 end
 
@@ -177,6 +179,16 @@ for p=1:length(beatEnvelopes)
     end
 end
 beatEnvelopes(toBeDeleted)=[];
+
+[~,I]=sort(start_values);
+info=info(I);
+toBeDeleted = [];
+for p=1:length(info)
+    if isempty(info{p})
+        toBeDeleted(end+1)=p;
+    end
+end
+info(toBeDeleted)=[];
 
 %%%% make sure beats don't overlap
 

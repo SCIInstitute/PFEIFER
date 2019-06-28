@@ -59,6 +59,7 @@ settings.RunNumber = SCRIPTDATA.ACQNUM;
 if ~success, return, end
 
 AUTOPROCESSING.leadsToAutofiducialize = info.leadsToAutofiducialize;
+AUTOPROCESSING.AutoFidAccuracy = info.accuracy;
 
 %%%% find AUTOPROCESSING.faultyBeatsIndeces and AUTOPROCESSING.faultyBeatInfo
 getFaultyBeats;
@@ -197,6 +198,8 @@ TS{newBeatIdx}=TS{SCRIPTDATA.unslicedDataIndex};
 TS{newBeatIdx}.potvals=TS{newBeatIdx}.potvals(:,beatframes);
 TS{newBeatIdx}.numframes=length(beatframes);
 TS{newBeatIdx}.selframes=[beatframes(1),beatframes(end)];
+TS{newBeatIdx}.AutoFidAccuracy = AUTOPROCESSING.AutoFidAccuracy{beatNumber};
+TS{newBeatIdx}.AutoFidAccuracyWholeRun = AUTOPROCESSING.AutoFidAccuracy;
 t=toc(a);
 times(times(1).count).a_sliceIntoBeat=t;
 
@@ -442,8 +445,8 @@ end
 try
     for leadNumber=1:numchannels
         %for each lead in each group = for all leads..  
-        %[act(leadNumber)] = (actFktHandle(TS{newBeatIdx}.potvals(leadNumber,qs(leadNumber):qe(leadNumber)),win,deg)-1)/SCRIPTDATA.SAMPLEFREQ + qs(leadNumber);
-        [act(leadNumber)] = (actFktHandle(TS{newBeatIdx}.potvals(leadNumber,qs(leadNumber):qe(leadNumber)),win,deg)-1) + qs(leadNumber);
+        [act(leadNumber)] = (actFktHandle(TS{newBeatIdx}.potvals(leadNumber,qs(leadNumber):qe(leadNumber)),win,deg)-1)/SCRIPTDATA.SAMPLEFREQ + qs(leadNumber);
+        %[act(leadNumber)] = (actFktHandle(TS{newBeatIdx}.potvals(leadNumber,qs(leadNumber):qe(leadNumber)),win,deg)-1) + qs(leadNumber);
     end
 catch
     errordlg('The selected function used to find the activations caused an error. Aborting...')

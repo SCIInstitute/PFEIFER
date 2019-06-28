@@ -49,8 +49,6 @@ function [allBeatEnvelopes, allFidsAbsFr, info, success] = getBeatsAndFids(unsli
 %%%% initialize outputs and some other stuff
 allBeatEnvelopes = {};
 allFidsAbsFr = {};
-info = [];
-
 nLeads = size(unslicedComplPotvals,1);
 nFrames = size(unslicedComplPotvals,2);
 bsk = templateBeatEnvelope(1);
@@ -73,7 +71,7 @@ if settings.autoUpdateKernels
         searchArea = 1:lengthOfSearchArea;
     end
     
-    allBeatEnvelopes = getBeatEnvelopes(rmsSignal(searchArea), rmsSignal(bsk:bek), settings.accuracy,bsk);
+    [allBeatEnvelopes, infoer] = getBeatEnvelopes(rmsSignal(searchArea), rmsSignal(bsk:bek), settings.accuracy,bsk);
     % find oriBeatIdx, the index of the template beat
     oriBeatIdx = [];
     for beatCount=1:length(allBeatEnvelopes)    
@@ -90,7 +88,7 @@ if settings.autoUpdateKernels
         allBeatEnvelopes = allBeatEnvelopes(1:nBeats);     % get rid of the superfluous beats (those will be done again later with updated kernels)
     end
 else
-    allBeatEnvelopes = getBeatEnvelopes(rmsSignal, rmsSignal(bsk:bek), settings.accuracy,bsk);
+    [allBeatEnvelopes, infoer]= getBeatEnvelopes(rmsSignal, rmsSignal(bsk:bek), settings.accuracy,bsk);
     % find oriBeatIdx, the index of the template beat
     oriBeatIdx = [];
     for beatCount=1:length(allBeatEnvelopes)    
@@ -253,7 +251,7 @@ while beatCount <= nBeats + 1  % as long as there are still beat envelopes with 
             else
                 searchArea = reference:reference+lengthOfSearchArea;
             end
-            newBeatEnvelopes = getBeatEnvelopes(rmsSignal(searchArea), beatKernel, settings.accuracy,0);
+            [newBeatEnvelopes,infoer] = getBeatEnvelopes(rmsSignal(searchArea), beatKernel, settings.accuracy,0);
             % shift newBeatEnvelopes by reference
             for p=1:length(newBeatEnvelopes)
                 newBeatEnvelopes{p} = newBeatEnvelopes{p} + reference - 1;
@@ -392,7 +390,7 @@ while beatCount <= nBeats + 1  % as long as there are still beat envelopes with 
     %%% update beat envelopes
     allBeatEnvelopes{beatCount}(1) = newBeatStart;  
     allBeatEnvelopes{beatCount}(2) = newBeatEnd;
-
+    info.accuracy{beatCount} = infoer{beatCount};
 
     
     
