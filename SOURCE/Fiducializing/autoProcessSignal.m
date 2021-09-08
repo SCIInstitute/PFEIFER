@@ -56,7 +56,7 @@ settings.DoIndivFids = SCRIPTDATA.DoIndivFids;
 settings.RunNumber = SCRIPTDATA.ACQNUM;
 
 
-[AUTOPROCESSING.beats, AUTOPROCESSING.allFids, info, success] = getBeatsAndFids(...
+[AUTOPROCESSING.beats, AUTOPROCESSING.allFids, info, success, AUTOPROCESSING.corrVals] = getBeatsAndFids(...
     TS{unslicedDataIndex}.potvals, templateBeatEnvelope, templateFids, badLeads, settings);
 if ~success, return, end
 
@@ -185,11 +185,13 @@ a=tic;
 newBeatIdx=tsNew(1);
 % all time frames of the beat
 beatframes=AUTOPROCESSING.beats{beatNumber}(1):AUTOPROCESSING.beats{beatNumber}(2);  
+corrVal = AUTOPROCESSING.corrVals{beatNumber};
 
 TS{newBeatIdx}=TS{SCRIPTDATA.unslicedDataIndex};
 TS{newBeatIdx}.potvals=TS{newBeatIdx}.potvals(:,beatframes);
 TS{newBeatIdx}.numframes=length(beatframes);
 TS{newBeatIdx}.selframes=[beatframes(1),beatframes(end)];
+TS{newBeatIdx}.autoFidCorrVal = corrVal;
 t=toc(a);
 times(times(1).count).a_sliceIntoBeat=t;
 

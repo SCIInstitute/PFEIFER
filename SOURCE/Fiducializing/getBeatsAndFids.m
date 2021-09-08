@@ -21,7 +21,7 @@
 % SOFTWARE.
 
 
-function [allBeatEnvelopes, allFidsAbsFr, info, success] = getBeatsAndFids(unslicedComplPotvals,templateBeatEnvelope, templateFids, badLeads, settings)
+function [allBeatEnvelopes, allFidsAbsFr, info, success, corrVals] = getBeatsAndFids(unslicedComplPotvals,templateBeatEnvelope, templateFids, badLeads, settings)
 % INPUTS:
 %   - unslicedComplPotvals: the complete (all leads) and unsliced (not sliced into beats) potvals where want to find teh beats and fiducials
 %     any preprocessing like temporal filtering should already be done
@@ -73,7 +73,7 @@ if settings.autoUpdateKernels
         searchArea = 1:lengthOfSearchArea;
     end
     
-    allBeatEnvelopes = getBeatEnvelopes(rmsSignal(searchArea), rmsSignal(bsk:bek), settings.accuracy,bsk);
+    [allBeatEnvelopes,corrVals] = getBeatEnvelopes(rmsSignal(searchArea), rmsSignal(bsk:bek), settings.accuracy,bsk);
     % find oriBeatIdx, the index of the template beat
     oriBeatIdx = [];
     for beatCount=1:length(allBeatEnvelopes)    
@@ -81,16 +81,18 @@ if settings.autoUpdateKernels
             oriBeatIdx = beatCount;
             break
         end
-    end    
+    end
+    corrVals = corrVals(oriBeatIdx:end);
     allBeatEnvelopes = allBeatEnvelopes(oriBeatIdx:end);   % get rid if beats occuring before the user fiducialized beat
     % see how many beat envelopes we currently have
     nBeats = length(allBeatEnvelopes);
     if nBeats > settings.nBeatsBeforeUpdating
         nBeats = settings.nBeatsBeforeUpdating;
-        allBeatEnvelopes = allBeatEnvelopes(1:nBeats);     % get rid of the superfluous beats (those will be done again later with updated kernels)
+        allBeatEnvelopes = allBeatEnvelopes(1:nBeats);
+        corrVals = corrVals(1:nBeats);% get rid of the superfluous beats (those will be done again later with updated kernels)
     end
 else
-    allBeatEnvelopes = getBeatEnvelopes(rmsSignal, rmsSignal(bsk:bek), settings.accuracy,bsk);
+    [allBeatEnvelopes,corrVals] = getBeatEnvelopes(rmsSignal, rmsSignal(bsk:bek), settings.accuracy,bsk);
     % find oriBeatIdx, the index of the template beat
     oriBeatIdx = [];
     for beatCount=1:length(allBeatEnvelopes)    
@@ -99,6 +101,7 @@ else
             break
         end
     end
+    corrVals = corrVals(oriBeatIdx:end);
     allBeatEnvelopes = allBeatEnvelopes(oriBeatIdx:end);   % get rid if beats occuring before the user fiducialized beat
     nBeats = length(allBeatEnvelopes);
 end

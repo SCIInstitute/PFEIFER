@@ -25,7 +25,7 @@
 
 
 function x = ActDetect(singal, windowLength, degree)
-
+%default windowLength: 5, degree: 7
 %%%% make sure win is uneven
 if mod(windowLength,2) == 0, windowLength = windowLength + 1; end
 
