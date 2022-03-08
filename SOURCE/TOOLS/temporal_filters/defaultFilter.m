@@ -22,7 +22,7 @@
 
 
 
-function filteredPotvals = temporalFilter(potvals)
+function filteredPotvals = defaultFilter(potvals)
 
 %%%% filter Parameters
 A = 1;
